@@ -35,7 +35,7 @@ public class SnsRequestGenerator implements SourceFunction<RequestEvent> {
         String[] upmId = {"3332d057-0b09-4741-9203-670c239de573", "4442d057-0b09-4741-9203-670c239de574", "5552d057-0b09-4741-9203-670c239de575"};
 
         // device
-        String[] trueClientIp = {"191.96.86.150", "191.96.86.150", "191.96.86.150"};
+        String[] trueClientIp = {"191.96.86.150", "191.96.86.151", "191.96.86.152"};
 
         // experience
         String[] appId ={"com.nike.commerce.omega.droid", "com.nike.onenikecommerce"};
@@ -63,8 +63,9 @@ public class SnsRequestGenerator implements SourceFunction<RequestEvent> {
                     .build();
 
 //            System.out.println(requestEvent);
-            Thread.sleep(100l);
+
             ctx.collect(requestEvent);
+            Thread.sleep(1000L);
         }
 
     }

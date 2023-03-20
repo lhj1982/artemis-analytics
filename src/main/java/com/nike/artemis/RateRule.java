@@ -2,6 +2,9 @@ package com.nike.artemis;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+
 public class RateRule {
 
     private BlockKind blockKind;
@@ -13,6 +16,46 @@ public class RateRule {
     private Long startTime;
     private Long expiration;
     private RuleState ruleState;
+
+    public static RateRule fromRawLine(String[] columns) {
+
+        RateRuleBuilder builder = new RateRuleBuilder();
+
+        if (columns[0].compareToIgnoreCase("county") == 0){
+            builder.blockKind(BlockKind.county);
+        } else if (columns[0].compareToIgnoreCase("trueClientIp") == 0) {
+            builder.blockKind(BlockKind.trueClientIp);
+        } else if (columns[0].compareToIgnoreCase("upmid") == 0) {
+            builder.blockKind(BlockKind.upmid);
+        } else {
+            return null;
+        }
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+        try{
+            builder.startTime(formatter.parse(columns[6]).getTime());
+        }catch (Exception e){
+            return null;
+        }
+
+
+        builder.county(columns[1])
+                .trueClientIp(columns[2])
+                .upmid(columns[3])
+                .limit(Long.valueOf(columns[4]))
+                .windowSize(Long.valueOf(columns[5]))
+                .expiration(Long.valueOf(columns[7]));
+
+        if (columns[8].compareToIgnoreCase("ON") == 0){
+            builder.ruleState(RuleState.ON);
+        } else if (columns[8].compareToIgnoreCase("OFF") == 0) {
+            builder.ruleState(RuleState.OFF);
+        } else {
+            return null;
+        }
+        return builder.build();
+    }
 
     public BlockKind getBlockKind() {
         return blockKind;
@@ -89,6 +132,10 @@ public class RateRule {
     public Tuple2<BlockKind, String> appliesTo(RequestEvent requestEvent) {
         if (this.blockKind == BlockKind.county && requestEvent.getAddresses().get(0).getCounty().equals(this.county)) {
                 return new Tuple2<>(BlockKind.county, this.county);
+        } else if (this.blockKind == BlockKind.upmid) {
+            return new Tuple2<>(BlockKind.upmid, requestEvent.getUser().getUpmId());
+        } else if (this.blockKind == BlockKind.trueClientIp) {
+            return new Tuple2<>(BlockKind.trueClientIp, requestEvent.getDevice().getTrueClientIp());
         } else {
             return new Tuple2<>(null, null);
         }
@@ -114,6 +161,10 @@ public class RateRule {
         this.startTime = startTime;
         this.expiration = expiration * 1000L * 60L; // in minutes
         this.ruleState = ruleState;
+    }
+
+    public RateRule(RateRuleBuilder builder){
+        this(builder.blockKind, builder.county, builder.trueClientIp, builder.upmid, builder.limit, builder.windowSize, builder.startTime, builder.expiration, builder.ruleState);
     }
 
     @Override

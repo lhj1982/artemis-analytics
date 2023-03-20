@@ -10,6 +10,7 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -27,6 +28,9 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
     public void process(Tuple2<String, RateRule> stringRateRuleTuple2, ProcessWindowFunction<Long, BlockEvent, Tuple2<String, RateRule>, TimeWindow>.Context context, Iterable<Long> elements, Collector<BlockEvent> out) throws Exception {
         String blockEntity = stringRateRuleTuple2.f0;
         RateRule rateRule = stringRateRuleTuple2.f1;
+
+
+        System.out.println(">>>>>>>>>>>>>>>"+blockEntity+" current water mark"+new Timestamp(context.currentWatermark())+"   windows:"+ context.window()+"    start:"+new Timestamp(context.window().getStart())+"   end:"+new Timestamp(context.window().getEnd()));
         if ((elements==null) || (! elements.iterator().hasNext()))
             return;
         Long count = elements.iterator().next();
@@ -42,6 +46,7 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
 
             long newBlockEnd = context.window().getStart() + rateRule.getExpiration();
             if ((currentMaxBlock < newBlockEnd) && rateRule.isEnforce()){
+                System.out.println("============"+new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString()));
                 out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString()));
                 maxBlockState.update(newBlockEnd);
             }

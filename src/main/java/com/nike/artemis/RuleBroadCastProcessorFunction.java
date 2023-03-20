@@ -14,6 +14,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 
+import java.lang.reflect.Field;
+import java.sql.Timestamp;
 import java.util.Map;
 
 public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<RequestEvent, RuleChange, Tuple3<String, RateRule, Long>> {
@@ -30,8 +32,8 @@ public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<Req
     public void processElement(RequestEvent requestEvent, BroadcastProcessFunction<RequestEvent, RuleChange, Tuple3<String, RateRule, Long>>.ReadOnlyContext ctx, Collector<Tuple3<String, RateRule, Long>> out) throws Exception {
         for (Map.Entry<RateRule, Object> entry : ctx.getBroadcastState(rulesStateDescriptor).immutableEntries()) {
             Tuple2<BlockKind, String> tuple2 = entry.getKey().appliesTo(requestEvent);
-            if (tuple2.f0 != null) {
-                out.collect(new Tuple3<>(tuple2.f1, entry.getKey(), requestEvent.getTimestamp()));
+            if (tuple2.f0 != null) {// which means it is a county
+                    out.collect(new Tuple3<>(tuple2.f1, entry.getKey(), requestEvent.getTimestamp()));
             }
         }
     }

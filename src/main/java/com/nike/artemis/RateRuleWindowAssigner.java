@@ -10,6 +10,7 @@ import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
 import org.apache.flink.streaming.api.windowing.triggers.Trigger;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -17,7 +18,11 @@ public class RateRuleWindowAssigner extends WindowAssigner<Tuple3<String, RateRu
     @Override
     public Collection<TimeWindow> assignWindows(Tuple3<String, RateRule, Long> element, long timestamp, WindowAssignerContext context) {
         Long startTime = element.f1.getStartTime();
-        return Collections.singletonList(new TimeWindow(startTime, startTime + element.f1.getWindowSize()));
+        if (timestamp >= startTime){
+            return Collections.singletonList(new TimeWindow(startTime, startTime + element.f1.getWindowSize()));
+        }else {
+         return Collections.emptyList();
+        }
     }
 
     @Override
