@@ -1,6 +1,7 @@
 package com.nike.artemis.model;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Extras{
     public String nikeAppId;

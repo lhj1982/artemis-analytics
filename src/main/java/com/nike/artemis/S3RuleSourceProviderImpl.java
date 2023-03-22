@@ -1,17 +1,18 @@
 package com.nike.artemis;
 
-import org.apache.flink.kinesis.shaded.com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.AmazonS3;
-import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.model.GetObjectRequest;
-import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Properties;
 
-public class S3RuleSourceProviderImpl implements RuleSourceProvider{
+public class S3RuleSourceProviderImpl implements RuleSourceProvider, Serializable {
 
     public String regionName;
     public String bucketName;

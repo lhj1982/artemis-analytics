@@ -1,5 +1,7 @@
 package com.nike.artemis;
 
+import org.apache.flink.api.common.serialization.SerializationSchema;
+
 public class BlockEvent {
     /**
      * Blockkind:
@@ -16,6 +18,22 @@ public class BlockEvent {
     private Long startTime;
     private Long endTime;
     private String ruleName;
+
+    static class BlockEventSerializationSchema implements SerializationSchema<BlockEvent>
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public byte[] serialize(BlockEvent blockEvent)
+        {
+            return blockEvent.toString().getBytes();
+        }
+    }
+
+    public static BlockEventSerializationSchema sinkSerializer()
+    {
+        return new BlockEventSerializationSchema();
+    }
 
     public BlockEvent(String blockKind, String entity, Long startTime, Long endTime, String ruleName) {
         this.blockKind = blockKind;

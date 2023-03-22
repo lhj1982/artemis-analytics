@@ -35,39 +35,40 @@ public class RuleSource implements SourceFunction<RuleChange> {
 
         // ===================== for local test purpose ====================
         /** rule case scenario
-         * - rule: county,桃城区,,,10L,1L,2023-03-12 22:44:00.000,10L,ON
+         * - schedule bases
+         * - rule: county,桃城区,,,10L,120L,2023-03-12 22:44:00.000,10L,ON,1ea61eb4-2ff5-3c36-915d-c2a91182f6c9
          * - rule: upmid,,,,10L,1L,2023-03-12 22:44:00.000,10L,ON
          * - rule: trueClientIp,,,,10L,1L,2023-03-12 22:44:00.000,10L,ON
          */
-        RuleChange ruleChange1 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.county, "桃城区", "", "", 5L, 1L, LocalDateTime.now().plusMinutes(1).toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
-        RuleChange ruleChange2 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.trueClientIp, "", "", "", 5L, 1L, LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
-        RuleChange ruleChange3 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.upmid, "", "", "", 5L, 1L, LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
-        RuleChange[] ruleChanges = {ruleChange1,ruleChange2,ruleChange3};
-
-        for (RuleChange ruleChange : ruleChanges) {
-            System.out.println(ruleChange.rule);
-            ctx.collect(ruleChange);
-        }
+//        RuleChange ruleChange1 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.county, "桃城区", "", "", 5L, 1L, LocalDateTime.now().plusMinutes(1).toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
+//        RuleChange ruleChange2 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.trueClientIp, "", "", "", 5L, 1L, LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
+//        RuleChange ruleChange3 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.upmid, "", "", "", 5L, 1L, LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
+//        RuleChange[] ruleChanges = {ruleChange1,ruleChange2,ruleChange3};
+//
+//        for (RuleChange ruleChange : ruleChanges) {
+//            System.out.println(ruleChange.rule);
+//            ctx.collect(ruleChange);
+//        }
 
         // ========================= reading rules from s3 =====================
 
-//        while (running){
-//            Date lastModified = provider.getLastModified();
-//            if (currentRuleDate.before(lastModified)){
-//                Tuple2<HashSet<RateRule>, Collection<RuleChange>> rulesAndChanges = parser.getRulesAndChanges(currentRules);
-//                for (RuleChange ruleChange : rulesAndChanges.f1) {
-//                    ctx.collect(ruleChange);
-//                }
-//                currentRules = rulesAndChanges.f0;
-//                currentRuleDate = lastModified;
-//            }
-//            try {
-//                Thread.sleep(60*1000);
-//            } catch (InterruptedException ignored) {
-//
-//            }
-//
-//        }
+        while (running){
+            Date lastModified = provider.getLastModified();
+            if (currentRuleDate.before(lastModified)){
+                Tuple2<HashSet<RateRule>, Collection<RuleChange>> rulesAndChanges = parser.getRulesAndChanges(currentRules);
+                for (RuleChange ruleChange : rulesAndChanges.f1) {
+                    ctx.collect(ruleChange);
+                }
+                currentRules = rulesAndChanges.f0;
+                currentRuleDate = lastModified;
+            }
+            try {
+                Thread.sleep(60*1000);
+            } catch (InterruptedException ignored) {
+
+            }
+
+        }
 
 
 

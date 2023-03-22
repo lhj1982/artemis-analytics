@@ -6,12 +6,13 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-public class RulesParser {
+public class RulesParser implements Serializable {
     public RuleSourceProvider provider;
     public RulesParser(RuleSourceProvider ruleSourceProvider) {
         this.provider = ruleSourceProvider;

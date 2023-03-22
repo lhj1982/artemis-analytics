@@ -51,22 +51,22 @@ public class SnsRequestGenerator implements SourceFunction<RequestEvent> {
         String nikeAppId = "launchentryvalidator";
 
 
-        while(running) {
-            RequestEvent requestEvent = new RequestEvent.Builder()
-                    .addresses(new ArrayList<>(Collections.singletonList(addresses.get(random.nextInt(addresses.size())))))
-                    .user(new User(upmId[random.nextInt(upmId.length)]))
-                    .device(new Device(trueClientIp[random.nextInt(trueClientIp.length)]))
-                    .experience(new Experience(appId[random.nextInt(appId.length)], launchId[random.nextInt(launchId.length)],entryId[random.nextInt(entityId.length)] ))
-                    .entityId(entityId[random.nextInt(entityId.length)])
-                    .extras(new Extras(nikeAppId,ISBOT_WEBFLUX_REQUEST_ID[random.nextInt(ISBOT_WEBFLUX_REQUEST_ID.length)],incrementsCount[random.nextInt(incrementsCount.length)],merch_group))
-                    .timestamp(new Date().getTime())
-                    .build();
-
-//            System.out.println(requestEvent);
-
-            ctx.collect(requestEvent);
-            Thread.sleep(1000L);
-        }
+//        while(running) {
+//            RequestEvent requestEvent = new RequestEvent.Builder()
+//                    .addresses(new ArrayList<>(Collections.singletonList(addresses.get(random.nextInt(addresses.size())))))
+//                    .user(new User(upmId[random.nextInt(upmId.length)]))
+//                    .device(new Device(trueClientIp[random.nextInt(trueClientIp.length)]))
+//                    .experience(new Experience(appId[random.nextInt(appId.length)], launchId[random.nextInt(launchId.length)],entryId[random.nextInt(entityId.length)] ))
+//                    .entityId(entityId[random.nextInt(entityId.length)])
+//                    .extras(new Extras(nikeAppId,ISBOT_WEBFLUX_REQUEST_ID[random.nextInt(ISBOT_WEBFLUX_REQUEST_ID.length)],incrementsCount[random.nextInt(incrementsCount.length)],merch_group))
+//                    .timestamp(new Date().getTime())
+//                    .build();
+//
+////            System.out.println(requestEvent);
+//
+//            ctx.collect(requestEvent);
+//            Thread.sleep(1000L);
+//        }
 
     }
 

@@ -42,7 +42,7 @@ public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<Req
     public void processBroadcastElement(RuleChange value, BroadcastProcessFunction<RequestEvent, RuleChange, Tuple3<String, RateRule, Long>>.Context ctx, Collector<Tuple3<String, RateRule, Long>> out) throws Exception {
         switch (value.action) {
             case CREATE:
-                System.out.println("rule created");
+//                System.out.println("rule created");
                 ctx.getBroadcastState(rulesStateDescriptor).put(value.rule, null);
                 break;
             case DELETE:
