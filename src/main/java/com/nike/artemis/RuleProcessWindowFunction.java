@@ -9,13 +9,15 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, BlockEvent, Tuple2<String, RateRule>, TimeWindow> {
-
+    public static Logger LOG = LoggerFactory.getLogger(RuleProcessWindowFunction.class);
     ValueStateDescriptor<Long> currentMaxBlockDescriptor;
 
     @Override
@@ -29,7 +31,7 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
         String blockEntity = stringRateRuleTuple2.f0;
         RateRule rateRule = stringRateRuleTuple2.f1;
 
-
+        LOG.info("window assigned: block entity: {} current watermark: {} window start: {} window end: {}", blockEntity, new Timestamp(context.currentWatermark()), new Timestamp(context.window().getStart()), new Timestamp(context.window().getEnd()));
 //        System.out.println(">>>>>>>>>>>>>>>"+blockEntity+" current water mark"+new Timestamp(context.currentWatermark())+"   windows:"+ context.window()+"    start:"+new Timestamp(context.window().getStart())+"   end:"+new Timestamp(context.window().getEnd()));
         if ((elements==null) || (! elements.iterator().hasNext()))
             return;
@@ -46,8 +48,10 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
 
             long newBlockEnd = context.window().getStart() + rateRule.getExpiration();
             if ((currentMaxBlock < newBlockEnd) && rateRule.isEnforce()){
+                Long startTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
+                LOG.info("Block Generated: block kind: {} block entity: {} start time: {} end time: {} rule name: {} ",rateRule.getBlockKind().name(), blockEntity, startTime, newBlockEnd, rateRule.toString());
 //                System.out.println("============[Generated a New Block:  "+new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString())+"]=========");
-                out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString()));
+                out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  startTime, newBlockEnd, rateRule.toString()));
                 maxBlockState.update(newBlockEnd);
             }
         }
