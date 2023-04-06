@@ -11,10 +11,11 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 import software.amazon.kinesis.connectors.flink.FlinkKinesisConsumer;
 import software.amazon.kinesis.connectors.flink.FlinkKinesisProducer;
 import software.amazon.kinesis.connectors.flink.KinesisPartitioner;
@@ -88,7 +89,7 @@ public class Main {
                         return new Tuple2<>(value.f0, value.f1);
                     }
                 })
-                .window(new RateRuleWindowAssigner())
+                .window(TumblingEventTimeWindows.of(Time.minutes(10)))
                 .trigger(new RuleTrigger())
                 .aggregate(new RuleCountAggregator(), new RuleProcessWindowFunction()).uid("Rule Window");
 

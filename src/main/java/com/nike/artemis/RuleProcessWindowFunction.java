@@ -48,7 +48,7 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
 
             long newBlockEnd = context.window().getStart() + rateRule.getExpiration();
             if ((currentMaxBlock < newBlockEnd) && rateRule.isEnforce()){
-                Long startTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
+                Long startTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli();
                 LOG.info("Block Generated: block kind: {} block entity: {} start time: {} end time: {} rule name: {} ",rateRule.getBlockKind().name(), blockEntity, startTime, newBlockEnd, rateRule.toString());
 //                System.out.println("============[Generated a New Block:  "+new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString())+"]=========");
                 out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  startTime, newBlockEnd, rateRule.toString()));

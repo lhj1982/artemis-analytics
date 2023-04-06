@@ -1,11 +1,14 @@
 package com.nike.artemis;
 
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 public class RateRule {
+    public static Logger LOG = LoggerFactory.getLogger(RateRule.class);
 
     private BlockKind blockKind;
     private String county;
@@ -31,7 +34,10 @@ public class RateRule {
             return null;
         }
 
+        TimeZone timeZone = TimeZone.getTimeZone("Asia/Shanghai");
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+        formatter.setTimeZone(timeZone);
 
         try{
             builder.startTime(formatter.parse(columns[6]).getTime());

@@ -9,6 +9,9 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 public class RuleTrigger extends Trigger<Tuple3<String, RateRule, Long>, TimeWindow> {
     @Override
     public TriggerResult onElement(Tuple3<String, RateRule, Long> element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
+        if (!(window.maxTimestamp() <= ctx.getCurrentWatermark())) {
+            ctx.registerEventTimeTimer(window.maxTimestamp());
+        }
         return TriggerResult.FIRE;
     }
 
@@ -19,7 +22,7 @@ public class RuleTrigger extends Trigger<Tuple3<String, RateRule, Long>, TimeWin
 
     @Override
     public TriggerResult onEventTime(long time, TimeWindow window, TriggerContext ctx) throws Exception {
-        return TriggerResult.CONTINUE;
+        return time == window.maxTimestamp() ? TriggerResult.FIRE_AND_PURGE : TriggerResult.CONTINUE;
     }
 
     @Override
