@@ -56,7 +56,8 @@ public class Main {
         //=============================== SNS REQUEST DATA STREAM ================
 
         DataStream<RequestEvent> requestEventDataStream = env.addSource(new FlinkKinesisConsumer<>(
-                "artemis-input-stream", new SimpleStringSchema(), consumerConfig)).flatMap(new SNSResolver());
+                "artemis-input-stream", new SimpleStringSchema(), consumerConfig)).flatMap(new SNSResolver())
+                .name("Artemis Input");
 
 
         //=============================== SNS EVENT SIMULATOR =====================
@@ -75,7 +76,7 @@ public class Main {
 //        requestEventDataStream.print("requestEventStream: ");
          DataStream<BlockEvent> outputStream = requestEventDataStream
                 .connect(rulesSource)
-                .process(new RuleBroadCastProcessorFunction())
+                .process(new RuleBroadCastProcessorFunction()).name("Blend BroadCast Rule with Event")
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, RateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(0))
                         .withTimestampAssigner(new SerializableTimestampAssigner<Tuple3<String, RateRule, Long>>() {
                             @Override
@@ -91,7 +92,7 @@ public class Main {
                 })
                 .window(TumblingEventTimeWindows.of(Time.minutes(10)))
                 .trigger(new RuleTrigger())
-                .aggregate(new RuleCountAggregator(), new RuleProcessWindowFunction()).uid("Rule Window");
+                .aggregate(new RuleCountAggregator(), new RuleProcessWindowFunction()).name("Rule Window");
 
         FlinkKinesisProducer<BlockEvent> sink = new FlinkKinesisProducer<>(BlockEvent.sinkSerializer(), producerConfig);
         sink.setDefaultStream("artemis-blocker-stream");
@@ -102,7 +103,7 @@ public class Main {
             }
         });
 
-        outputStream.addSink(sink).uid("Output");
+        outputStream.addSink(sink).name("Artemis Output Block");
 
         env.execute();
     }

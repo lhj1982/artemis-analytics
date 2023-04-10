@@ -34,16 +34,6 @@ public class RateRule {
             return null;
         }
 
-        TimeZone timeZone = TimeZone.getTimeZone("Asia/Shanghai");
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
-        formatter.setTimeZone(timeZone);
-
-        try{
-            builder.startTime(formatter.parse(columns[6]).getTime());
-        }catch (Exception e){
-            return null;
-        }
 
 
         builder.county(columns[1])
@@ -187,22 +177,21 @@ public class RateRule {
         if (upmid != null ? !upmid.equals(rateRule.upmid) : rateRule.upmid != null) return false;
         if (limit != null ? !limit.equals(rateRule.limit) : rateRule.limit != null) return false;
         if (windowSize != null ? !windowSize.equals(rateRule.windowSize) : rateRule.windowSize != null) return false;
-        if (startTime != null ? !startTime.equals(rateRule.startTime) : rateRule.startTime != null) return false;
         if (expiration != null ? !expiration.equals(rateRule.expiration) : rateRule.expiration != null) return false;
         return ruleState == rateRule.ruleState;
     }
 
     @Override
     public int hashCode() {
-        int result = blockKind != null ? blockKind.hashCode() : 0;
-        result = 31 * result + (county != null ? county.hashCode() : 0);
-        result = 31 * result + (trueClientIp != null ? trueClientIp.hashCode() : 0);
-        result = 31 * result + (upmid != null ? upmid.hashCode() : 0);
-        result = 31 * result + (limit != null ? limit.hashCode() : 0);
-        result = 31 * result + (windowSize != null ? windowSize.hashCode() : 0);
-        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
-        result = 31 * result + (expiration != null ? expiration.hashCode() : 0);
-        result = 31 * result + (ruleState != null ? ruleState.hashCode() : 0);
+        int result = 7;
+        result = 37 * result + (blockKind != null ? blockKind.asInt() : 0);
+        result = 37 * result + (county != null ? county.hashCode() : 0);
+        result = 37 * result + (trueClientIp != null ? trueClientIp.hashCode() : 0);
+        result = 37 * result + (upmid != null ? upmid.hashCode() : 0);
+        result = 37 * result + Math.toIntExact(limit);
+        result = 37 * result + (int)(windowSize ^ (windowSize >>> 32));
+        result = 37 * result + (int)(expiration ^ (expiration >>> 32));
+        result = 37 * result + (ruleState == RuleState.ON ? 1 : 0);
         return result;
     }
 
