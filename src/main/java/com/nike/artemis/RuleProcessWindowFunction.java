@@ -31,7 +31,7 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
         String blockEntity = stringRateRuleTuple2.f0;
         RateRule rateRule = stringRateRuleTuple2.f1;
 
-        LOG.info("window assigned: block entity: {} current watermark: {} window start: {} window end: {}", blockEntity, new Timestamp(context.currentWatermark()), new Timestamp(context.window().getStart()), new Timestamp(context.window().getEnd()));
+//        LOG.info("window assigned: block entity: {} current watermark: {} window start: {} window end: {}", blockEntity, new Timestamp(context.currentWatermark()), new Timestamp(context.window().getStart()), new Timestamp(context.window().getEnd()));
 //        System.out.println(">>>>>>>>>>>>>>>"+blockEntity+" current water mark"+new Timestamp(context.currentWatermark())+"   windows:"+ context.window()+"    start:"+new Timestamp(context.window().getStart())+"   end:"+new Timestamp(context.window().getEnd()));
         if ((elements==null) || (! elements.iterator().hasNext()))
             return;
