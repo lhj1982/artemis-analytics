@@ -4,7 +4,7 @@ import com.nike.artemis.BlockEvent;
 import com.nike.artemis.RateRule;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, BlockEvent, Tuple2<String, RateRule>, TimeWindow> {
+public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, BlockEvent, Tuple3<String, String, RateRule>, TimeWindow> {
     public static Logger LOG = LoggerFactory.getLogger(RuleProcessWindowFunction.class);
     ValueStateDescriptor<Long> currentMaxBlockDescriptor;
 
@@ -27,9 +27,9 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
     }
 
     @Override
-    public void process(Tuple2<String, RateRule> stringRateRuleTuple2, ProcessWindowFunction<Long, BlockEvent, Tuple2<String, RateRule>, TimeWindow>.Context context, Iterable<Long> elements, Collector<BlockEvent> out) throws Exception {
+    public void process(Tuple3<String, String, RateRule> stringRateRuleTuple2, ProcessWindowFunction<Long, BlockEvent, Tuple3<String, String, RateRule>, TimeWindow>.Context context, Iterable<Long> elements, Collector<BlockEvent> out) throws Exception {
         String blockEntity = stringRateRuleTuple2.f0;
-        RateRule rateRule = stringRateRuleTuple2.f1;
+        RateRule rateRule = stringRateRuleTuple2.f2;
 
 //        LOG.info("window assigned: block entity: {} current watermark: {} window start: {} window end: {}", blockEntity, new Timestamp(context.currentWatermark()), new Timestamp(context.window().getStart()), new Timestamp(context.window().getEnd()));
 //        System.out.println(">>>>>>>>>>>>>>>"+blockEntity+" current water mark"+new Timestamp(context.currentWatermark())+"   windows:"+ context.window()+"    start:"+new Timestamp(context.window().getStart())+"   end:"+new Timestamp(context.window().getEnd()));

@@ -11,6 +11,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -73,21 +74,21 @@ public class Main {
 //        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource()).uid("Rules Source").broadcast(ruleStateDescriptor);
 
 
-//        requestEventDataStream.print("requestEventStream: ");
+        requestEventDataStream.print("requestEventStream: ");
          DataStream<BlockEvent> outputStream = requestEventDataStream
                 .connect(rulesSource)
                 .process(new RuleBroadCastProcessorFunction()).name("Blend BroadCast Rule with Event")
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, RateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(0))
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple3<String, RateRule, Long>>() {
+                .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple4<String, String, RateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(10))
+                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple4<String, String, RateRule, Long>>() {
                             @Override
-                            public long extractTimestamp(Tuple3<String, RateRule, Long> element, long recordTimestamp) {
-                                return element.f2;
+                            public long extractTimestamp(Tuple4<String, String, RateRule, Long> element, long recordTimestamp) {
+                                return element.f3;
                             }
                         }).withIdleness(Duration.ofSeconds(30)))
-                .keyBy(new KeySelector<Tuple3<String, RateRule, Long>, Tuple2<String, RateRule>>() {
+                .keyBy(new KeySelector<Tuple4<String, String, RateRule, Long>, Tuple3<String, String, RateRule>>() {
                     @Override
-                    public Tuple2<String, RateRule> getKey(Tuple3<String, RateRule, Long> value) throws Exception {
-                        return new Tuple2<>(value.f0, value.f1);
+                    public Tuple3<String, String, RateRule> getKey(Tuple4<String, String, RateRule , Long> value) throws Exception {
+                        return new Tuple3<>(value.f0, value.f1, value.f2); //entity, launchId, RateRule
                     }
                 })
                 .window(TumblingEventTimeWindows.of(Time.minutes(10)))
@@ -99,7 +100,7 @@ public class Main {
         sink.setCustomPartitioner(new KinesisPartitioner<BlockEvent>() {
             @Override
             public String getPartitionId(BlockEvent element) {
-                return element.getRuleName();
+                return element.getEntity();
             }
         });
 

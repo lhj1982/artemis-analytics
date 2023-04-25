@@ -39,7 +39,7 @@ public class SnsRequestGenerator implements SourceFunction<RequestEvent> {
 
         // experience
         String[] appId ={"com.nike.commerce.omega.droid", "com.nike.onenikecommerce"};
-        String[] launchId = {"073d92dc-abcb-3bc7-a899-d11572967904"};
+        String[] launchId = {"073d92dc-abcb-3bc7-a899-d11572967904", "22222222-abcb-3bc7-a899-d11572967904"};
         String[] entryId = {"000aadba-d3be-51e9-890f-9ca04a891000", "111aadba-d3be-51e9-890f-9ca04a891111"};
 
         String[] entityId = entryId;

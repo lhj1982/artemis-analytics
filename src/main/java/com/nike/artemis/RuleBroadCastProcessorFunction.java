@@ -10,6 +10,7 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
 import org.apache.flink.util.Collector;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<RequestEvent, RuleChange, Tuple3<String, RateRule, Long>> {
+public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<RequestEvent, RuleChange, Tuple4<String, String, RateRule, Long>> {
     public static Logger LOG = LoggerFactory.getLogger(RuleBroadCastProcessorFunction.class);
     MapStateDescriptor<RateRule, Object> rulesStateDescriptor;
 
@@ -29,17 +30,17 @@ public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<Req
 
 
     @Override
-    public void processElement(RequestEvent requestEvent, BroadcastProcessFunction<RequestEvent, RuleChange, Tuple3<String, RateRule, Long>>.ReadOnlyContext ctx, Collector<Tuple3<String, RateRule, Long>> out) throws Exception {
+    public void processElement(RequestEvent requestEvent, BroadcastProcessFunction<RequestEvent, RuleChange, Tuple4<String, String, RateRule, Long>>.ReadOnlyContext ctx, Collector<Tuple4<String, String, RateRule, Long>> out) throws Exception {
         for (Map.Entry<RateRule, Object> entry : ctx.getBroadcastState(rulesStateDescriptor).immutableEntries()) {
             Tuple2<BlockKind, String> tuple2 = entry.getKey().appliesTo(requestEvent);
             if (tuple2.f0 != null) {// which means it is a county
-                    out.collect(new Tuple3<>(tuple2.f1, entry.getKey(), requestEvent.getTimestamp()));
+                    out.collect(new Tuple4<>(tuple2.f1, requestEvent.experience.getLaunchId(), entry.getKey(), requestEvent.getTimestamp()));
             }
         }
     }
 
     @Override
-    public void processBroadcastElement(RuleChange value, BroadcastProcessFunction<RequestEvent, RuleChange, Tuple3<String, RateRule, Long>>.Context ctx, Collector<Tuple3<String, RateRule, Long>> out) throws Exception {
+    public void processBroadcastElement(RuleChange value, BroadcastProcessFunction<RequestEvent, RuleChange, Tuple4<String, String, RateRule, Long>>.Context ctx, Collector<Tuple4<String, String, RateRule, Long>> out) throws Exception {
         switch (value.action) {
             case CREATE:
                 LOG.info("Rule Created: {}", value.rule);
