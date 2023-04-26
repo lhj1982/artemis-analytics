@@ -1,7 +1,9 @@
 package com.nike.artemis.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Experience{
     public String appId;
     public String launchId;

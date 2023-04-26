@@ -1,7 +1,9 @@
 package com.nike.artemis.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Device{
     public String trueClientIp;
 

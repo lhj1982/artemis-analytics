@@ -1,8 +1,9 @@
 package com.nike.artemis.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Address{
     public String streetAddr1;
     public String city;
