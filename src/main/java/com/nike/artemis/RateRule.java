@@ -1,11 +1,8 @@
 package com.nike.artemis;
 
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 public class RateRule {
     public static Logger LOG = LoggerFactory.getLogger(RateRule.class);
@@ -125,16 +122,12 @@ public class RateRule {
         this.ruleState = ruleState;
     }
 
-    public Tuple2<BlockKind, String> appliesTo(RequestEvent requestEvent) {
-        if (this.blockKind == BlockKind.county && requestEvent.getAddresses().get(0).getCounty().equals(this.county)) {
-                return new Tuple2<>(BlockKind.county, this.county);
-        } else if (this.blockKind == BlockKind.upmid) {
-            return new Tuple2<>(BlockKind.upmid, requestEvent.getUser().getUpmId());
-        } else if (this.blockKind == BlockKind.trueClientIp) {
-            return new Tuple2<>(BlockKind.trueClientIp, requestEvent.getDevice().getTrueClientIp());
-        } else {
-            return new Tuple2<>(null, null);
-        }
+    public Boolean appliesTo(RequestEvent requestEvent) {
+        if (this.blockKind == BlockKind.county && requestEvent.getAddresses().get(0).getCounty() != null) {
+            return true;
+        } else if (this.blockKind == BlockKind.upmid && requestEvent.getUser().getUpmId() != null) {
+            return true;
+        } else return this.blockKind == BlockKind.trueClientIp && requestEvent.getDevice().getTrueClientIp() != null;
     }
 
     public boolean isEnforce() {

@@ -1,6 +1,5 @@
 package com.nike.artemis;
 
-import com.nike.artemis.*;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -9,7 +8,6 @@ import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
@@ -74,7 +72,7 @@ public class Main {
 //        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource()).uid("Rules Source").broadcast(ruleStateDescriptor);
 
 
-        requestEventDataStream.print("requestEventStream: ");
+//        requestEventDataStream.print("requestEventStream: ");
          DataStream<BlockEvent> outputStream = requestEventDataStream
                 .connect(rulesSource)
                 .process(new RuleBroadCastProcessorFunction()).name("Blend BroadCast Rule with Event")

@@ -1,15 +1,10 @@
 package com.nike.artemis;
 
-import com.nike.artemis.BlockKind;
-import com.nike.artemis.RateRule;
-import com.nike.artemis.RequestEvent;
-import com.nike.artemis.RuleChange;
+
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
@@ -32,9 +27,15 @@ public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<Req
     @Override
     public void processElement(RequestEvent requestEvent, BroadcastProcessFunction<RequestEvent, RuleChange, Tuple4<String, String, RateRule, Long>>.ReadOnlyContext ctx, Collector<Tuple4<String, String, RateRule, Long>> out) throws Exception {
         for (Map.Entry<RateRule, Object> entry : ctx.getBroadcastState(rulesStateDescriptor).immutableEntries()) {
-            Tuple2<BlockKind, String> tuple2 = entry.getKey().appliesTo(requestEvent);
-            if (tuple2.f0 != null) {// which means it is a county
-                    out.collect(new Tuple4<>(tuple2.f1, requestEvent.experience.getLaunchId(), entry.getKey(), requestEvent.getTimestamp()));
+            boolean flag = entry.getKey().appliesTo(requestEvent);
+            if (flag){
+                if (entry.getKey().getBlockKind().equals(BlockKind.county)){
+                    out.collect(new Tuple4<>(requestEvent.getAddresses().get(0).getCounty(), requestEvent.experience.getLaunchId(),entry.getKey(), requestEvent.getTimestamp()));
+                } else if (entry.getKey().getBlockKind().equals(BlockKind.trueClientIp)) {
+                    out.collect(new Tuple4<>(requestEvent.getDevice().getTrueClientIp(), requestEvent.experience.getLaunchId(),entry.getKey(), requestEvent.getTimestamp()));
+                } else if (entry.getKey().getBlockKind().equals(BlockKind.upmid)) {
+                    out.collect(new Tuple4<>(requestEvent.getUser().getUpmId(), requestEvent.experience.getLaunchId(),entry.getKey(), requestEvent.getTimestamp()));
+                }
             }
         }
     }
