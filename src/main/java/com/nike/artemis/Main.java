@@ -44,7 +44,7 @@ public class Main {
 
         Properties nemesisConfig = new Properties();
         nemesisConfig.setProperty("RulesRegionName", region);
-        nemesisConfig.setProperty("RulesBucketName", "artemis-analytics");
+        nemesisConfig.setProperty("RulesBucketName", "litx-test-artemis-analytics");
         nemesisConfig.setProperty("RulesKeyName", "rules/rule");
 
         Properties producerConfig = new Properties();
