@@ -7,25 +7,31 @@ import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import software.amazon.kinesis.connectors.flink.FlinkKinesisConsumer;
-import software.amazon.kinesis.connectors.flink.FlinkKinesisProducer;
-import software.amazon.kinesis.connectors.flink.KinesisPartitioner;
-import software.amazon.kinesis.connectors.flink.config.AWSConfigConstants;
-import software.amazon.kinesis.connectors.flink.config.ConsumerConfigConstants;
+import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisConsumer;
+import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisProducer;
+import org.apache.flink.streaming.connectors.kinesis.KinesisPartitioner;
+import org.apache.flink.streaming.connectors.kinesis.config.AWSConfigConstants;
+import org.apache.flink.streaming.connectors.kinesis.config.ConsumerConfigConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.time.Duration;
 import java.util.Properties;
 
 public class Main {
+    public static Logger LOG = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) throws Exception {
 
         System.err.close();
@@ -57,6 +63,56 @@ public class Main {
         DataStream<RequestEvent> requestEventDataStream = env.addSource(new FlinkKinesisConsumer<>(
                 "artemis-input-stream", new SimpleStringSchema(), consumerConfig)).flatMap(new SNSResolver())
                 .name("Artemis Input");
+
+        //=============================== SLS SOURCE =======================
+//        DataStream<List<String>> map = env.addSource(SlsLogSource.createSlsSource())
+//                .map(Main::convertMessages)
+//                .map(data -> {
+//                    LOG.info("logs from sls: {}",data);
+//                    return data;
+//                }).returns(Types.LIST(Types.STRING));
+
+
+        //=============================== ALI KAFKA SOURCE ===============================
+
+
+
+//        final Path path = Paths.get("src/main/resources/mix.4096.client.truststore.jks");
+//        String brokers = "alikafka-post-cn-wwo3aprq4009-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-wwo3aprq4009-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-wwo3aprq4009-3.alikafka.aliyuncs.com:9093";
+//
+//        Properties kafkaProperties = new Properties();
+//        kafkaProperties.setProperty(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, path.toAbsolutePath().toString());
+//        kafkaProperties.setProperty(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "KafkaOnsClient");
+//        kafkaProperties.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
+//        kafkaProperties.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
+//        kafkaProperties.setProperty(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.flink.kafka.shaded.org.apache.kafka.common.security.plain.PlainLoginModule required username=\"alikafka_post-cn-wwo3aprq4009\" password=\"eTdXc92kLfJSAAM3fmtXTZOT9CYxs7Zk\";");
+//        kafkaProperties.setProperty(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
+//
+//        KafkaSource<String> aliKafkaSource = KafkaSource.<String>builder()
+//                .setBootstrapServers(brokers)
+//                .setTopics("ali_cdn_log")
+//                .setGroupId("aaa")
+//                .setProperties(kafkaProperties)
+//                .setStartingOffsets(OffsetsInitializer.earliest())
+//                .setValueOnlyDeserializer(new SimpleStringSchema())
+//                .build();
+
+        Properties kafkaProperties = KafkaHelpers.getAppProperties();
+        if(kafkaProperties == null) {
+            LOG.error("Incorrectly specified application properties. Exiting...");
+            return;
+        }
+
+        LOG.info("properties: {}",kafkaProperties);
+        KafkaSource<String> kafkaSource = AliKafkaSource.getKafkaSource(env, kafkaProperties);
+        DataStream<String> cdnWafLogDs = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source")
+                .map(data -> {
+                    LOG.info("logs from Ali cloud kafka: {}",data);
+                    return data;
+                }).returns(Types.STRING);
+
+
+
 
 
         //=============================== SNS EVENT SIMULATOR =====================
