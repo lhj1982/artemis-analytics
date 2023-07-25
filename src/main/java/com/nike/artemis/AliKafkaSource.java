@@ -45,6 +45,8 @@ public class AliKafkaSource {
         // TODO: get the username and password from AWS SSM
         String truststoreS3Bucket = appProperties.get(KafkaHelpers.TRUSTSTORE_S3_BUCKET_KEY).toString();
         String truststoreS3Path = appProperties.get(KafkaHelpers.TRUSTSTORE_S3_PATH_KEY).toString();
+        String username = appProperties.get(KafkaHelpers.USERNAME).toString();
+        String password = appProperties.get(KafkaHelpers.PASSWORD).toString();
 
 
         // properties
@@ -52,7 +54,7 @@ public class AliKafkaSource {
         builder.setProperty("ssl.truststore.password", "KafkaOnsClient");
         builder.setProperty("security.protocol", "SASL_SSL");
         builder.setProperty("sasl.mechanism", "PLAIN");
-        builder.setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"alikafka_post-cn-wwo3aprq4009\" password=\"eTdXc92kLfJSAAM3fmtXTZOT9CYxs7Zk\";");
+        builder.setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""+username+"\" password=\""+password+"\";");
         builder.setProperty("ssl.endpoint.identification.algorithm", "");
 
     }

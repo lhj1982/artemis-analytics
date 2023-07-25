@@ -14,6 +14,7 @@ import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -64,55 +65,35 @@ public class Main {
                 "artemis-input-stream", new SimpleStringSchema(), consumerConfig)).flatMap(new SNSResolver())
                 .name("Artemis Input");
 
-        //=============================== SLS SOURCE =======================
-//        DataStream<List<String>> map = env.addSource(SlsLogSource.createSlsSource())
-//                .map(Main::convertMessages)
-//                .map(data -> {
-//                    LOG.info("logs from sls: {}",data);
-//                    return data;
-//                }).returns(Types.LIST(Types.STRING));
-
 
         //=============================== ALI KAFKA SOURCE ===============================
 
-
-
-//        final Path path = Paths.get("src/main/resources/mix.4096.client.truststore.jks");
-//        String brokers = "alikafka-post-cn-wwo3aprq4009-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-wwo3aprq4009-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-wwo3aprq4009-3.alikafka.aliyuncs.com:9093";
-//
-//        Properties kafkaProperties = new Properties();
-//        kafkaProperties.setProperty(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, path.toAbsolutePath().toString());
-//        kafkaProperties.setProperty(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "KafkaOnsClient");
-//        kafkaProperties.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
-//        kafkaProperties.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
-//        kafkaProperties.setProperty(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.flink.kafka.shaded.org.apache.kafka.common.security.plain.PlainLoginModule required username=\"alikafka_post-cn-wwo3aprq4009\" password=\"eTdXc92kLfJSAAM3fmtXTZOT9CYxs7Zk\";");
-//        kafkaProperties.setProperty(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
-//
-//        KafkaSource<String> aliKafkaSource = KafkaSource.<String>builder()
-//                .setBootstrapServers(brokers)
-//                .setTopics("ali_cdn_log")
-//                .setGroupId("aaa")
-//                .setProperties(kafkaProperties)
-//                .setStartingOffsets(OffsetsInitializer.earliest())
-//                .setValueOnlyDeserializer(new SimpleStringSchema())
-//                .build();
-
-        Properties kafkaProperties = KafkaHelpers.getAppProperties();
-        if(kafkaProperties == null) {
+        Properties cdnLogKafkaProperties = KafkaHelpers.getCdnLogKafkaProperties();
+        if(cdnLogKafkaProperties == null) {
             LOG.error("Incorrectly specified application properties. Exiting...");
             return;
         }
 
-        LOG.info("properties: {}",kafkaProperties);
-        KafkaSource<String> kafkaSource = AliKafkaSource.getKafkaSource(env, kafkaProperties);
-        DataStream<String> cdnWafLogDs = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source")
+        LOG.info("properties of cdn log kafka: {}",cdnLogKafkaProperties);
+        KafkaSource<String> cdnKafkaSource = AliKafkaSource.getKafkaSource(env, cdnLogKafkaProperties);
+        DataStream<String> cdnWafLogDs = env.fromSource(cdnKafkaSource, WatermarkStrategy.noWatermarks(), "CDN Log Kafka Source")
                 .map(data -> {
-                    LOG.info("logs from Ali cloud kafka: {}",data);
+                    LOG.info("logs from Ali cloud CDN kafka: {}",data);
                     return data;
                 }).returns(Types.STRING);
 
-
-
+        Properties wafLogKafkaProperties = KafkaHelpers.getWafLogKafkaProperties();
+        if(wafLogKafkaProperties == null) {
+            LOG.error("Incorrectly specified application properties. Exiting...");
+            return;
+        }
+        LOG.info("properties of waf log kafka: {}", wafLogKafkaProperties);
+        KafkaSource<String> wafKafkaSource = AliKafkaSource.getKafkaSource(env, wafLogKafkaProperties);
+        DataStream<String> waf_log_kafka_source = env.fromSource(wafKafkaSource, WatermarkStrategy.noWatermarks(), "WAF Log Kafka Source")
+                .map(data -> {
+                    LOG.info("logs from ali cloud WAF kafka: {}", data);
+                    return data;
+                }).returns(Types.STRING);
 
 
         //=============================== SNS EVENT SIMULATOR =====================
