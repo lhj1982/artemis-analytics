@@ -1,9 +1,7 @@
 package com.nike.artemis;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class RateRule {
     private BlockKind blockKind;

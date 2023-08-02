@@ -1,5 +1,7 @@
 package com.nike.artemis;
 
+import com.nike.artemis.model.cdn.CdnRequestEvent;
+import com.nike.artemis.model.waf.WafRequestEvent;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -66,34 +68,35 @@ public class Main {
                 .name("Artemis Input");
 
 
-        //=============================== ALI KAFKA SOURCE ===============================
+        //=============================== ALI KAFKA SOURCE =======================
 
         Properties cdnLogKafkaProperties = KafkaHelpers.getCdnLogKafkaProperties();
         if(cdnLogKafkaProperties == null) {
-            LOG.error("Incorrectly specified application properties. Exiting...");
+            LOG.error("Incorrectly CDN log specified application properties. Exiting...");
             return;
         }
 
         LOG.info("properties of cdn log kafka: {}",cdnLogKafkaProperties);
         KafkaSource<String> cdnKafkaSource = AliKafkaSource.getKafkaSource(env, cdnLogKafkaProperties);
-        DataStream<String> cdnWafLogDs = env.fromSource(cdnKafkaSource, WatermarkStrategy.noWatermarks(), "CDN Log Kafka Source")
+        DataStream<CdnRequestEvent> cdn_log_kafka_source = env.fromSource(cdnKafkaSource, WatermarkStrategy.noWatermarks(), "CDN Log Kafka Source").flatMap(new CdnLogResolver())
                 .map(data -> {
-                    LOG.info("logs from Ali cloud CDN kafka: {}",data);
+                    LOG.info("logs from Ali cloud CDN kafka: {}", data);
                     return data;
-                }).returns(Types.STRING);
+                });
+
 
         Properties wafLogKafkaProperties = KafkaHelpers.getWafLogKafkaProperties();
         if(wafLogKafkaProperties == null) {
-            LOG.error("Incorrectly specified application properties. Exiting...");
+            LOG.error("Incorrectly WAF log specified application properties. Exiting...");
             return;
         }
         LOG.info("properties of waf log kafka: {}", wafLogKafkaProperties);
         KafkaSource<String> wafKafkaSource = AliKafkaSource.getKafkaSource(env, wafLogKafkaProperties);
-        DataStream<String> waf_log_kafka_source = env.fromSource(wafKafkaSource, WatermarkStrategy.noWatermarks(), "WAF Log Kafka Source")
+        DataStream<WafRequestEvent> waf_log_kafka_source = env.fromSource(wafKafkaSource, WatermarkStrategy.noWatermarks(), "WAF Log Kafka Source").flatMap(new WafLogResolver())
                 .map(data -> {
                     LOG.info("logs from ali cloud WAF kafka: {}", data);
                     return data;
-                }).returns(Types.STRING);
+                });
 
 
         //=============================== SNS EVENT SIMULATOR =====================
