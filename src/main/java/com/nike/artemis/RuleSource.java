@@ -6,6 +6,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -13,7 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
-public class RuleSource implements SourceFunction<RuleChange> {
+public class RuleSource implements SourceFunction<RuleChange>, Serializable {
     public Boolean running = true;
     public Date currentRuleDate;
     public RulesParser parser;
