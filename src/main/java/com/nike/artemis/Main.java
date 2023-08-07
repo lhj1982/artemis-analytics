@@ -1,7 +1,19 @@
 package com.nike.artemis;
 
+import com.nike.artemis.WindowAssigners.CdnRateRuleWindowAssigner;
+import com.nike.artemis.aggregators.CdnRuleCountAggregate;
+import com.nike.artemis.broadCastProcessors.CdnRuleBroadCastProcessorFunction;
+import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
+import com.nike.artemis.model.rules.CdnRateRule;
+import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.model.waf.WafRequestEvent;
+import com.nike.artemis.processWindows.CdnRuleProcessWindow;
+import com.nike.artemis.ruleChanges.CdnRuleChange;
+import com.nike.artemis.ruleChanges.WafRuleChange;
+import com.nike.artemis.ruleSources.CdnRuleSource;
+import com.nike.artemis.ruleSources.WafRuleSource;
+import com.nike.artemis.ruleTriggerer.CdnRuleTrigger;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -11,6 +23,7 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -59,6 +72,7 @@ public class Main {
         Properties producerConfig = new Properties();
         producerConfig.setProperty(ConsumerConfigConstants.AWS_REGION, region);
         producerConfig.setProperty("AggregationEnabled","false");
+        S3RuleSourceProviderImpl s3RuleSourceProvider = new S3RuleSourceProviderImpl(nemesisConfig);
 
 
         //=============================== SNS REQUEST DATA STREAM ================
@@ -84,6 +98,28 @@ public class Main {
                     return data;
                 });
 
+        MapStateDescriptor<CdnRateRule, Object> cdnRuleStateDescriptor = new MapStateDescriptor<>("CdnRulesBroadcastState", TypeInformation.of(new TypeHint<CdnRateRule>() {}), BasicTypeInfo.of(Object.class));
+        BroadcastStream<CdnRuleChange> cdnRuleDS = env.addSource(new CdnRuleSource(s3RuleSourceProvider)).name("CDN Rule Source S3").broadcast(cdnRuleStateDescriptor);
+
+        DataStream<Block> name = cdn_log_kafka_source
+                .connect(cdnRuleDS)
+                .process(new CdnRuleBroadCastProcessorFunction()).name("BroadCast CDN Rules to Cdn Request Event")
+                .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, CdnRateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(30)).withTimestampAssigner(new SerializableTimestampAssigner<Tuple3<String, CdnRateRule, Long>>() {
+                    @Override
+                    public long extractTimestamp(Tuple3<String, CdnRateRule, Long> element, long recordTimestamp) {
+                        return element.f2;
+                    }
+                }).withIdleness(Duration.ofSeconds(10)))
+                .keyBy(new KeySelector<Tuple3<String, CdnRateRule, Long>, Tuple2<String, CdnRateRule>>() {
+                    @Override
+                    public Tuple2<String, CdnRateRule> getKey(Tuple3<String, CdnRateRule, Long> value) throws Exception {
+                        return new Tuple2<>(value.f0, value.f1);
+                    }
+                })
+                .window(new CdnRateRuleWindowAssigner())
+                .trigger(new CdnRuleTrigger())
+                .aggregate(new CdnRuleCountAggregate(), new CdnRuleProcessWindow());
+
 
         Properties wafLogKafkaProperties = KafkaHelpers.getWafLogKafkaProperties();
         if(wafLogKafkaProperties == null) {
@@ -98,6 +134,8 @@ public class Main {
                     return data;
                 });
 
+        MapStateDescriptor<WafRateRule, Object> wafRulesStateDescriptor = new MapStateDescriptor<>("WafRulesBroadcastState", TypeInformation.of(new TypeHint<WafRateRule>() {}), BasicTypeInfo.of(Object.class));
+        BroadcastStream<WafRuleChange> wafRuleDs = env.addSource(new WafRuleSource(s3RuleSourceProvider)).name("WAF Rule Source S3").broadcast(wafRulesStateDescriptor);
 
         //=============================== SNS EVENT SIMULATOR =====================
 //        DataStream<RequestEvent> requestEventDataStream = env.addSource(new SnsRequestGenerator())
@@ -107,7 +145,7 @@ public class Main {
 
         //=============================== Rule from S3 ===========================
         MapStateDescriptor<RateRule, Object> ruleStateDescriptor = new MapStateDescriptor<>("RulesBroadcastState", TypeInformation.of(new TypeHint<RateRule>() {}), BasicTypeInfo.of(Object.class));
-        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource(new S3RuleSourceProviderImpl(nemesisConfig))).broadcast(ruleStateDescriptor);
+        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource(s3RuleSourceProvider)).name("LAUNCH Rule Source S3").broadcast(ruleStateDescriptor);
 
 //        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource()).uid("Rules Source").broadcast(ruleStateDescriptor);
 

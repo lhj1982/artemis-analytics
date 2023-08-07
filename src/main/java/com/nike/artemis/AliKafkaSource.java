@@ -25,7 +25,7 @@ public class AliKafkaSource {
                 .setBootstrapServers(brokers)
                 .setTopics(inputTopic)
                 .setGroupId(consumerGroupId)
-                .setStartingOffsets(OffsetsInitializer.earliest())
+                .setStartingOffsets(OffsetsInitializer.latest())
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
