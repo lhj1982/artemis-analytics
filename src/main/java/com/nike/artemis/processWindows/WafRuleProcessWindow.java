@@ -42,7 +42,7 @@ public class WafRuleProcessWindow extends ProcessWindowFunction<Long, Block, Tup
         if (count >= wafRateRule.getLimit()) {
            Long newBlockEnd = context.window().getStart() + wafRateRule.getBlock_time();
            if (currentMaxBlock < newBlockEnd) {
-               LOG.info("EMIT WAF BLOCK: rule name: {}, user type: {}, blockttl: {}", wafRateRule.getRule_name(), wafRateRule.getUser_type(), newBlockEnd);
+               LOG.info("EMIT WAF BLOCK: rule name: {}, user type: {}, user: {}, blockttl: {}", wafRateRule.getRule_name(), wafRateRule.getUser_type(), user, newBlockEnd);
                out.collect(new Block(wafRateRule.getRule_name(), wafRateRule.getUser_type(), user, "block", String.valueOf(newBlockEnd), "edgeKV", "waf_test_block"));
                maxBlockState.update(newBlockEnd);
            }

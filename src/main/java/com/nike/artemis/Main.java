@@ -106,7 +106,7 @@ public class Main {
         MapStateDescriptor<CdnRateRule, Object> cdnRuleStateDescriptor = new MapStateDescriptor<>("CdnRulesBroadcastState", TypeInformation.of(new TypeHint<CdnRateRule>() {}), BasicTypeInfo.of(Object.class));
         BroadcastStream<CdnRuleChange> cdnRuleDS = env.addSource(new CdnRuleSource(s3RuleSourceProvider)).name("CDN Rule Source S3").broadcast(cdnRuleStateDescriptor);
 
-        DataStream<Block> name = cdn_log_kafka_source
+        DataStream<Block> cdnBlockDs = cdn_log_kafka_source
                 .connect(cdnRuleDS)
                 .process(new CdnRuleBroadCastProcessorFunction()).name("BroadCast CDN Rules to Cdn Request Event")
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, CdnRateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(30)).withTimestampAssigner(new SerializableTimestampAssigner<Tuple3<String, CdnRateRule, Long>>() {
@@ -143,7 +143,7 @@ public class Main {
         MapStateDescriptor<WafRateRule, Object> wafRulesStateDescriptor = new MapStateDescriptor<>("WafRulesBroadcastState", TypeInformation.of(new TypeHint<WafRateRule>() {}), BasicTypeInfo.of(Object.class));
         BroadcastStream<WafRuleChange> wafRuleDs = env.addSource(new WafRuleSource(s3RuleSourceProvider)).name("WAF Rule Source S3").broadcast(wafRulesStateDescriptor);
 
-        waf_log_kafka_source
+        DataStream<Block> wafBlockDs = waf_log_kafka_source
                 .connect(wafRuleDs)
                 .process(new WafRuleBroadCastProcessorFunction())
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, WafRateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(30)).withTimestampAssigner(new SerializableTimestampAssigner<Tuple3<String, WafRateRule, Long>>() {
@@ -177,7 +177,7 @@ public class Main {
 
 
 //        requestEventDataStream.print("requestEventStream: ");
-         DataStream<BlockEvent> outputStream = requestEventDataStream
+         DataStream<Block> launchBlockDs = requestEventDataStream
                 .connect(rulesSource)
                 .process(new RuleBroadCastProcessorFunction()).name("Blend BroadCast Rule with Event")
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple4<String, String, RateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(10))
@@ -195,18 +195,21 @@ public class Main {
                 })
                 .window(TumblingEventTimeWindows.of(Time.minutes(10)))
                 .trigger(new RuleTrigger())
-                .aggregate(new RuleCountAggregator(), new RuleProcessWindowFunction()).name("Rule Window");
+                .aggregate(new RuleCountAggregator(), new RuleProcessWindowFunction())
+                 .name("Rule Window");
 
-        FlinkKinesisProducer<BlockEvent> sink = new FlinkKinesisProducer<>(BlockEvent.sinkSerializer(), producerConfig);
+        FlinkKinesisProducer<Block> sink = new FlinkKinesisProducer<>(Block.sinkSerializer(), producerConfig);
         sink.setDefaultStream("artemis-blocker-stream");
-        sink.setCustomPartitioner(new KinesisPartitioner<BlockEvent>() {
+        sink.setCustomPartitioner(new KinesisPartitioner<Block>() {
             @Override
-            public String getPartitionId(BlockEvent element) {
-                return element.getEntity();
+            public String getPartitionId(Block element) {
+                return element.getUser();
             }
         });
 
-        outputStream.addSink(sink).name("Artemis Output Block");
+        cdnBlockDs.addSink(sink).name("CDN Block sink");
+        wafBlockDs.addSink(sink).name("WAF Block sink");
+        launchBlockDs.addSink(sink).name("LAUNCH Block sink");
 
         env.execute();
     }

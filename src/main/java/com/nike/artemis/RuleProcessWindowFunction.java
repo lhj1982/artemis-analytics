@@ -2,6 +2,7 @@ package com.nike.artemis;
 
 import com.nike.artemis.BlockEvent;
 import com.nike.artemis.RateRule;
+import com.nike.artemis.model.block.Block;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -16,7 +17,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, BlockEvent, Tuple3<String, String, RateRule>, TimeWindow> {
+public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block, Tuple3<String, String, RateRule>, TimeWindow> {
     public static Logger LOG = LoggerFactory.getLogger(RuleProcessWindowFunction.class);
     ValueStateDescriptor<Long> currentMaxBlockDescriptor;
 
@@ -27,7 +28,7 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
     }
 
     @Override
-    public void process(Tuple3<String, String, RateRule> stringRateRuleTuple2, ProcessWindowFunction<Long, BlockEvent, Tuple3<String, String, RateRule>, TimeWindow>.Context context, Iterable<Long> elements, Collector<BlockEvent> out) throws Exception {
+    public void process(Tuple3<String, String, RateRule> stringRateRuleTuple2, ProcessWindowFunction<Long, Block, Tuple3<String, String, RateRule>, TimeWindow>.Context context, Iterable<Long> elements, Collector<Block> out) throws Exception {
         String blockEntity = stringRateRuleTuple2.f0;
         RateRule rateRule = stringRateRuleTuple2.f2;
 
@@ -51,7 +52,8 @@ public class RuleProcessWindowFunction extends ProcessWindowFunction<Long, Block
                 Long startTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli();
                 LOG.info("Block Generated: block kind: {} block entity: {} start time: {} end time: {} rule name: {} ",rateRule.getBlockKind().name(), blockEntity, startTime, newBlockEnd, rateRule.toString());
 //                System.out.println("============[Generated a New Block:  "+new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString())+"]=========");
-                out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  startTime, newBlockEnd, rateRule.toString()));
+//                out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  startTime, newBlockEnd, rateRule.toString()));
+                out.collect(new Block("Launch", rateRule.getBlockKind().name(), blockEntity, "block", String.valueOf(newBlockEnd), "dnl", ""));
                 maxBlockState.update(newBlockEnd);
             }
         }

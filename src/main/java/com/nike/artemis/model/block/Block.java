@@ -1,5 +1,8 @@
 package com.nike.artemis.model.block;
 
+import com.nike.artemis.BlockEvent;
+import org.apache.flink.api.common.serialization.SerializationSchema;
+
 public class Block {
     private String blockProducer;
     private String userType;
@@ -10,6 +13,22 @@ public class Block {
     private String nameSpace;
 
     public Block() {
+    }
+
+    static class BlockSerializationSchema implements SerializationSchema<Block>
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public byte[] serialize(Block block)
+        {
+            return block.toString().getBytes();
+        }
+    }
+
+    public static BlockSerializationSchema sinkSerializer()
+    {
+        return new BlockSerializationSchema();
     }
 
     public Block(String blockProducer, String userType, String user, String disposalDecision, String duration, String destination, String nameSpace) {

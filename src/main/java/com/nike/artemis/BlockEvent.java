@@ -30,10 +30,10 @@ public class BlockEvent {
         }
     }
 
-    public static BlockEventSerializationSchema sinkSerializer()
-    {
-        return new BlockEventSerializationSchema();
-    }
+//    public static BlockEventSerializationSchema sinkSerializer()
+//    {
+//        return new BlockEventSerializationSchema();
+//    }
 
     public BlockEvent(String blockKind, String entity, Long startTime, Long endTime, String ruleName) {
         this.blockKind = blockKind;
