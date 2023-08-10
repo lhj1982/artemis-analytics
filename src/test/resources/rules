@@ -1,0 +1,76 @@
+{
+	"CDN": [
+		{
+			"rule_name": "abcd",
+			"user_type": "ip",
+			"path": "/foo/bar",
+			"method": "GET|POST",
+			"status": "200|404",
+			"window": 30,
+			"limit": 100,
+			"block_time": 60,
+			"enforce": "true|false"
+		},
+		{
+			"rule_name": "abcd",
+			"user_type": "ip/upmid",
+			"path": "/foo/bar",
+			"method": "PUT|POST",
+			"status": "200|404",
+			"window": 30,
+			"limit": 100,
+			"block_time": 60,
+			"enforce": "true|false"
+		}
+	],
+	"WAF": [
+		{
+			"rule_name": "waf rule 101",
+			"user_type": "ip",
+			"path": "/foo/bar",
+			"method": "POST|PUT",
+			"status": "200|404",
+			"window": 30,
+			"limit": 100,
+			"block_time": 60,
+			"enforce": "true|false"
+		},
+		{
+			"rule_name": "waf rule 102",
+			"user_type": "umid",
+			"path": "/foo/bar",
+			"method": "DELETE|PUT",
+			"status": "200|404",
+			"window": 30,
+			"limit": 100,
+			"block_time": 60,
+			"enforce": "true|false"
+		}
+	],
+	"LAUNCH": [
+		{
+			"rule_name": "launch county block",
+			"block_kind": "county",
+			"limit": 40,
+			"window_size": 10,
+			"block_time": 60,
+			"rule_state": "true|false"
+		},
+		{
+			"rule_name": "launch trueClientIp block",
+			"block_kind": "trueClientIp",
+			"limit": 40,
+			"window_size": 10,
+			"block_time": 60,
+			"rule_state": "true|false"
+		},
+		{
+			"rule_name": "launch upmid block",
+			"block_kind": "upmid",
+			"limit": 40,
+			"window_size": 10,
+			"block_time": 60,
+			"rule_state": "true|false"
+		}
+	]
+}

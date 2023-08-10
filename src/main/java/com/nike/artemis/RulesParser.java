@@ -1,12 +1,11 @@
 package com.nike.artemis;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.api.java.tuple.Tuple2;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,28 +24,34 @@ public class RulesParser implements Serializable {
     }
 
 
-    /**
+     /**
      * reading rules from s3
      * @return set of rules which got from s3
      */
     private HashSet<RateRule> getRules() {
+        ObjectMapper mapper = new ObjectMapper();
         HashSet<RateRule> rules = new HashSet<>();
         InputStream rulesStream = provider.getObjectContent();
         if (rulesStream == null) return rules;
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(rulesStream));
+        StringBuilder jsonContent = new StringBuilder();
         String line;
-
         try{
             while ((line = bufferedReader.readLine()) != null){
                 line = line.trim();
-                String[] columns = line.split(",");
-                if (columns.length > 1){
-                    RateRule rateRule = RateRule.fromRawLine(columns);
+                jsonContent.append(line);
+            }
+            JsonNode jsonRaw = mapper.readTree(jsonContent.toString());
+            JsonNode launchRules = jsonRaw.get("LAUNCH");
+            if (launchRules.isArray()) {
+                for (JsonNode launchRule : launchRules) {
+                    RateRule rateRule = RateRule.fromRawLine(launchRule);
                     if (rateRule != null) rules.add(rateRule);
                 }
             }
             return rules;
         } catch (Exception e){
+            e.printStackTrace();
             return null;
         }
 

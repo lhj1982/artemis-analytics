@@ -23,25 +23,12 @@
         <revision>${baseRevision}-SNAPSHOT</revision>
     </properties>
 
-    <distributionManagement>
-        <repository>
-            <id>nike.artifactory</id>
-            <name>Nike Artifactory Repo</name>
-            <url>https://artifactory.nike.com/artifactory/maven</url>
-        </repository>
-        <snapshotRepository>
-            <id>nike.artifactory</id>
-            <name>Nike Artifactory Snapshot Repo</name>
-            <url>https://artifactory.nike.com/artifactory/maven-snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-bom</artifactId>
-                <version>1.11.903</version>
+                <version>1.12.281</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -56,27 +43,21 @@
         </dependency>
 
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-kinesisanalytics-flink</artifactId>
-            <version>${kda.version}</version>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kinesis_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
             <version>${flink.version}</version>
-<!--            <scope>provided</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.kinesis</groupId>
-            <artifactId>amazon-kinesis-connector-flink</artifactId>
-            <version>${kinesis-connector.version}</version>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- only for local development -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-clients_${scala.binary.version}</artifactId>
+            <artifactId>flink-connector-kinesis_${scala.binary.version}</artifactId>
             <version>${flink.version}</version>
         </dependency>
 
@@ -106,6 +87,19 @@
             <artifactId>jaxb-api</artifactId>
             <version>2.3.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>msk-config-providers</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
 
     </dependencies>
 
@@ -150,6 +144,7 @@
                                     Otherwise, this might cause SecurityExceptions when using the JAR. -->
                                     <artifact>*:*</artifact>
                                     <excludes>
+                                        <exclude>module-info.class</exclude>
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>

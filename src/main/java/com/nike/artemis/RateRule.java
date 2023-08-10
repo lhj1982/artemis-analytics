@@ -1,12 +1,9 @@
 package com.nike.artemis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class RateRule {
-    public static Logger LOG = LoggerFactory.getLogger(RateRule.class);
-
     private BlockKind blockKind;
     private String county;
     private String trueClientIp;
@@ -17,32 +14,27 @@ public class RateRule {
     private Long expiration;
     private RuleState ruleState;
 
-    public static RateRule fromRawLine(String[] columns) {
+    public static RateRule fromRawLine(JsonNode rule) {
 
         RateRuleBuilder builder = new RateRuleBuilder();
 
-        if (columns[0].compareToIgnoreCase("county") == 0){
+        if (rule.get("block_kind").asText().compareToIgnoreCase("county") == 0){
             builder.blockKind(BlockKind.county);
-        } else if (columns[0].compareToIgnoreCase("trueClientIp") == 0) {
+        } else if (rule.get("block_kind").asText().compareToIgnoreCase("trueClientIp") == 0) {
             builder.blockKind(BlockKind.trueClientIp);
-        } else if (columns[0].compareToIgnoreCase("upmid") == 0) {
+        } else if (rule.get("block_kind").asText().compareToIgnoreCase("upmid") == 0) {
             builder.blockKind(BlockKind.upmid);
         } else {
             return null;
         }
 
+        builder.limit(Long.valueOf(rule.get("limit").asText()))
+                .windowSize(Long.valueOf(rule.get("window_size").asText()))
+                .expiration(Long.valueOf(rule.get("block_time").asText()));
 
-
-        builder.county(columns[1])
-                .trueClientIp(columns[2])
-                .upmid(columns[3])
-                .limit(Long.valueOf(columns[4]))
-                .windowSize(Long.valueOf(columns[5]))
-                .expiration(Long.valueOf(columns[7]));
-
-        if (columns[8].compareToIgnoreCase("ON") == 0){
+        if (rule.get("rule_state").asText().compareToIgnoreCase("ON") == 0){
             builder.ruleState(RuleState.ON);
-        } else if (columns[8].compareToIgnoreCase("OFF") == 0) {
+        } else if (rule.get("rule_state").asText().compareToIgnoreCase("OFF") == 0) {
             builder.ruleState(RuleState.OFF);
         } else {
             return null;

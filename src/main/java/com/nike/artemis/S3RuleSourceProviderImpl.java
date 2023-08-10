@@ -1,10 +1,10 @@
 package com.nike.artemis;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
+import org.apache.flink.kinesis.shaded.com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.AmazonS3;
+import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.model.GetObjectRequest;
+import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.model.S3Object;
 
 import java.io.InputStream;
 import java.io.Serializable;
