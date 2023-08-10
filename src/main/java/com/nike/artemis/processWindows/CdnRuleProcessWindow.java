@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 public class CdnRuleProcessWindow extends ProcessWindowFunction<Long, Block, Tuple2<String, CdnRateRule>, TimeWindow> {
     public static Logger LOG = LoggerFactory.getLogger(CdnRuleProcessWindow.class);
-    ValueStateDescriptor<Long> currentMaxBlockDescriptor;
+    ValueStateDescriptor<Long> currentCdnMaxBlockByUserAndRule;
 
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-        currentMaxBlockDescriptor = new ValueStateDescriptor<>("cdnMaxBlockByActorAndRule", Long.class);
+        currentCdnMaxBlockByUserAndRule = new ValueStateDescriptor<>("cdnMaxBlockByUserAndRule", Long.class);
     }
 
     @Override
@@ -31,9 +31,9 @@ public class CdnRuleProcessWindow extends ProcessWindowFunction<Long, Block, Tup
             return;
         long count = elements.iterator().next();
 
-        ValueState<Long> maxBlockState = context.globalState().getState(currentMaxBlockDescriptor);
+        ValueState<Long> maxBlockState = context.globalState().getState(currentCdnMaxBlockByUserAndRule);
         if (maxBlockState.value() == null) {
-            context.globalState().getState(currentMaxBlockDescriptor).update(0L);
+            context.globalState().getState(currentCdnMaxBlockByUserAndRule).update(0L);
         }
         long currentMaxBlock = maxBlockState.value();
 

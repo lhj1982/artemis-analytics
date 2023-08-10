@@ -33,12 +33,12 @@ public class CdnRuleBroadCastProcessorFunction extends BroadcastProcessFunction<
     public void processBroadcastElement(CdnRuleChange cdnRuleChange, BroadcastProcessFunction<CdnRequestEvent, CdnRuleChange, Tuple3<String, CdnRateRule, Long>>.Context ctx, Collector<Tuple3<String, CdnRateRule, Long>> out) throws Exception {
         switch (cdnRuleChange.action) {
             case CREATE:
-                LOG.info("CDN RULE CREATE rule={}", cdnRuleChange.cdnRateRule);
                 ctx.getBroadcastState(cdnRulesStateDescriptor).put(cdnRuleChange.cdnRateRule, null);
+                LOG.info("CDN RULE CREATE rule={}", cdnRuleChange.cdnRateRule);
                 break;
             case DELETE:
-                LOG.info("CDN RULE DELETE rule={}", cdnRuleChange.cdnRateRule);
                 ctx.getBroadcastState(cdnRulesStateDescriptor).remove(cdnRuleChange.cdnRateRule);
+                LOG.info("CDN RULE DELETE rule={}", cdnRuleChange.cdnRateRule);
                 break;
         }
     }

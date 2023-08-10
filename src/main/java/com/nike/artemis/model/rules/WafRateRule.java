@@ -1,5 +1,7 @@
 package com.nike.artemis.model.rules;
 
+import com.nike.artemis.model.waf.WafRequestEvent;
+
 public class WafRateRule {
     private String rule_name;
     private String user_type;
@@ -143,5 +145,13 @@ public class WafRateRule {
                 ", block_time=" + block_time +
                 ", enforce='" + enforce + '\'' +
                 '}';
+    }
+
+    public boolean appliesTo(WafRequestEvent wafRequestEvent) {
+        return (
+                (wafRequestEvent.getPath().startsWith(this.path))
+                        && (this.user_type.equals(wafRequestEvent.getUserType().name()))
+                        && (this.method.equals(wafRequestEvent.getMethod()))
+                );
     }
 }
