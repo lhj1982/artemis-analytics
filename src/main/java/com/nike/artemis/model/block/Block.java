@@ -130,13 +130,13 @@ public class Block {
     @Override
     public String toString() {
         return "{" +
-                "blockProducer='" + blockProducer + '\'' +
-                ", userType='" + userType + '\'' +
-                ", user='" + user + '\'' +
-                ", disposalDecision='" + disposalDecision + '\'' +
-                ", duration='" + duration + '\'' +
-                ", destination='" + destination + '\'' +
-                ", nameSpace='" + nameSpace + '\'' +
+                "\"blockProducer\":\"" + blockProducer + '\"' +
+                ", \"userType\":\"" + userType + '\"' +
+                ", \"user\":\"" + user + '\"' +
+                ", \"disposalDescition\":\"" + disposalDecision + '\"' +
+                ", \"duration\":\"" + duration + '\"' +
+                ", \"destination\":\"" + destination + '\"' +
+                ", \"nameSpace\":\"" + nameSpace + '\"' +
                 '}';
     }
 }
