@@ -31,7 +31,7 @@ public class RuleBroadCastProcessorFunction extends BroadcastProcessFunction<Req
             if (flag){
                 if (entry.getKey().getBlockKind().equals(BlockKind.county)){
                     out.collect(new Tuple4<>(requestEvent.getAddresses().get(0).getCounty(), requestEvent.experience.getLaunchId(),entry.getKey(), requestEvent.getTimestamp()));
-                } else if (entry.getKey().getBlockKind().equals(BlockKind.trueClientIp)) {
+                } else if (entry.getKey().getBlockKind().equals(BlockKind.ipaddress)) {
                     out.collect(new Tuple4<>(requestEvent.getDevice().getTrueClientIp(), requestEvent.experience.getLaunchId(),entry.getKey(), requestEvent.getTimestamp()));
                 } else if (entry.getKey().getBlockKind().equals(BlockKind.upmid)) {
                     out.collect(new Tuple4<>(requestEvent.getUser().getUpmId(), requestEvent.experience.getLaunchId(),entry.getKey(), requestEvent.getTimestamp()));

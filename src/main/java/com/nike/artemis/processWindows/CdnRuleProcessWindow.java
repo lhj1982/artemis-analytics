@@ -12,6 +12,9 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 public class CdnRuleProcessWindow extends ProcessWindowFunction<Long, Block, Tuple2<String, CdnRateRule>, TimeWindow> {
     public static Logger LOG = LoggerFactory.getLogger(CdnRuleProcessWindow.class);
     ValueStateDescriptor<Long> currentCdnMaxBlockByUserAndRule;
@@ -27,7 +30,7 @@ public class CdnRuleProcessWindow extends ProcessWindowFunction<Long, Block, Tup
         String user = key.f0;
         CdnRateRule cdnRateRule = key.f1;
 
-        if ((elements==null) || (! elements.iterator().hasNext()))
+        if ((elements == null) || (!elements.iterator().hasNext()))
             return;
         long count = elements.iterator().next();
 
@@ -36,13 +39,13 @@ public class CdnRuleProcessWindow extends ProcessWindowFunction<Long, Block, Tup
             context.globalState().getState(currentCdnMaxBlockByUserAndRule).update(0L);
         }
         long currentMaxBlock = maxBlockState.value();
-
-        LOG.info("in the processWindow CDN: request user: {} window start: {} window endtime: {}",user,  context.window().getStart(),context.window().getEnd());
+        LOG.info("Processing CDN data timeStamp :{}", LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli());
+        LOG.info("in the processWindow CDN: request user: {} window start: {} window endtime: {}", user, context.window().getStart(), context.window().getEnd());
         if (count >= cdnRateRule.getLimit()) {
             long newBlockEnd = context.window().getStart() + cdnRateRule.getBlock_time();
             if ((currentMaxBlock < newBlockEnd)) {
                 LOG.info("EMIT CDN BLOCK: rule name: {}, user type: {}, user: {}, blockttl: {}", cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, newBlockEnd);
-                out.collect(new Block(cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, "block", String.valueOf(newBlockEnd), "edgeKV", "test_buy_checkout"));
+                out.collect(new Block(cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, "block", String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space()));
                 maxBlockState.update(newBlockEnd);
             }
         }

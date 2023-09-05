@@ -42,7 +42,7 @@ public class RuleSource implements SourceFunction<RuleChange>, Serializable {
          * - rule: trueClientIp,,,,10L,1L,2023-03-12 22:44:00.000,10L,ON
          */
 //        RuleChange ruleChange1 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.county, "桃城区", "", "", 5L, 1L, LocalDateTime.now().plusMinutes(1).toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
-//        RuleChange ruleChange2 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.trueClientIp, "", "", "", 5L, 1L, LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
+//        RuleChange ruleChange2 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.ipaddress, "", "", "", 5L, 1L, LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
 //        RuleChange ruleChange3 = new RuleChange(RuleChange.Action.CREATE, new RateRule(BlockKind.upmid, "", "", "", 5L, 1L, LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), 10L, RateRule.RuleState.ON));
 //        RuleChange[] ruleChanges = {ruleChange1,ruleChange2,ruleChange3};
 //

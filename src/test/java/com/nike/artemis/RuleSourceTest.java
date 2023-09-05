@@ -15,7 +15,7 @@ public class RuleSourceTest {
     public static void main(String[] args) {
         CdnRulesParser cdnRulesParser = new CdnRulesParser();
         HashSet<CdnRateRule> currentCdnRateRules = new HashSet<>();
-        currentCdnRateRules.add(new CdnRateRule("xyz", "ip", "/buy/checkout", "GET", "200", 10L, 20L, 60L, "YES"));
+        currentCdnRateRules.add(new CdnRateRule("xyz", "ip", "/buy/checkout", "GET", "200", 10L, 20L, 60L, "YES","test_buy_checkout"));
         Tuple2<HashSet<CdnRateRule>, Collection<CdnRuleChange>> rulesAndChanges = cdnRulesParser.getRulesAndChanges(currentCdnRateRules);
         System.out.println(rulesAndChanges.f0);
         System.out.println(rulesAndChanges.f1);

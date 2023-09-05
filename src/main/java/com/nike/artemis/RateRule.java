@@ -21,7 +21,7 @@ public class RateRule {
         if (rule.get("block_kind").asText().compareToIgnoreCase("county") == 0){
             builder.blockKind(BlockKind.county);
         } else if (rule.get("block_kind").asText().compareToIgnoreCase("trueClientIp") == 0) {
-            builder.blockKind(BlockKind.trueClientIp);
+            builder.blockKind(BlockKind.ipaddress);
         } else if (rule.get("block_kind").asText().compareToIgnoreCase("upmid") == 0) {
             builder.blockKind(BlockKind.upmid);
         } else {
@@ -119,7 +119,7 @@ public class RateRule {
             return true;
         } else if (this.blockKind == BlockKind.upmid && requestEvent.getUser().getUpmId() != null) {
             return true;
-        } else return this.blockKind == BlockKind.trueClientIp && requestEvent.getDevice().getTrueClientIp() != null;
+        } else return this.blockKind == BlockKind.ipaddress && requestEvent.getDevice().getTrueClientIp() != null;
     }
 
     public boolean isEnforce() {

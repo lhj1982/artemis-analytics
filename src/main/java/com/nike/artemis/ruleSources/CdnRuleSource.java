@@ -23,6 +23,9 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
     public RuleSourceProvider provider;
     public HashSet<CdnRateRule> currentRules = new HashSet<>();
 
+    public CdnRuleSource(){
+
+    }
     public CdnRuleSource(RuleSourceProvider s3) {
         currentRuleDate = Date.from(Instant.EPOCH);
         parser = new CdnRulesParser(s3);
@@ -32,6 +35,17 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
     @Override
     public void run(SourceContext<CdnRuleChange> ctx) throws Exception {
         running = true;
+        // ===================== for local cdn test purpose ====================
+
+//        CdnRuleChange ruleChange1 = new CdnRuleChange(CdnRuleChange.Action.CREATE, new CdnRateRule("abcd", "trueClientIp", "/foo/bar", "GET|POST", "200|404", 30000L,5L, 60L,"true|false","test_buy_checkout"));
+//        CdnRuleChange ruleChange2 = new CdnRuleChange(CdnRuleChange.Action.CREATE, new CdnRateRule("abcd", "upmid", "/foo/bar", "GET|POST", "200|404", 30000L,5L, 60L,"true|false","test_buy_checkout"));
+//        CdnRuleChange[] ruleChanges = {ruleChange1, ruleChange2};
+//
+//        for (CdnRuleChange ruleChange : ruleChanges) {
+//            System.out.println(ruleChange.cdnRateRule);
+//            ctx.collect(ruleChange);
+//        }
+
         while (running) {
             Date lastModified = provider.getLastModified();
             if (currentRuleDate.before(lastModified)) {
