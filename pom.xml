@@ -23,6 +23,17 @@
         <revision>${baseRevision}-SNAPSHOT</revision>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>nike.artifactory</id>
+            <name>Nike Artifactory Snapshot Repo</name>
+            <url>https://artifactory.nike.com/artifactory/maven-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -88,10 +99,14 @@
             <version>2.3.0</version>
         </dependency>
 
+        <!--   msk-config-providers -->
+        <!-- git source https://github.com/aws-samples/msk-config-providers-->
+        <!-- if dependency has updated please upload to repo :https://artifactory.nike.com/artifactory/maven-snapshots/-->
+        <!-- check version before use it https://artifactory.nike.com/ui/packages  search Artifacts: msk-config-providers -->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>msk-config-providers</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>0.2.0-20230911.090101-1</version>
         </dependency>
 
         <dependency>
