@@ -146,19 +146,20 @@ public class WafRateRule {
 
     @Override
     public String toString() {
-        return "WafRateRule{" +
-                "rule_name='" + rule_name + '\'' +
-                ", user_type='" + user_type + '\'' +
-                ", path='" + path + '\'' +
-                ", method='" + method + '\'' +
-                ", status='" + status + '\'' +
-                ", window=" + window +
-                ", limit=" + limit +
-                ", block_time=" + block_time +
-                ", enforce='" + enforce + '\'' +
-                ", name_space='" + name_space + '\'' +
+        return "{" +
+                "\"rule_name\":\"" + rule_name + '\"' +
+                ", \"user_type\":\"" + user_type + '\"' +
+                ", \"path\":\"" + path + '\"' +
+                ", \"method\":\"" + method + '\"' +
+                ", \"status\":\"" + status + '\"' +
+                ", \"window\":\"" + window + '\"' +
+                ", \"limit\":\"" + limit + '\"' +
+                ", \"block_time\":\"" + block_time + '\"' +
+                ", \"enforce\":\"" + enforce + '\"' +
+                ", \"name_space\":\"" + name_space + '\"' +
                 '}';
     }
+
 
     public boolean appliesTo(WafRequestEvent wafRequestEvent) {
         return (
