@@ -1,5 +1,6 @@
 package com.nike.artemis;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nike.artemis.rulesParsers.CdnRulesParser;
 import com.nike.artemis.rulesParsers.WafRulesParser;
 import com.nike.artemis.model.rules.CdnRateRule;
@@ -23,7 +24,7 @@ public class RuleSourceTest {
 
         WafRulesParser wafRulesParser = new WafRulesParser();
         HashSet<WafRateRule> currentWafRateRules = new HashSet<>();
-        currentWafRateRules.add(new WafRateRule("waf_a_rule", "llolo", "/x/y/z", "POST", "200", 10L, 20L, 60L, "YES"));
+        currentWafRateRules.add(new WafRateRule("waf_a_rule", "llolo", "/x/y/z", "POST", "200", 10L, 20L, 60L, "YES","waf_test_block"));
         Tuple2<HashSet<WafRateRule>, Collection<WafRuleChange>> rulesAndChanges1 = wafRulesParser.getRulesAndChanges(currentWafRateRules);
         System.out.println(rulesAndChanges1.f0);
         System.out.println(rulesAndChanges1.f1);

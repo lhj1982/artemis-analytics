@@ -12,11 +12,12 @@ public class WafRateRule {
     private long limit;
     private long block_time;
     private String enforce;
+    private String name_space;
 
     public WafRateRule() {
     }
 
-    public WafRateRule(String rule_name, String user_type, String path, String method, String status, long window, long limit, long block_time, String enforce) {
+    public WafRateRule(String rule_name, String user_type, String path, String method, String status, long window, long limit, long block_time, String enforce, String name_space) {
         this.rule_name = rule_name;
         this.user_type = user_type;
         this.path = path;
@@ -26,6 +27,7 @@ public class WafRateRule {
         this.limit = limit;
         this.block_time = block_time;
         this.enforce = enforce;
+        this.name_space = name_space;
     }
 
     public String getRule_name() {
@@ -100,6 +102,14 @@ public class WafRateRule {
         this.enforce = enforce;
     }
 
+    public String getName_space() {
+        return name_space;
+    }
+
+    public void setName_space(String name_space) {
+        this.name_space = name_space;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -115,6 +125,7 @@ public class WafRateRule {
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
         if (method != null ? !method.equals(that.method) : that.method != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
+        if (name_space != null ? !name_space.equals(that.name_space) : that.name_space != null) return false;
         return enforce != null ? enforce.equals(that.enforce) : that.enforce == null;
     }
 
@@ -129,29 +140,32 @@ public class WafRateRule {
         result = 31 * result + (int) (limit ^ (limit >>> 32));
         result = 31 * result + (int) (block_time ^ (block_time >>> 32));
         result = 31 * result + (enforce != null ? enforce.hashCode() : 0);
+        result = 31 * result + (name_space != null ? name_space.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "WafRateRule{" +
-                "rule_name='" + rule_name + '\'' +
-                ", user_type='" + user_type + '\'' +
-                ", path='" + path + '\'' +
-                ", method='" + method + '\'' +
-                ", status='" + status + '\'' +
-                ", window=" + window +
-                ", limit=" + limit +
-                ", block_time=" + block_time +
-                ", enforce='" + enforce + '\'' +
+        return "{" +
+                "\"rule_name\":\"" + rule_name + '\"' +
+                ", \"user_type\":\"" + user_type + '\"' +
+                ", \"path\":\"" + path + '\"' +
+                ", \"method\":\"" + method + '\"' +
+                ", \"status\":\"" + status + '\"' +
+                ", \"window\":\"" + window + '\"' +
+                ", \"limit\":\"" + limit + '\"' +
+                ", \"block_time\":\"" + block_time + '\"' +
+                ", \"enforce\":\"" + enforce + '\"' +
+                ", \"name_space\":\"" + name_space + '\"' +
                 '}';
     }
+
 
     public boolean appliesTo(WafRequestEvent wafRequestEvent) {
         return (
                 (wafRequestEvent.getPath().startsWith(this.path))
                         && (this.user_type.equals(wafRequestEvent.getUserType().name()))
                         && (this.method.equals(wafRequestEvent.getMethod()))
-                );
+        );
     }
 }

@@ -1,9 +1,11 @@
 package com.nike.artemis;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nike.artemis.model.*;
 
 import java.util.ArrayList;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RequestEvent {
 
     public ArrayList<Address> addresses;

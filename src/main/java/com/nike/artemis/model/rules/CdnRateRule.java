@@ -146,17 +146,17 @@ public class CdnRateRule {
 
     @Override
     public String toString() {
-        return "CdnRateRule{" +
-                "rule_name='" + rule_name + '\'' +
-                ", user_type='" + user_type + '\'' +
-                ", path='" + path + '\'' +
-                ", method='" + method + '\'' +
-                ", status='" + status + '\'' +
-                ", window=" + window +
-                ", limit=" + limit +
-                ", block_time=" + block_time +
-                ", enforce='" + enforce + '\'' +
-                ", name_space='" + name_space + '\'' +
+        return "{" +
+                "\"rule_name\":\"" + rule_name + '\"' +
+                ", \"user_type\":\"" + user_type + '\"' +
+                ", \"path\":\"" + path + '\"' +
+                ", \"method\":\"" + method + '\"' +
+                ", \"status\":\"" + status + '\"' +
+                ", \"window\":\"" + window + '\"' +
+                ", \"limit\":\"" + limit + '\"' +
+                ", \"block_time\":\"" + block_time + '\"' +
+                ", \"enforce\":\"" + enforce + '\"' +
+                ", \"name_space\":\"" + name_space + '\"' +
                 '}';
     }
 
