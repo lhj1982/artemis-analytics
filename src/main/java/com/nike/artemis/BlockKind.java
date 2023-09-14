@@ -10,4 +10,16 @@ public enum BlockKind {
     BlockKind(int value) {
         this.value = value;
     }
+
+    static public BlockKind fromInt(int value) throws IndexOutOfBoundsException {
+        switch (value) {
+            case 1:
+                return upmid;
+            case 2:
+                return county;
+            case 3:
+                return ipaddress;
+        }
+        throw new IndexOutOfBoundsException("Block kind not available");
+    }
 }
