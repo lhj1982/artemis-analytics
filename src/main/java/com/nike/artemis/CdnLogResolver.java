@@ -24,7 +24,7 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
             cdnData = objectMapper.readValue(cdnLog, CdnData.class);
             Tuple2<CdnUserType, String> userType = UserIdentifier.identifyCdnUser(cdnData);
             out.collect(new CdnRequestEvent(cdnData.getUnixtime(),userType.f0.name(), userType.f1, cdnData.getMethod(), cdnData.getUri()));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             LOG.error("Location={CdnLogResolver} source={} error={}", cdnLog, e);
         }
 

@@ -6,6 +6,8 @@ import com.nike.artemis.RuleSourceProvider;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.ruleChanges.WafRuleChange;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class WafRulesParser implements Serializable {
+    public static Logger LOG = LoggerFactory.getLogger(WafRulesParser.class);
     public RuleSourceProvider provider;
 
     public WafRulesParser() {
@@ -24,8 +27,11 @@ public class WafRulesParser implements Serializable {
 
     public Tuple2<HashSet<WafRateRule>, Collection<WafRuleChange>> getRulesAndChanges(HashSet<WafRateRule> currentRules) {
         HashSet<WafRateRule> s3Rules = this.getRules();
-        Collection<WafRuleChange> changes = determineChanges(currentRules, s3Rules);
-        return new Tuple2<>(s3Rules, changes);
+        if (s3Rules != null){
+            Collection<WafRuleChange> changes = determineChanges(currentRules, s3Rules);
+            return new Tuple2<>(s3Rules, changes);
+        }
+        return new Tuple2<>(currentRules, new ArrayList<>());
     }
 
 
@@ -46,6 +52,7 @@ public class WafRulesParser implements Serializable {
             }
             JsonNode jsonRaw = mapper.readTree(jsonContent.toString());
             JsonNode jsonRules = jsonRaw.get("WAF");
+            if ( jsonRules == null ) return new HashSet<>();
             if (jsonRules.isArray()) {
                 for (JsonNode jsonRule : jsonRules) {
                     WafRateRule wafRateRule = mapper.treeToValue(jsonRule, WafRateRule.class);
@@ -54,7 +61,7 @@ public class WafRulesParser implements Serializable {
             }
             return rules;
         } catch (Exception e){
-            e.printStackTrace();
+            LOG.error("Location={WafRulesParser} source={} error={}", jsonContent, e.getMessage());
             return null;
         }
     }

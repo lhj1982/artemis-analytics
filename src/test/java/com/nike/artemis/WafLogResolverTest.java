@@ -1,6 +1,7 @@
 package com.nike.artemis;
 
 import com.nike.artemis.model.waf.WafRequestEvent;
+import com.nike.artemis.model.waf.WafUserType;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import java.util.List;
 public class WafLogResolverTest {
 
     @Test
-    public void parseValidWafLogIP() {
+    public void parseValidWafLog_IP() {
         WafLogResolver wafLogResolver = new WafLogResolver();
         List<WafRequestEvent> out = new ArrayList<>();
         ListCollector<WafRequestEvent> collector = new ListCollector<>(out);
@@ -66,11 +67,12 @@ public class WafLogResolverTest {
                 "}";
         wafLogResolver.flatMap(wafLog, collector);
         Assert.assertEquals("36.103.243.169", out.get(0).getUser());
+        Assert.assertEquals(WafUserType.ipaddress, out.get(0).getUserType());
     }
 
 
     @Test
-    public void parseValidWafLogUmid() {
+    public void parseValidWafLog_Umid() {
         WafLogResolver wafLogResolver = new WafLogResolver();
         List<WafRequestEvent> out = new ArrayList<>();
         ListCollector<WafRequestEvent> collector = new ListCollector<>(out);
@@ -119,6 +121,7 @@ public class WafLogResolverTest {
                 "}";
         wafLogResolver.flatMap(wafLog, collector);
         Assert.assertEquals("FC4DADB0-403B-4104-B110-11657589417", out.get(0).getUser());
+        Assert.assertEquals(WafUserType.umid, out.get(0).getUserType());
     }
 
     @Test

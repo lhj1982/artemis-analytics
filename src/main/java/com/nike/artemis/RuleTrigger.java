@@ -28,6 +28,6 @@ public class RuleTrigger extends Trigger<Tuple4<String, String, RateRule, Long>,
 
     @Override
     public void clear(TimeWindow window, TriggerContext ctx) throws Exception {
-
+            ctx.deleteEventTimeTimer(window.maxTimestamp());
     }
 }
