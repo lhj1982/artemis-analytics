@@ -104,7 +104,7 @@ public class Main {
                 });
 
         MapStateDescriptor<CdnRateRule, Object> cdnRuleStateDescriptor = new MapStateDescriptor<>("CdnRulesBroadcastState", TypeInformation.of(new TypeHint<CdnRateRule>() {}), BasicTypeInfo.of(Object.class));
-        BroadcastStream<CdnRuleChange> cdnRuleDS = env.addSource(new CdnRuleSource(s3RuleSourceProvider)).name("CDN Rule Source S3").broadcast(cdnRuleStateDescriptor);
+        BroadcastStream<CdnRuleChange> cdnRuleDS = env.addSource(new CdnRuleSource(s3RuleSourceProvider, false)).name("CDN Rule Source S3").broadcast(cdnRuleStateDescriptor);
 
         DataStream<Block> cdnBlockDs = cdn_log_kafka_source
                 .connect(cdnRuleDS)
@@ -141,7 +141,7 @@ public class Main {
                 });
 
         MapStateDescriptor<WafRateRule, Object> wafRulesStateDescriptor = new MapStateDescriptor<>("WafRulesBroadcastState", TypeInformation.of(new TypeHint<WafRateRule>() {}), BasicTypeInfo.of(Object.class));
-        BroadcastStream<WafRuleChange> wafRuleDs = env.addSource(new WafRuleSource(s3RuleSourceProvider)).name("WAF Rule Source S3").broadcast(wafRulesStateDescriptor);
+        BroadcastStream<WafRuleChange> wafRuleDs = env.addSource(new WafRuleSource(s3RuleSourceProvider, false)).name("WAF Rule Source S3").broadcast(wafRulesStateDescriptor);
 
         DataStream<Block> wafBlockDs = waf_log_kafka_source
                 .connect(wafRuleDs)
@@ -171,7 +171,7 @@ public class Main {
 
         //=============================== Rule from S3 ===========================
         MapStateDescriptor<RateRule, Object> ruleStateDescriptor = new MapStateDescriptor<>("RulesBroadcastState", TypeInformation.of(new TypeHint<RateRule>() {}), BasicTypeInfo.of(Object.class));
-        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource(s3RuleSourceProvider)).name("LAUNCH Rule Source S3").broadcast(ruleStateDescriptor);
+        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource(s3RuleSourceProvider, false)).name("LAUNCH Rule Source S3").broadcast(ruleStateDescriptor);
 
 //        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource()).uid("Rules Source").broadcast(ruleStateDescriptor);
 
@@ -195,7 +195,7 @@ public class Main {
                 })
                 .window(TumblingEventTimeWindows.of(Time.minutes(10)))
                 .trigger(new RuleTrigger())
-                .aggregate(new RuleCountAggregator(), new RuleProcessWindowFunction())
+                .aggregate(new RuleCountAggregate(), new RuleProcessWindowFunction())
                  .name("Rule Window");
 
         FlinkKinesisProducer<Block> sink = new FlinkKinesisProducer<>(Block.sinkSerializer(), producerConfig);

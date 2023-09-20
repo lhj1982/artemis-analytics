@@ -16,14 +16,15 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class RateRuleWindowAssigner extends WindowAssigner<Tuple4<String, String, RateRule, Long>, TimeWindow> {
+
+    public static long getWindowStartTimeForRuleAndEventTime(long timeStamp, RateRule rule)
+    {
+        return (timeStamp / rule.getWindowSize()) * rule.getWindowSize();
+    }
     @Override
     public Collection<TimeWindow> assignWindows(Tuple4<String, String, RateRule, Long> element, long timestamp, WindowAssignerContext context) {
-        Long startTime = element.f2.getStartTime();
-        if (timestamp >= startTime){
-            return Collections.singletonList(new TimeWindow(startTime, startTime + element.f2.getWindowSize()));
-        }else {
-         return Collections.emptyList();
-        }
+        long startTime = getWindowStartTimeForRuleAndEventTime(timestamp, element.f2);
+        return Collections.singletonList(new TimeWindow(startTime, startTime + element.f2.getWindowSize()));
     }
 
     @Override

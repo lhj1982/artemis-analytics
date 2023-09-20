@@ -22,18 +22,20 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
     public CdnRulesParser parser;
     public RuleSourceProvider provider;
     public HashSet<CdnRateRule> currentRules = new HashSet<>();
+    public boolean testMode;
 
     public CdnRuleSource(){
 
     }
-    public CdnRuleSource(RuleSourceProvider s3) {
+    public CdnRuleSource(RuleSourceProvider s3, boolean testMode) {
         currentRuleDate = Date.from(Instant.EPOCH);
         parser = new CdnRulesParser(s3);
         provider = s3;
+        this.testMode = testMode;
     }
 
     @Override
-    public void run(SourceContext<CdnRuleChange> ctx) throws Exception {
+    public void run(SourceContext<CdnRuleChange> ctx){
         running = true;
         // ===================== for local cdn test purpose ====================
 
@@ -56,10 +58,14 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
                 currentRules = rulesAndChanges.f0;
                 currentRuleDate = lastModified;
             }
+            if (testMode) {
+                running = false;
+                break;
+            }
             try {
                 Thread.sleep(60*1000);
-            } catch (InterruptedException ignored) {
-
+            } catch (InterruptedException e) {
+                LOG.error("Location=CdnRuleSource error={}", e);
             }
         }
     }

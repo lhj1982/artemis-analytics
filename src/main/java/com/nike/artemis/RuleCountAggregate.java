@@ -1,10 +1,9 @@
 package com.nike.artemis;
 
-import com.nike.artemis.RateRule;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 
-public class RuleCountAggregator implements AggregateFunction<Tuple4<String, String, RateRule, Long>, Long, Long> {
+public class RuleCountAggregate implements AggregateFunction<Tuple4<String, String, RateRule, Long>, Long, Long> {
     @Override
     public Long createAccumulator() {
         return 0L;
