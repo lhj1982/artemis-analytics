@@ -12,6 +12,7 @@ public class RateRule {
     private Long windowSize;
     private Long startTime;
     private Long expiration;
+    private String action;
     private RuleState ruleState;
 
     public static RateRule fromRawLine(JsonNode rule) {
@@ -39,6 +40,7 @@ public class RateRule {
         } else {
             return null;
         }
+        builder.action(rule.get("action").asText());
         return builder.build();
     }
 
@@ -114,6 +116,14 @@ public class RateRule {
         this.ruleState = ruleState;
     }
 
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
     public Boolean appliesTo(RequestEvent requestEvent) {
         if (this.blockKind == BlockKind.county && requestEvent.getAddresses().get(0).getCounty() != null) {
             return true;
@@ -132,7 +142,7 @@ public class RateRule {
         OFF
     }
 
-    public RateRule(BlockKind blockKind, String county, String trueClientIp, String upmid,  Long limit, Long windowSize, Long startTime, Long expiration, RuleState ruleState) {
+    public RateRule(BlockKind blockKind, String county, String trueClientIp, String upmid,  Long limit, Long windowSize, Long startTime, Long expiration, RuleState ruleState,String action) {
         this.blockKind = blockKind;
         this.county = county;
         this.trueClientIp = trueClientIp;
@@ -142,10 +152,11 @@ public class RateRule {
         this.startTime = startTime;
         this.expiration = expiration * 1000L * 60L; // in minutes
         this.ruleState = ruleState;
+        this.action = action;
     }
 
     public RateRule(RateRuleBuilder builder){
-        this(builder.blockKind, builder.county, builder.trueClientIp, builder.upmid, builder.limit, builder.windowSize, builder.startTime, builder.expiration, builder.ruleState);
+        this(builder.blockKind, builder.county, builder.trueClientIp, builder.upmid, builder.limit, builder.windowSize, builder.startTime, builder.expiration, builder.ruleState,builder.action);
     }
 
     @Override
@@ -163,6 +174,7 @@ public class RateRule {
         if (limit != null ? !limit.equals(rateRule.limit) : rateRule.limit != null) return false;
         if (windowSize != null ? !windowSize.equals(rateRule.windowSize) : rateRule.windowSize != null) return false;
         if (expiration != null ? !expiration.equals(rateRule.expiration) : rateRule.expiration != null) return false;
+        if (action != null ? !action.equals(rateRule.action) : rateRule.action != null) return false;
         return ruleState == rateRule.ruleState;
     }
 
@@ -177,6 +189,7 @@ public class RateRule {
         result = 37 * result + (int)(windowSize ^ (windowSize >>> 32));
         result = 37 * result + (int)(expiration ^ (expiration >>> 32));
         result = 37 * result + (ruleState == RuleState.ON ? 1 : 0);
+        result = 37 * result + (action != null ? action.hashCode() : 0);
         return result;
     }
 
@@ -189,7 +202,8 @@ public class RateRule {
                 windowSize,
                 startTime,
                 expiration,
-                ruleState.name()
+                ruleState.name(),
+                action
                 );
     }
 }

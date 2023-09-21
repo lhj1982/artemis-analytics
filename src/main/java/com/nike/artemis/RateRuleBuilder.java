@@ -10,6 +10,7 @@ public class RateRuleBuilder {
     public Long windowSize;
     public Long startTime;
     public Long expiration;
+    public String action;
     public RateRule.RuleState ruleState;
 
     public RateRuleBuilder(){}
@@ -58,7 +59,10 @@ public class RateRuleBuilder {
         this.ruleState = ruleState;
         return this;
     }
-
+    public RateRuleBuilder action(String action){
+        this.action = action;
+        return this;
+    }
     public RateRule build(){
         return new RateRule(this);
     }

@@ -13,11 +13,12 @@ public class CdnRateRule {
     private long block_time;
     private String enforce;
     private String name_space;
+    private String action;
 
     public CdnRateRule() {
     }
 
-    public CdnRateRule(String rule_name, String user_type, String path, String method, String status, long window, long limit, long block_time, String enforce, String name_space) {
+    public CdnRateRule(String rule_name, String user_type, String path, String method, String status, long window, long limit, long block_time, String enforce, String name_space, String action) {
         this.rule_name = rule_name;
         this.user_type = user_type;
         this.path = path;
@@ -28,6 +29,7 @@ public class CdnRateRule {
         this.block_time = block_time;
         this.enforce = enforce;
         this.name_space = name_space;
+        this.action = action;
     }
 
     public String getRule_name() {
@@ -110,6 +112,14 @@ public class CdnRateRule {
         this.name_space = name_space;
     }
 
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -126,6 +136,7 @@ public class CdnRateRule {
         if (method != null ? !method.equals(that.method) : that.method != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (name_space != null ? !name_space.equals(that.name_space) : that.name_space != null) return false;
+        if (action != null ? !action.equals(that.action) : that.action != null) return false;
         return enforce != null ? enforce.equals(that.enforce) : that.enforce == null;
     }
 
@@ -141,6 +152,7 @@ public class CdnRateRule {
         result = 31 * result + (int) (block_time ^ (block_time >>> 32));
         result = 31 * result + (enforce != null ? enforce.hashCode() : 0);
         result = 31 * result + (name_space != null ? name_space.hashCode() : 0);
+        result = 31 * result + (action != null ? action.hashCode() : 0);
         return result;
     }
 
@@ -157,6 +169,7 @@ public class CdnRateRule {
                 ", \"block_time\":\"" + block_time + '\"' +
                 ", \"enforce\":\"" + enforce + '\"' +
                 ", \"name_space\":\"" + name_space + '\"' +
+                ", \"action\":\"" + action + '\"' +
                 '}';
     }
 

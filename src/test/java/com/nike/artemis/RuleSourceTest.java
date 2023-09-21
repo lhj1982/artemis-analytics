@@ -16,7 +16,7 @@ public class RuleSourceTest {
     public static void main(String[] args) {
         CdnRulesParser cdnRulesParser = new CdnRulesParser();
         HashSet<CdnRateRule> currentCdnRateRules = new HashSet<>();
-        currentCdnRateRules.add(new CdnRateRule("xyz", "ip", "/buy/checkout", "GET", "200", 10L, 20L, 60L, "YES","test_buy_checkout"));
+        currentCdnRateRules.add(new CdnRateRule("xyz", "ip", "/buy/checkout", "GET", "200", 10L, 20L, 60L, "YES","test_buy_checkout","captcha"));
         Tuple2<HashSet<CdnRateRule>, Collection<CdnRuleChange>> rulesAndChanges = cdnRulesParser.getRulesAndChanges(currentCdnRateRules);
         System.out.println(rulesAndChanges.f0);
         System.out.println(rulesAndChanges.f1);
@@ -24,7 +24,7 @@ public class RuleSourceTest {
 
         WafRulesParser wafRulesParser = new WafRulesParser();
         HashSet<WafRateRule> currentWafRateRules = new HashSet<>();
-        currentWafRateRules.add(new WafRateRule("waf_a_rule", "llolo", "/x/y/z", "POST", "200", 10L, 20L, 60L, "YES","waf_test_block"));
+        currentWafRateRules.add(new WafRateRule("waf_a_rule", "llolo", "/x/y/z", "POST", "200", 10L, 20L, 60L, "YES","waf_test_block","captcha"));
         Tuple2<HashSet<WafRateRule>, Collection<WafRuleChange>> rulesAndChanges1 = wafRulesParser.getRulesAndChanges(currentWafRateRules);
         System.out.println(rulesAndChanges1.f0);
         System.out.println(rulesAndChanges1.f1);
