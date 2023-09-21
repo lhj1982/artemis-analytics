@@ -44,7 +44,8 @@ public class CdnRulesParserTest {
                     "        \"limit\": 15,\n" +
                     "        \"block_time\": 600,\n" +
                     "        \"enforce\": \"YES\",\n" +
-                    "        \"name_space\": \"buy_payments\"\n" +
+                    "        \"name_space\": \"buy_payments\",\n" +
+                    "        \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
         }
@@ -84,7 +85,8 @@ public class CdnRulesParserTest {
                     "      \"limit\": 10,\n" +
                     "      \"block_time\": 1800,\n" +
                     "      \"enforce\": \"YES\",\n" +
-                    "      \"name_space\": \"checkout\"\n" +
+                    "      \"name_space\": \"checkout\",\n" +
+                    "      \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
         }
@@ -98,9 +100,9 @@ public class CdnRulesParserTest {
 
     @Test
     public void testParser() {
-        CdnRateRule cdnRateRule1 = new CdnRateRule("cdn_checkout_rule", "ipaddress", "/foo/bar/checkouts", "GET", "200", 600L, 10L, 1200L, "YES", "buy_checkouts");
-        CdnRateRule cdnRateRule2 = new CdnRateRule("cdn_orders_history_rule", "upmid", "/foo/orders/history", "GET", "200", 300L, 20L, 1200L, "NO", "buy_orders_history");
-        CdnRateRule cdnRateRule3 = new CdnRateRule("cdn_payments_rule", "ipaddress", "/foo/bar/payments", "POST", "204", 1200L, 15L, 600L, "YES", "buy_payments");
+        CdnRateRule cdnRateRule1 = new CdnRateRule("cdn_checkout_rule", "ipaddress", "/foo/bar/checkouts", "GET", "200", 600L, 10L, 1200L, "YES", "buy_checkouts", "block");
+        CdnRateRule cdnRateRule2 = new CdnRateRule("cdn_orders_history_rule", "upmid", "/foo/orders/history", "GET", "200", 300L, 20L, 1200L, "NO", "buy_orders_history", "block");
+        CdnRateRule cdnRateRule3 = new CdnRateRule("cdn_payments_rule", "ipaddress", "/foo/bar/payments", "POST", "204", 1200L, 15L, 600L, "YES", "buy_payments", "block");
 
         String rawRules = "{\n" +
                 "    \"CDN\": [{\n" +
@@ -113,7 +115,8 @@ public class CdnRulesParserTest {
                 "        \"limit\": 10,\n" +
                 "        \"block_time\": 1200,\n" +
                 "        \"enforce\": \"YES\",\n" +
-                "        \"name_space\": \"buy_checkouts\"\n" +
+                "        \"name_space\": \"buy_checkouts\",\n" +
+                "        \"action\": \"block\"\n" +
                 "    }, {\n" +
                 "        \"rule_name\": \"cdn_orders_history_rule\",\n" +
                 "        \"user_type\": \"upmid\",\n" +
@@ -124,7 +127,8 @@ public class CdnRulesParserTest {
                 "        \"limit\": 20,\n" +
                 "        \"block_time\": 1200,\n" +
                 "        \"enforce\": \"NO\",\n" +
-                "        \"name_space\": \"buy_orders_history\"\n" +
+                "        \"name_space\": \"buy_orders_history\",\n" +
+                "        \"action\": \"block\"\n" +
                 "    }, {\n" +
                 "        \"rule_name\": \"cdn_payments_rule\",\n" +
                 "        \"user_type\": \"ipaddress\",\n" +
@@ -135,7 +139,8 @@ public class CdnRulesParserTest {
                 "        \"limit\": 15,\n" +
                 "        \"block_time\": 600,\n" +
                 "        \"enforce\": \"YES\",\n" +
-                "        \"name_space\": \"buy_payments\"\n" +
+                "        \"name_space\": \"buy_payments\",\n" +
+                "        \"action\": \"block\"\n" +
                 "    }]\n" +
                 "}";
 

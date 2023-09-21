@@ -48,7 +48,8 @@ public class WafRulesParserTest {
                     "      \"limit\": 10,\n" +
                     "      \"block_time\": 1800,\n" +
                     "      \"enforce\": \"YES\",\n" +
-                    "      \"name_space\": \"checkout\"\n" +
+                    "      \"name_space\": \"checkout\",\n" +
+                    "      \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
         }
@@ -71,7 +72,8 @@ public class WafRulesParserTest {
                     "        \"limit\" 10,\n" +
                     "        \"block_time\": 1200,\n" +
                     "        \"enforce\": \"YES\",\n" +
-                    "        \"name_space\": \"buy_checkouts\"\n" +
+                    "        \"name_space\": \"buy_checkouts\",\n" +
+                    "        \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
         }
@@ -88,7 +90,8 @@ public class WafRulesParserTest {
                     "      \"limit\": 10,\n" +
                     "      \"block_time\": 1800,\n" +
                     "      \"enforce\": \"YES\",\n" +
-                    "      \"name_space\": \"checkout\"\n" +
+                    "      \"name_space\": \"checkout\",\n" +
+                    "      \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
         }
@@ -96,8 +99,8 @@ public class WafRulesParserTest {
 
     @Test
     public void testWafRuleParser() {
-        WafRateRule wafRateRule1 = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, "YES", "checkout");
-        WafRateRule wafRateRule2 =new WafRateRule("waf_orders_history", "umid", "/foo/bar/orders", "GET", "200", 600L, 10L, 1200L, "NO", "orders");
+        WafRateRule wafRateRule1 = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, "YES", "checkout", "block");
+        WafRateRule wafRateRule2 =new WafRateRule("waf_orders_history", "umid", "/foo/bar/orders", "GET", "200", 600L, 10L, 1200L, "NO", "orders", "captcha");
 
         String wafS3Rules = "{\n" +
                 "    \"WAF\": [{\n" +
@@ -110,7 +113,8 @@ public class WafRulesParserTest {
                 "      \"limit\": 10,\n" +
                 "      \"block_time\": 1800,\n" +
                 "      \"enforce\": \"YES\",\n" +
-                "      \"name_space\": \"checkout\"\n" +
+                "      \"name_space\": \"checkout\",\n" +
+                "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"rule_name\": \"waf_orders_history\",\n" +
@@ -122,7 +126,8 @@ public class WafRulesParserTest {
                 "      \"limit\": 10,\n" +
                 "      \"block_time\": 1200,\n" +
                 "      \"enforce\": \"NO\",\n" +
-                "      \"name_space\": \"orders\"\n" +
+                "      \"name_space\": \"orders\",\n" +
+                "      \"action\": \"captcha\"\n" +
                 "    }]\n" +
                 "}";
 

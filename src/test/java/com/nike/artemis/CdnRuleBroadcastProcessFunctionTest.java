@@ -22,7 +22,7 @@ public class CdnRuleBroadcastProcessFunctionTest {
     @Test
     public void testCdnRuleBroadcastProcessFunction() throws Exception {
         String upmid = UUID.randomUUID().toString();
-        CdnRateRule cdnRateRule = new CdnRateRule("cdn_checkouts", "upmid", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, "YES", "checkout");
+        CdnRateRule cdnRateRule = new CdnRateRule("cdn_checkouts", "upmid", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, "YES", "checkout", "block");
         CdnRequestEvent cdnEvent = new CdnRequestEvent(0L, "upmid", upmid, "GET", "/foo/checkouts/x/y/z");
 
         CdnRuleBroadCastProcessorFunction cdnRuleBroadCastProcessorFunction = new CdnRuleBroadCastProcessorFunction();

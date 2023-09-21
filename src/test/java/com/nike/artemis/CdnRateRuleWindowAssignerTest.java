@@ -13,7 +13,7 @@ import java.util.UUID;
 public class CdnRateRuleWindowAssignerTest {
     @Test
     public void testCdnWindowAssignerTest() {
-        CdnRateRule cdnRateRule = new CdnRateRule("abc", "ipaddress", "/foo/bar/", "GET", "200", 600L, 10L, 1200L, "YES", "abc");
+        CdnRateRule cdnRateRule = new CdnRateRule("abc", "ipaddress", "/foo/bar/", "GET", "200", 600L, 10L, 1200L, "YES", "abc", "block");
         Tuple3<String, CdnRateRule, Long> element = new Tuple3<>("100.100.100.100", cdnRateRule, 0L);
         CdnRateRuleWindowAssigner assigner = new CdnRateRuleWindowAssigner();
         Collection<TimeWindow> collection = assigner.assignWindows(element, 2, null);

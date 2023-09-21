@@ -42,7 +42,8 @@ public class RuleSourceTest {
                 "      \"limit\": 10,\n" +
                 "      \"window_size\": 10,\n" +
                 "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"ON\"\n" +
+                "      \"rule_state\": \"ON\",\n" +
+                "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"rule_name\": \"launch trueClientIp block\",\n" +
@@ -50,7 +51,8 @@ public class RuleSourceTest {
                 "      \"limit\": 20,\n" +
                 "      \"window_size\": 5,\n" +
                 "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"ON\"\n" +
+                "      \"rule_state\": \"ON\",\n" +
+                "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"rule_name\": \"launch upmid block\",\n" +
@@ -58,7 +60,8 @@ public class RuleSourceTest {
                 "      \"limit\": 1000,\n" +
                 "      \"window_size\": 1,\n" +
                 "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"OFF\"\n" +
+                "      \"rule_state\": \"OFF\",\n" +
+                "      \"action\": \"block\"\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";

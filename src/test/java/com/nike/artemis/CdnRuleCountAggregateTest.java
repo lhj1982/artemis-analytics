@@ -20,7 +20,7 @@ public class CdnRuleCountAggregateTest {
     @Test
     public void add_returnsPlusOne() {
         CdnRuleCountAggregate cdnRuleCountAggregate = new CdnRuleCountAggregate();
-        assertEquals(Long.valueOf(2), cdnRuleCountAggregate.add(new Tuple3<>(UUID.randomUUID().toString(), new CdnRateRule("a_b_c", "upmid", "/foo/bar/", "GET", "200", 0L, 0L, 0L, "YES", "abc"), 0L), 1L));
+        assertEquals(Long.valueOf(2), cdnRuleCountAggregate.add(new Tuple3<>(UUID.randomUUID().toString(), new CdnRateRule("a_b_c", "upmid", "/foo/bar/", "GET", "200", 0L, 0L, 0L, "YES", "abc", "block"), 0L), 1L));
     }
 
     @Test

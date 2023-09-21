@@ -42,7 +42,8 @@ public class RulesParserTest {
                     "      \"limit\": 10,\n" +
                     "      \"window_size\": 10,\n" +
                     "      \"block_time\": 30,\n" +
-                    "      \"rule_state\": \"ON\"\n" +
+                    "      \"rule_state\": \"ON\",\n" +
+                    "      \"action\": \"block\"\n" +
                     "    }\n" +
                     "  ]\n" +
                     "}";
@@ -63,7 +64,8 @@ public class RulesParserTest {
                     "      \"limit\": 10,\n" +
                     "      \"window_size\": 10,\n" +
                     "      \"block_time\": 30,\n" +
-                    "      \"rule_state\": \"ON\"\n" +
+                    "      \"rule_state\": \"ON\",\n" +
+                    "      \"action\": \"block\"\n" +
                     "    }\n" +
                     "  ]\n" +
                     "}";
@@ -89,9 +91,9 @@ public class RulesParserTest {
 
     @Test
     public void testParse() {
-        RateRule rateRule1 = new RateRuleBuilder().blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).ruleState(RateRule.RuleState.ON).build();
-        RateRule rateRule2 = new RateRuleBuilder().blockKind(BlockKind.ipaddress).limit(20L).windowSize(5L).expiration(30L).ruleState(RateRule.RuleState.ON).build();
-        RateRule rateRule3 = new RateRuleBuilder().blockKind(BlockKind.county).limit(1000L).windowSize(1L).expiration(30L).ruleState(RateRule.RuleState.OFF).build();
+        RateRule rateRule1 = new RateRuleBuilder().blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).action("block").ruleState(RateRule.RuleState.ON).build();
+        RateRule rateRule2 = new RateRuleBuilder().blockKind(BlockKind.ipaddress).limit(20L).windowSize(5L).expiration(30L).action("block").ruleState(RateRule.RuleState.ON).build();
+        RateRule rateRule3 = new RateRuleBuilder().blockKind(BlockKind.county).limit(1000L).windowSize(1L).expiration(30L).action("block").ruleState(RateRule.RuleState.OFF).build();
 
         String s3LaunchRule = "{\n" +
                 "  \"LAUNCH\": [\n" +
@@ -101,7 +103,8 @@ public class RulesParserTest {
                 "      \"limit\": 10,\n" +
                 "      \"window_size\": 10,\n" +
                 "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"ON\"\n" +
+                "      \"rule_state\": \"ON\",\n" +
+                "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"rule_name\": \"launch trueClientIp block\",\n" +
@@ -109,7 +112,8 @@ public class RulesParserTest {
                 "      \"limit\": 20,\n" +
                 "      \"window_size\": 5,\n" +
                 "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"ON\"\n" +
+                "      \"rule_state\": \"ON\",\n" +
+                "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"rule_name\": \"launch upmid block\",\n" +
@@ -117,7 +121,8 @@ public class RulesParserTest {
                 "      \"limit\": 1000,\n" +
                 "      \"window_size\": 1,\n" +
                 "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"OFF\"\n" +
+                "      \"rule_state\": \"OFF\",\n" +
+                "      \"action\": \"block\"\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";
