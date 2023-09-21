@@ -4,6 +4,8 @@ package com.nike.artemis;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,15 +14,22 @@ import java.util.HashSet;
 import java.util.List;
 
 public class RulesParser implements Serializable {
+    public static Logger LOG = LoggerFactory.getLogger(RulesParser.class);
     public RuleSourceProvider provider;
+
+    public RulesParser () {
+    }
     public RulesParser(RuleSourceProvider ruleSourceProvider) {
         this.provider = ruleSourceProvider;
     }
 
     public Tuple2<HashSet<RateRule>, Collection<RuleChange>> getRulesAndChanges(HashSet<RateRule> currentRules) {
         HashSet<RateRule> s3Rules = this.getRules();
-        Collection<RuleChange> changes = determineChanges(currentRules, s3Rules);
-        return new Tuple2<>(s3Rules, changes);
+        if (s3Rules != null) {
+            Collection<RuleChange> changes = determineChanges(currentRules, s3Rules);
+            return new Tuple2<>(s3Rules, changes);
+        }
+        return new Tuple2<>(currentRules, new ArrayList<>());
     }
 
 
@@ -43,6 +52,7 @@ public class RulesParser implements Serializable {
             }
             JsonNode jsonRaw = mapper.readTree(jsonContent.toString());
             JsonNode launchRules = jsonRaw.get("LAUNCH");
+            if (launchRules == null) return rules;
             if (launchRules.isArray()) {
                 for (JsonNode launchRule : launchRules) {
                     RateRule rateRule = RateRule.fromRawLine(launchRule);
@@ -51,7 +61,7 @@ public class RulesParser implements Serializable {
             }
             return rules;
         } catch (Exception e){
-            e.printStackTrace();
+            LOG.error("Location={RulesParser} source={} error={}", jsonContent, e.getMessage());
             return null;
         }
 

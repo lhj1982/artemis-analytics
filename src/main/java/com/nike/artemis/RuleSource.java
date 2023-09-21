@@ -4,6 +4,8 @@ import com.nike.artemis.BlockKind;
 import com.nike.artemis.RateRule;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.Serializable;
@@ -15,22 +17,25 @@ import java.util.Date;
 import java.util.HashSet;
 
 public class RuleSource implements SourceFunction<RuleChange>, Serializable {
+    public static Logger LOG = LoggerFactory.getLogger(RuleSource.class);
     public Boolean running = true;
     public Date currentRuleDate;
     public RulesParser parser;
     public RuleSourceProvider provider;
     public HashSet<RateRule> currentRules = new HashSet<>();
+    public boolean testMode;
 
     public RuleSource(){
     }
-    public RuleSource(RuleSourceProvider ruleSourceProvider){
+    public RuleSource(RuleSourceProvider ruleSourceProvider, boolean testMode){
         currentRuleDate = Date.from(Instant.EPOCH);
         parser = new RulesParser(ruleSourceProvider);
         provider = ruleSourceProvider;
+        this.testMode = testMode;
     }
 
     @Override
-    public void run(SourceContext<RuleChange> ctx) throws Exception {
+    public void run(SourceContext<RuleChange> ctx) {
 
         running = true;
 
@@ -63,10 +68,14 @@ public class RuleSource implements SourceFunction<RuleChange>, Serializable {
                 currentRules = rulesAndChanges.f0;
                 currentRuleDate = lastModified;
             }
+            if (testMode) {
+                running = false;
+                break;
+            }
             try {
                 Thread.sleep(60*1000);
-            } catch (InterruptedException ignored) {
-
+            } catch (InterruptedException e) {
+                LOG.error("Location=LaunchRuleSource error={}", e);
             }
 
         }

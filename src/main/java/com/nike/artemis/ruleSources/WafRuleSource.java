@@ -22,18 +22,20 @@ public class WafRuleSource implements SourceFunction<WafRuleChange>, Serializabl
     public WafRulesParser parser;
     public RuleSourceProvider provider;
     public HashSet<WafRateRule> currentRules = new HashSet<>();
+    public boolean testMode;
 
     public WafRuleSource() {
     }
 
-    public WafRuleSource(RuleSourceProvider s3) {
+    public WafRuleSource(RuleSourceProvider s3, boolean testMode) {
         currentRuleDate = Date.from(Instant.EPOCH);
         parser = new WafRulesParser(s3);
         provider = s3;
+        this.testMode = testMode;
     }
 
     @Override
-    public void run(SourceContext<WafRuleChange> ctx) throws Exception {
+    public void run(SourceContext<WafRuleChange> ctx) {
         running = true;
         while (running) {
             Date lastModified = provider.getLastModified();
@@ -44,6 +46,10 @@ public class WafRuleSource implements SourceFunction<WafRuleChange>, Serializabl
                 }
                 currentRules = rulesAndChanges.f0;
                 currentRuleDate = lastModified;
+            }
+            if (testMode) {
+                running = false;
+                break;
             }
             try {
                 Thread.sleep(60*1000);

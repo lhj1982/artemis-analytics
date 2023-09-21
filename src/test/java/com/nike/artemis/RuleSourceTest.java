@@ -1,33 +1,108 @@
 package com.nike.artemis;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.nike.artemis.rulesParsers.CdnRulesParser;
-import com.nike.artemis.rulesParsers.WafRulesParser;
-import com.nike.artemis.model.rules.CdnRateRule;
-import com.nike.artemis.model.rules.WafRateRule;
-import com.nike.artemis.ruleChanges.CdnRuleChange;
-import com.nike.artemis.ruleChanges.WafRuleChange;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.api.watermark.Watermark;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class RuleSourceTest {
-    public static void main(String[] args) {
-        CdnRulesParser cdnRulesParser = new CdnRulesParser();
-        HashSet<CdnRateRule> currentCdnRateRules = new HashSet<>();
-        currentCdnRateRules.add(new CdnRateRule("xyz", "ip", "/buy/checkout", "GET", "200", 10L, 20L, 60L, "YES","test_buy_checkout","captcha"));
-        Tuple2<HashSet<CdnRateRule>, Collection<CdnRuleChange>> rulesAndChanges = cdnRulesParser.getRulesAndChanges(currentCdnRateRules);
-        System.out.println(rulesAndChanges.f0);
-        System.out.println(rulesAndChanges.f1);
 
+    class TestLaunchRuleSourceProvider implements RuleSourceProvider {
+        String rulesContents;
+        Instant lastModified = Instant.EPOCH.plusSeconds(1);
 
-        WafRulesParser wafRulesParser = new WafRulesParser();
-        HashSet<WafRateRule> currentWafRateRules = new HashSet<>();
-        currentWafRateRules.add(new WafRateRule("waf_a_rule", "llolo", "/x/y/z", "POST", "200", 10L, 20L, 60L, "YES","waf_test_block","captcha"));
-        Tuple2<HashSet<WafRateRule>, Collection<WafRuleChange>> rulesAndChanges1 = wafRulesParser.getRulesAndChanges(currentWafRateRules);
-        System.out.println(rulesAndChanges1.f0);
-        System.out.println(rulesAndChanges1.f1);
+        @Override
+        public Date getLastModified() {
+            return Date.from(lastModified);
+        }
+
+        @Override
+        public InputStream getObjectContent() {
+            return new ByteArrayInputStream(rulesContents.getBytes());
+        }
+
+        public TestLaunchRuleSourceProvider (String rulesContents) {
+            this.rulesContents = rulesContents;
+        }
+    }
+
+    @Test
+    public void testLaunchRuleSource(){
+        String s3LaunchRule = "{\n" +
+                "  \"LAUNCH\": [\n" +
+                "    {\n" +
+                "      \"rule_name\": \"launch county block\",\n" +
+                "      \"block_kind\": \"upmid\",\n" +
+                "      \"limit\": 10,\n" +
+                "      \"window_size\": 10,\n" +
+                "      \"block_time\": 30,\n" +
+                "      \"rule_state\": \"ON\",\n" +
+                "      \"action\": \"block\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"rule_name\": \"launch trueClientIp block\",\n" +
+                "      \"block_kind\": \"trueClientIp\",\n" +
+                "      \"limit\": 20,\n" +
+                "      \"window_size\": 5,\n" +
+                "      \"block_time\": 30,\n" +
+                "      \"rule_state\": \"ON\",\n" +
+                "      \"action\": \"block\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"rule_name\": \"launch upmid block\",\n" +
+                "      \"block_kind\": \"county\",\n" +
+                "      \"limit\": 1000,\n" +
+                "      \"window_size\": 1,\n" +
+                "      \"block_time\": 30,\n" +
+                "      \"rule_state\": \"OFF\",\n" +
+                "      \"action\": \"block\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        TestLaunchRuleSourceProvider testLaunchRuleSourceProvider = new TestLaunchRuleSourceProvider(s3LaunchRule);
+        RuleSource ruleSource = new RuleSource(testLaunchRuleSourceProvider, true);
+        ArrayList<RuleChange> changes = new ArrayList<RuleChange>();
+        SourceFunction.SourceContext<RuleChange> ctx = new SourceFunction.SourceContext<>() {
+            @Override
+            public void collect(RuleChange element) {
+                changes.add(element);
+            }
+
+            @Override
+            public void collectWithTimestamp(RuleChange element, long timestamp) {
+
+            }
+
+            @Override
+            public void emitWatermark(Watermark mark) {
+
+            }
+
+            @Override
+            public void markAsTemporarilyIdle() {
+
+            }
+
+            @Override
+            public Object getCheckpointLock() {
+                return null;
+            }
+
+            @Override
+            public void close() {
+
+            }
+        };
+        ruleSource.run(ctx);
+        assertEquals(3, changes.size());
+
 
     }
 }

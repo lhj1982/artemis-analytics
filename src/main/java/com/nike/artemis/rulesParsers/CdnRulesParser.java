@@ -6,6 +6,8 @@ import com.nike.artemis.RuleSourceProvider;
 import com.nike.artemis.model.rules.CdnRateRule;
 import com.nike.artemis.ruleChanges.CdnRuleChange;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 
 public class CdnRulesParser implements Serializable {
+
+    public static Logger LOG = LoggerFactory.getLogger(CdnRulesParser.class);
     public RuleSourceProvider provider;
     public CdnRulesParser() {
 
@@ -24,8 +28,11 @@ public class CdnRulesParser implements Serializable {
 
     public Tuple2<HashSet<CdnRateRule>, Collection<CdnRuleChange>> getRulesAndChanges(HashSet<CdnRateRule> currentRules) {
         HashSet<CdnRateRule> s3Rules = this.getRules();
-        Collection<CdnRuleChange> changes = determineChanges(currentRules, s3Rules);
-        return new Tuple2<>(s3Rules, changes);
+        if (s3Rules != null){
+            Collection<CdnRuleChange> changes = determineChanges(currentRules, s3Rules);
+            return new Tuple2<>(s3Rules, changes);
+        }
+        return new Tuple2<>(currentRules, new ArrayList<>());
     }
 
 
@@ -39,7 +46,6 @@ public class CdnRulesParser implements Serializable {
         InputStream rulesStream = provider.getObjectContent();
         if (rulesStream == null) return rules;
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(rulesStream));
-//        File jsonContent = new File("/Users/TTopde/Desktop/aa/artemis-analytics/src/test/resources/rules");
         StringBuilder jsonContent = new StringBuilder();
         String line;
         try{
@@ -49,6 +55,7 @@ public class CdnRulesParser implements Serializable {
             }
             JsonNode jsonRaw = mapper.readTree(jsonContent.toString());
             JsonNode jsonRules = jsonRaw.get("CDN");
+            if (jsonRules == null) return new HashSet<>();
             if (jsonRules.isArray()) {
                 for (JsonNode jsonRule : jsonRules) {
                     CdnRateRule cdnRateRule = mapper.treeToValue(jsonRule, CdnRateRule.class);
@@ -57,7 +64,7 @@ public class CdnRulesParser implements Serializable {
             }
             return rules;
         } catch (Exception e){
-            e.printStackTrace();
+            LOG.error("Location={CdnRulesParser} source={} error={}", jsonContent, e.getMessage());
             return null;
         }
 
