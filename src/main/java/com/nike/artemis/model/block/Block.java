@@ -1,6 +1,6 @@
 package com.nike.artemis.model.block;
 
-import com.nike.artemis.BlockEvent;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 
 public class Block {
