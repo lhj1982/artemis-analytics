@@ -1,8 +1,10 @@
-package com.nike.artemis;
+package com.nike.artemis.rulesParsers;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nike.artemis.model.rules.LaunchRateRule;
+import com.nike.artemis.ruleChanges.LaunchRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.slf4j.Logger;

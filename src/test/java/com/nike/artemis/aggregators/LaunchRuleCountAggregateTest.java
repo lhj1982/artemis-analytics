@@ -1,5 +1,7 @@
-package com.nike.artemis;
+package com.nike.artemis.aggregators;
 
+import com.nike.artemis.BlockKind;
+import com.nike.artemis.LaunchRateRuleBuilder;
 import com.nike.artemis.aggregators.LaunchRuleCountAggregate;
 import com.nike.artemis.model.rules.LaunchRateRule;
 import org.apache.flink.api.java.tuple.Tuple4;

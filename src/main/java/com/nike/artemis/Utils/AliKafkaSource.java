@@ -1,5 +1,6 @@
-package com.nike.artemis;
+package com.nike.artemis.Utils;
 
+import com.nike.artemis.Utils.KafkaHelpers;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.KafkaSourceBuilder;

@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.Utils;
 
 import com.amazonaws.services.kinesisanalytics.runtime.KinesisAnalyticsRuntime;
 import org.slf4j.Logger;

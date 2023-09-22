@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.model.launch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nike.artemis.model.*;
@@ -163,7 +163,7 @@ public class LaunchRequestEvent {
 
     @Override
     public String toString() {
-        return "com.nike.artemis.LaunchRequestEvent{" +
+        return "com.nike.artemis.model.launch.LaunchRequestEvent{" +
                 "addresses=" + addresses +
                 ", user=" + user +
                 ", device=" + device +

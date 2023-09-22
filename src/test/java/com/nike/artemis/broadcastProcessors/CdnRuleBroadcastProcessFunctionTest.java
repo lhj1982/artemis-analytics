@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.broadcastProcessors;
 
 import com.nike.artemis.broadcastProcessors.CdnRuleBroadCastProcessorFunction;
 import com.nike.artemis.model.cdn.CdnRequestEvent;

@@ -1,8 +1,7 @@
-package com.nike.artemis.ruleSource;
+package com.nike.artemis.ruleSources;
 
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import com.nike.artemis.ruleChanges.WafRuleChange;
-import com.nike.artemis.ruleSources.WafRuleSource;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.junit.Test;

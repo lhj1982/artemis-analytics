@@ -2,7 +2,7 @@ package com.nike.artemis.rulesParsers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nike.artemis.RuleSourceProvider;
+import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.ruleChanges.WafRuleChange;
 import org.apache.flink.api.java.tuple.Tuple2;

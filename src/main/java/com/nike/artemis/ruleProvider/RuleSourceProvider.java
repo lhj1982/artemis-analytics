@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.ruleProvider;
 
 import java.io.InputStream;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.dataResolver;
 
 import com.nike.artemis.dataResolver.WafLogResolver;
 import com.nike.artemis.model.waf.WafRequestEvent;

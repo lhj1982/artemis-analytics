@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.rulesParsers;
 
 import static org.junit.Assert.*;
 import com.nike.artemis.model.rules.CdnRateRule;

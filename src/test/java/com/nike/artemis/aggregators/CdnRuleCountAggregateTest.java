@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.aggregators;
 
 import com.nike.artemis.aggregators.CdnRuleCountAggregate;
 import com.nike.artemis.model.rules.CdnRateRule;

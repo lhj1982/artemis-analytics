@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.ruleTriggerer;
 
 import com.nike.artemis.ruleTriggerer.CdnRuleTrigger;
 import com.nike.artemis.ruleTriggerer.WafRuleTrigger;

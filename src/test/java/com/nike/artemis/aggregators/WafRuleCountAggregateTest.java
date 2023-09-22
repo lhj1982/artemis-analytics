@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.aggregators;
 
 import com.nike.artemis.aggregators.WafRuleCountAggregate;
 import com.nike.artemis.model.rules.WafRateRule;

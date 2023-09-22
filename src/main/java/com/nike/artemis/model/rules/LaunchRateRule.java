@@ -1,7 +1,10 @@
-package com.nike.artemis;
+package com.nike.artemis.model.rules;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.nike.artemis.BlockKind;
+import com.nike.artemis.LaunchRateRuleBuilder;
+import com.nike.artemis.model.launch.LaunchRequestEvent;
 
 public class LaunchRateRule {
     private BlockKind blockKind;
@@ -124,7 +127,7 @@ public class LaunchRateRule {
         this.action = action;
     }
 
-    public Boolean appliesTo(RequestEvent requestEvent) {
+    public Boolean appliesTo(LaunchRequestEvent requestEvent) {
         if (this.blockKind == BlockKind.county && requestEvent.getAddresses().get(0).getCounty() != null) {
             return true;
         } else if (this.blockKind == BlockKind.upmid && requestEvent.getUser().getUpmId() != null) {
@@ -137,7 +140,7 @@ public class LaunchRateRule {
     }
 
 
-    enum RuleState {
+    public enum RuleState {
         ON,
         OFF
     }

@@ -1,5 +1,7 @@
-package com.nike.artemis;
+package com.nike.artemis.rulesParsers;
 
+import com.nike.artemis.BlockKind;
+import com.nike.artemis.LaunchRateRuleBuilder;
 import com.nike.artemis.model.rules.LaunchRateRule;
 import com.nike.artemis.ruleChanges.LaunchRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;

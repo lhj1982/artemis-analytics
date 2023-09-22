@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.ruleTriggerer;
 
 import com.nike.artemis.model.rules.LaunchRateRule;
 import org.apache.flink.api.java.tuple.Tuple4;

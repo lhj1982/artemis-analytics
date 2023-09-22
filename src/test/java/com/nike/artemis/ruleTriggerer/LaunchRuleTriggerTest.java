@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.ruleTriggerer;
 
 import static org.junit.Assert.*;
 

@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.rulesParsers;
 
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.ruleChanges.WafRuleChange;

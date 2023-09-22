@@ -1,6 +1,6 @@
 package com.nike.artemis.ruleSources;
 
-import com.nike.artemis.RuleSourceProvider;
+import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import com.nike.artemis.rulesParsers.WafRulesParser;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.ruleChanges.WafRuleChange;

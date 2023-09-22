@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.dataResolver;
 
 import com.nike.artemis.dataResolver.CdnLogResolver;
 import com.nike.artemis.model.cdn.CdnRequestEvent;

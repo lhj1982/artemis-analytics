@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.windowAssigners;
 
 import com.nike.artemis.WindowAssigners.CdnRateRuleWindowAssigner;
 import com.nike.artemis.model.rules.CdnRateRule;

@@ -1,4 +1,6 @@
-package com.nike.artemis;
+package com.nike.artemis.ruleChanges;
+
+import com.nike.artemis.model.rules.LaunchRateRule;
 
 public class LaunchRuleChange {
 

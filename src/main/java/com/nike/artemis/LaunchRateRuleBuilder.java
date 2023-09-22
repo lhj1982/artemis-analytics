@@ -1,5 +1,7 @@
 package com.nike.artemis;
 
+import com.nike.artemis.model.rules.LaunchRateRule;
+
 public class LaunchRateRuleBuilder {
 
     public BlockKind blockKind;

@@ -1,23 +1,38 @@
 package com.nike.artemis;
 
+import com.nike.artemis.Utils.AliKafkaSource;
+import com.nike.artemis.Utils.KafkaHelpers;
+import com.nike.artemis.WindowAssigners.LaunchRateRuleWindowAssigner;
+import com.nike.artemis.aggregators.LaunchRuleCountAggregate;
+import com.nike.artemis.broadcastProcessors.LaunchRuleBroadCastProcessorFunction;
+import com.nike.artemis.model.launch.LaunchRequestEvent;
+import com.nike.artemis.model.rules.LaunchRateRule;
+import com.nike.artemis.processWindows.LaunchRuleProcessWindowFunction;
+import com.nike.artemis.ruleChanges.LaunchRuleChange;
+import com.nike.artemis.ruleProvider.S3RuleSourceProviderImpl;
 import com.nike.artemis.WindowAssigners.CdnRateRuleWindowAssigner;
 import com.nike.artemis.WindowAssigners.WafRateRuleWindowAssigner;
 import com.nike.artemis.aggregators.CdnRuleCountAggregate;
 import com.nike.artemis.aggregators.WafRuleCountAggregate;
-import com.nike.artemis.broadCastProcessors.CdnRuleBroadCastProcessorFunction;
-import com.nike.artemis.broadCastProcessors.WafRuleBroadCastProcessorFunction;
+import com.nike.artemis.broadcastProcessors.CdnRuleBroadCastProcessorFunction;
+import com.nike.artemis.broadcastProcessors.WafRuleBroadCastProcessorFunction;
+import com.nike.artemis.dataResolver.CdnLogResolver;
+import com.nike.artemis.dataResolver.SNSResolver;
+import com.nike.artemis.dataResolver.WafLogResolver;
 import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
 import com.nike.artemis.model.rules.CdnRateRule;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.model.waf.WafRequestEvent;
-import com.nike.artemis.processWindows.CdnRuleProcessWindow;
-import com.nike.artemis.processWindows.WafRuleProcessWindow;
+import com.nike.artemis.processWindows.CdnRuleProcessWindowFunction;
+import com.nike.artemis.processWindows.WafRuleProcessWindowFunction;
 import com.nike.artemis.ruleChanges.CdnRuleChange;
 import com.nike.artemis.ruleChanges.WafRuleChange;
 import com.nike.artemis.ruleSources.CdnRuleSource;
+import com.nike.artemis.ruleSources.LaunchRuleSource;
 import com.nike.artemis.ruleSources.WafRuleSource;
 import com.nike.artemis.ruleTriggerer.CdnRuleTrigger;
+import com.nike.artemis.ruleTriggerer.LaunchRuleTrigger;
 import com.nike.artemis.ruleTriggerer.WafRuleTrigger;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -26,7 +41,6 @@ import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -34,10 +48,7 @@ import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisConsumer;
 import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisProducer;
 import org.apache.flink.streaming.connectors.kinesis.KinesisPartitioner;
@@ -82,7 +93,7 @@ public class Main {
 
         //=============================== SNS REQUEST DATA STREAM ================
 
-        DataStream<RequestEvent> requestEventDataStream = env.addSource(new FlinkKinesisConsumer<>(
+        DataStream<LaunchRequestEvent> requestEventDataStream = env.addSource(new FlinkKinesisConsumer<>(
                 "artemis-input-stream", new SimpleStringSchema(), consumerConfig)).flatMap(new SNSResolver())
                 .name("Artemis Input");
 
@@ -123,7 +134,7 @@ public class Main {
                 })
                 .window(new CdnRateRuleWindowAssigner())
                 .trigger(new CdnRuleTrigger())
-                .aggregate(new CdnRuleCountAggregate(), new CdnRuleProcessWindow())
+                .aggregate(new CdnRuleCountAggregate(), new CdnRuleProcessWindowFunction())
                 .name("CDN Log processor");
 
 
@@ -160,7 +171,7 @@ public class Main {
                 })
                 .window(new WafRateRuleWindowAssigner())
                 .trigger(new WafRuleTrigger())
-                .aggregate(new WafRuleCountAggregate(), new WafRuleProcessWindow())
+                .aggregate(new WafRuleCountAggregate(), new WafRuleProcessWindowFunction())
                 .name("WAF Log processor");
 
         //=============================== SNS EVENT SIMULATOR =====================
@@ -170,8 +181,8 @@ public class Main {
 
 
         //=============================== Rule from S3 ===========================
-        MapStateDescriptor<RateRule, Object> ruleStateDescriptor = new MapStateDescriptor<>("RulesBroadcastState", TypeInformation.of(new TypeHint<RateRule>() {}), BasicTypeInfo.of(Object.class));
-        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource(s3RuleSourceProvider, false)).name("LAUNCH Rule Source S3").broadcast(ruleStateDescriptor);
+        MapStateDescriptor<LaunchRateRule, Object> ruleStateDescriptor = new MapStateDescriptor<>("LaunchRulesBroadcastState", TypeInformation.of(new TypeHint<LaunchRateRule>() {}), BasicTypeInfo.of(Object.class));
+        BroadcastStream<LaunchRuleChange> rulesSource = env.addSource(new LaunchRuleSource(s3RuleSourceProvider, false)).name("LAUNCH Rule Source S3").broadcast(ruleStateDescriptor);
 
 //        BroadcastStream<RuleChange> rulesSource = env.addSource(new RuleSource()).uid("Rules Source").broadcast(ruleStateDescriptor);
 
@@ -179,23 +190,23 @@ public class Main {
 //        requestEventDataStream.print("requestEventStream: ");
          DataStream<Block> launchBlockDs = requestEventDataStream
                 .connect(rulesSource)
-                .process(new RuleBroadCastProcessorFunction()).name("Blend BroadCast Rule with Event")
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple4<String, String, RateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(10))
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple4<String, String, RateRule, Long>>() {
+                .process(new LaunchRuleBroadCastProcessorFunction()).name("Blend BroadCast Rule with Event")
+                .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple4<String, String, LaunchRateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(10))
+                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple4<String, String, LaunchRateRule, Long>>() {
                             @Override
-                            public long extractTimestamp(Tuple4<String, String, RateRule, Long> element, long recordTimestamp) {
+                            public long extractTimestamp(Tuple4<String, String, LaunchRateRule, Long> element, long recordTimestamp) {
                                 return element.f3;
                             }
                         }).withIdleness(Duration.ofSeconds(30)))
-                .keyBy(new KeySelector<Tuple4<String, String, RateRule, Long>, Tuple3<String, String, RateRule>>() {
+                .keyBy(new KeySelector<Tuple4<String, String, LaunchRateRule, Long>, Tuple3<String, String, LaunchRateRule>>() {
                     @Override
-                    public Tuple3<String, String, RateRule> getKey(Tuple4<String, String, RateRule , Long> value) throws Exception {
-                        return new Tuple3<>(value.f0, value.f1, value.f2); //entity, launchId, RateRule
+                    public Tuple3<String, String, LaunchRateRule> getKey(Tuple4<String, String, LaunchRateRule , Long> value) throws Exception {
+                        return new Tuple3<>(value.f0, value.f1, value.f2); //entity, launchId, LaunchRateRule
                     }
                 })
-                .window(TumblingEventTimeWindows.of(Time.minutes(10)))
-                .trigger(new RuleTrigger())
-                .aggregate(new RuleCountAggregate(), new RuleProcessWindowFunction())
+                .window(new LaunchRateRuleWindowAssigner())
+                .trigger(new LaunchRuleTrigger())
+                .aggregate(new LaunchRuleCountAggregate(), new LaunchRuleProcessWindowFunction())
                  .name("Rule Window");
 
         FlinkKinesisProducer<Block> sink = new FlinkKinesisProducer<>(Block.sinkSerializer(), producerConfig);

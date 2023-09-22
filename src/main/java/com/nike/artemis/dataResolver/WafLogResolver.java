@@ -1,6 +1,5 @@
-package com.nike.artemis;
+package com.nike.artemis.dataResolver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nike.artemis.Utils.UserIdentifier;
 import com.nike.artemis.model.waf.WafData;

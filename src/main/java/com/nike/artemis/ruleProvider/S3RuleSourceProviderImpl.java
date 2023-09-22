@@ -1,4 +1,4 @@
-package com.nike.artemis;
+package com.nike.artemis.ruleProvider;
 
 import org.apache.flink.kinesis.shaded.com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import org.apache.flink.kinesis.shaded.com.amazonaws.services.s3.AmazonS3;

@@ -1,5 +1,8 @@
-package com.nike.artemis;
+package com.nike.artemis.ruleSources;
 
+import com.nike.artemis.model.rules.LaunchRateRule;
+import com.nike.artemis.rulesParsers.LaunchRulesParser;
+import com.nike.artemis.ruleChanges.LaunchRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;

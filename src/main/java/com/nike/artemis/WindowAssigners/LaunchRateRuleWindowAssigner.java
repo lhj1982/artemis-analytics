@@ -1,17 +1,15 @@
-package com.nike.artemis;
+package com.nike.artemis.WindowAssigners;
 
-import com.nike.artemis.RateRule;
-import com.nike.artemis.RuleTrigger;
+import com.nike.artemis.ruleTriggerer.LaunchRuleTrigger;
+import com.nike.artemis.model.rules.LaunchRateRule;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
 import org.apache.flink.streaming.api.windowing.triggers.Trigger;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -29,7 +27,7 @@ public class LaunchRateRuleWindowAssigner extends WindowAssigner<Tuple4<String, 
 
     @Override
     public Trigger<Tuple4<String, String, LaunchRateRule, Long>, TimeWindow> getDefaultTrigger(StreamExecutionEnvironment env) {
-        return new RuleTrigger();
+        return new LaunchRuleTrigger();
     }
 
     @Override

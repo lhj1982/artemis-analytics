@@ -1,4 +1,4 @@
-package com.nike.artemis.broadCastProcessors;
+package com.nike.artemis.broadcastProcessors;
 
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.model.waf.WafRequestEvent;
