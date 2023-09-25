@@ -1,5 +1,7 @@
 package com.nike.artemis.model.rules;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.nike.artemis.CdnRateRuleBuilder;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
 
 public class CdnRateRule {
@@ -24,9 +26,9 @@ public class CdnRateRule {
         this.path = path;
         this.method = method;
         this.status = status;
-        this.window = window;
+        this.window = window * 1000L * 60L; // in minutes
         this.limit = limit;
-        this.block_time = block_time;
+        this.block_time = block_time * 1000L * 60L; // in minutes
         this.enforce = enforce;
         this.name_space = name_space;
         this.action = action;
@@ -179,5 +181,27 @@ public class CdnRateRule {
                         && (requestEvent.getUserType().equals(this.user_type))
                         && (requestEvent.getMethod().equals(this.method))
         );
+    }
+
+    public static CdnRateRule fromRawLine(JsonNode rule) {
+
+        CdnRateRuleBuilder builder = new CdnRateRuleBuilder();
+
+        builder.rule_name(rule.get("rule_name").asText());
+        builder.user_type(rule.get("user_type").asText());
+        builder.path(rule.get("path").asText());
+        builder.method(rule.get("method").asText());
+        builder.status(rule.get("status").asText());
+        builder.window(rule.get("window").asLong());
+        builder.limit(rule.get("limit").asLong());
+        builder.block_time(rule.get("block_time").asLong());
+        builder.enforce(rule.get("enforce").asText());
+        builder.name_space(rule.get("name_space").asText());
+        builder.action(rule.get("action").asText());
+        return builder.build();
+    }
+
+    public CdnRateRule(CdnRateRuleBuilder builder) {
+        this(builder.rule_name, builder.user_type, builder.path, builder.method, builder.status, builder.window, builder.limit, builder.block_time, builder.enforce, builder.name_space, builder.action);
     }
 }

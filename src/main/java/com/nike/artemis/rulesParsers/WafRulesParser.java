@@ -55,7 +55,8 @@ public class WafRulesParser implements Serializable {
             if ( jsonRules == null ) return new HashSet<>();
             if (jsonRules.isArray()) {
                 for (JsonNode jsonRule : jsonRules) {
-                    WafRateRule wafRateRule = mapper.treeToValue(jsonRule, WafRateRule.class);
+//                    WafRateRule wafRateRule = mapper.treeToValue(jsonRule, WafRateRule.class);
+                    WafRateRule wafRateRule = WafRateRule.fromRawLine(jsonRule);
                     if (wafRateRule != null) rules.add(wafRateRule);
                 }
             }

@@ -58,7 +58,8 @@ public class CdnRulesParser implements Serializable {
             if (jsonRules == null) return new HashSet<>();
             if (jsonRules.isArray()) {
                 for (JsonNode jsonRule : jsonRules) {
-                    CdnRateRule cdnRateRule = mapper.treeToValue(jsonRule, CdnRateRule.class);
+//                    CdnRateRule cdnRateRule = mapper.treeToValue(jsonRule, CdnRateRule.class);
+                    CdnRateRule cdnRateRule = CdnRateRule.fromRawLine(jsonRule);
                     if (cdnRateRule != null) rules.add(cdnRateRule);
                 }
             }
