@@ -1,5 +1,6 @@
 package com.nike.artemis;
 
+import com.amazonaws.services.kinesisanalytics.runtime.KinesisAnalyticsRuntime;
 import com.nike.artemis.Utils.AliKafkaSource;
 import com.nike.artemis.Utils.KafkaHelpers;
 import com.nike.artemis.WindowAssigners.LaunchRateRuleWindowAssigner;
@@ -59,10 +60,13 @@ import org.slf4j.LoggerFactory;
 
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.Properties;
 
 public class Main {
     public static Logger LOG = LoggerFactory.getLogger(Main.class);
+
+    public static final String RUNTIME_PROPERTIES_S3_BUCKET = "rulesBucket";
 
     public static void main(String[] args) throws Exception {
 
@@ -74,16 +78,16 @@ public class Main {
 
         //=============================== PROPERTIES =============================
 
+        Map<String, Properties> applicationProperties = KinesisAnalyticsRuntime.getApplicationProperties();
+
         String region = "cn-northwest-1";
 
         Properties consumerConfig = new Properties();
         consumerConfig.put(AWSConfigConstants.AWS_REGION, region);
         consumerConfig.put(ConsumerConfigConstants.STREAM_INITIAL_POSITION, "LATEST");
 
-        Properties nemesisConfig = new Properties();
+        Properties nemesisConfig = applicationProperties.get(RUNTIME_PROPERTIES_S3_BUCKET);
         nemesisConfig.setProperty("RulesRegionName", region);
-        nemesisConfig.setProperty("RulesBucketName", "litx-test-artemis-analytics");
-        nemesisConfig.setProperty("RulesKeyName", "rules/rule");
 
         Properties producerConfig = new Properties();
         producerConfig.setProperty(ConsumerConfigConstants.AWS_REGION, region);
@@ -100,7 +104,7 @@ public class Main {
 
         //=============================== ALI KAFKA SOURCE =======================
 
-        Properties cdnLogKafkaProperties = KafkaHelpers.getCdnLogKafkaProperties();
+        Properties cdnLogKafkaProperties = KafkaHelpers.getCdnLogKafkaProperties(applicationProperties);
         if(cdnLogKafkaProperties == null) {
             LOG.error("Incorrectly CDN log specified application properties. Exiting...");
             return;
@@ -138,7 +142,7 @@ public class Main {
                 .name("CDN Log processor");
 
 
-        Properties wafLogKafkaProperties = KafkaHelpers.getWafLogKafkaProperties();
+        Properties wafLogKafkaProperties = KafkaHelpers.getWafLogKafkaProperties(applicationProperties);
         if(wafLogKafkaProperties == null) {
             LOG.error("Incorrectly WAF log specified application properties. Exiting...");
             return;
