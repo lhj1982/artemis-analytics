@@ -41,6 +41,7 @@ public class WafRulesParserTest {
         public void updateWafRemoteRule_Delete() {
             this.rulesContents = "{\n" +
                     "    \"WAF\": [{\n" +
+                    "      \"rule_id\": \"AT-WAF-1\",\n" +
                     "      \"rule_name\": \"waf_checkouts\",\n" +
                     "      \"user_type\": \"ipaddress\",\n" +
                     "      \"path\": \"/foo/checkouts\",\n" +
@@ -85,6 +86,7 @@ public class WafRulesParserTest {
         public void updateToNoWAFSection() {
             this.rulesContents = "{\n" +
                     "    \"CDN\": [{\n" +
+                    "      \"rule_id\": \"AT-CDN-1\",\n" +
                     "      \"rule_name\": \"waf_checkouts\",\n" +
                     "      \"user_type\": \"ipaddress\",\n" +
                     "      \"path\": \"/foo/checkouts\",\n" +
@@ -104,11 +106,12 @@ public class WafRulesParserTest {
 
     @Test
     public void testWafRuleParser() {
-        WafRateRule wafRateRule1 = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
-        WafRateRule wafRateRule2 =new WafRateRule("waf_orders_history", "umid", "/foo/bar/orders", "GET", "200", 600L, 10L, 1200L, EnforceType.NO, "orders", "captcha",90);
+        WafRateRule wafRateRule1 = new WafRateRule("AT-WAF-1","waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
+        WafRateRule wafRateRule2 =new WafRateRule("AT-WAF-2","waf_orders_history", "umid", "/foo/bar/orders", "GET", "200", 600L, 10L, 1200L, EnforceType.NO, "orders", "captcha",90);
 
         String wafS3Rules = "{\n" +
                 "    \"WAF\": [{\n" +
+                "      \"rule_id\": \"AT-WAF-1\",\n" +
                 "      \"rule_name\": \"waf_checkouts\",\n" +
                 "      \"user_type\": \"ipaddress\",\n" +
                 "      \"path\": \"/foo/checkouts\",\n" +
@@ -123,6 +126,7 @@ public class WafRulesParserTest {
                 "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-WAF-2\",\n" +
                 "      \"rule_name\": \"waf_orders_history\",\n" +
                 "      \"user_type\": \"umid\",\n" +
                 "      \"path\": \"/foo/bar/orders\",\n" +

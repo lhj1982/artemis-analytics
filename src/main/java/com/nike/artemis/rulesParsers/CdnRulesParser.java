@@ -65,7 +65,7 @@ public class CdnRulesParser implements Serializable {
             }
             return rules;
         } catch (Exception e){
-            LOG.error("Location={CdnRulesParser} source={} error={}", jsonContent, e.getMessage());
+            LOG.error("Location={CdnRulesParser} source={} error={}", jsonContent, e);
             return null;
         }
 

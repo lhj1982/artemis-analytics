@@ -14,7 +14,7 @@ import java.util.Collection;
 public class LaunchRateRuleWindowAssignerTest {
     @Test
     public void testLaunchWindowAssigner() {
-        LaunchRateRule launchRateRule = new LaunchRateRuleBuilder().blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).ruleState(LaunchRateRule.RuleState.ON).build();
+        LaunchRateRule launchRateRule = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-1").blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).ruleState(LaunchRateRule.RuleState.ON).build();
         Tuple4<String, String, LaunchRateRule, Long> match = new Tuple4<>("12123434-1212-459e-9c7c-4df29d4b8ccc", "deadbeef-5165-3261-8016-fed50bd23d39", launchRateRule, 0L);
         LaunchRateRuleWindowAssigner rateRuleWindowAssigner = new LaunchRateRuleWindowAssigner();
         Collection<TimeWindow> collection = rateRuleWindowAssigner.assignWindows(match, 5L, null);

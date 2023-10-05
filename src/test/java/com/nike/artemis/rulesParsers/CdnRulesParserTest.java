@@ -38,6 +38,7 @@ public class CdnRulesParserTest {
         public void updateCdnRemoteRule_Delete() {
             this.rulesContents = "{\n" +
                     "    \"CDN\": [{\n" +
+                    "        \"rule_id\": \"AT-CDN-3\",\n" +
                     "        \"rule_name\": \"cdn_payments_rule\",\n" +
                     "        \"user_type\": \"ipaddress\",\n" +
                     "        \"path\": \"/foo/bar/payments\",\n" +
@@ -81,6 +82,7 @@ public class CdnRulesParserTest {
         public void updateToNoCDNSection() {
             this.rulesContents = "{\n" +
                     "    \"WAF\": [{\n" +
+                    "      \"rule_id\": \"AT-WAF-1\",\n" +
                     "      \"rule_name\": \"waf_checkouts\",\n" +
                     "      \"user_type\": \"ipaddress\",\n" +
                     "      \"path\": \"/foo/checkouts\",\n" +
@@ -100,12 +102,13 @@ public class CdnRulesParserTest {
 
     @Test
     public void testParser() {
-        CdnRateRule cdnRateRule1 = new CdnRateRule("cdn_checkout_rule", "ipaddress", "/foo/bar/checkouts", "GET", "200", 600L, 10L, 1200L, EnforceType.YES, "buy_checkouts", "block",90);
-        CdnRateRule cdnRateRule2 = new CdnRateRule("cdn_orders_history_rule", "upmid", "/foo/orders/history", "GET", "200", 300L, 20L, 1200L, EnforceType.NO, "buy_orders_history", "block",90);
-        CdnRateRule cdnRateRule3 = new CdnRateRule("cdn_payments_rule", "ipaddress", "/foo/bar/payments", "POST", "204", 1200L, 15L, 600L, EnforceType.YES, "buy_payments", "block",90);
+        CdnRateRule cdnRateRule1 = new CdnRateRule("AT-CDN-1", "cdn_checkout_rule", "ipaddress", "/foo/bar/checkouts", "GET", "200", 600L, 10L, 1200L, EnforceType.YES, "buy_checkouts", "block",90);
+        CdnRateRule cdnRateRule2 = new CdnRateRule("AT-CDN-2", "cdn_orders_history_rule", "upmid", "/foo/orders/history", "GET", "200", 300L, 20L, 1200L, EnforceType.NO, "buy_orders_history", "block",90);
+        CdnRateRule cdnRateRule3 = new CdnRateRule("AT-CDN-3", "cdn_payments_rule", "ipaddress", "/foo/bar/payments", "POST", "204", 1200L, 15L, 600L, EnforceType.YES, "buy_payments", "block",90);
 
         String rawRules = "{\n" +
                 "    \"CDN\": [{\n" +
+                "        \"rule_id\": \"AT-CDN-1\",\n" +
                 "        \"rule_name\": \"cdn_checkout_rule\",\n" +
                 "        \"user_type\": \"ipaddress\",\n" +
                 "        \"path\": \"/foo/bar/checkouts\",\n" +
@@ -119,6 +122,7 @@ public class CdnRulesParserTest {
                 "        \"ttl\": 90,\n" +
                 "        \"action\": \"block\"\n" +
                 "    }, {\n" +
+                "        \"rule_id\": \"AT-CDN-2\",\n" +
                 "        \"rule_name\": \"cdn_orders_history_rule\",\n" +
                 "        \"user_type\": \"upmid\",\n" +
                 "        \"path\": \"/foo/orders/history\",\n" +
@@ -132,6 +136,7 @@ public class CdnRulesParserTest {
                 "        \"ttl\": 90,\n" +
                 "        \"action\": \"block\"\n" +
                 "    }, {\n" +
+                "        \"rule_id\": \"AT-CDN-3\",\n" +
                 "        \"rule_name\": \"cdn_payments_rule\",\n" +
                 "        \"user_type\": \"ipaddress\",\n" +
                 "        \"path\": \"/foo/bar/payments\",\n" +

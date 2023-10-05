@@ -6,6 +6,8 @@ import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
 
 public class CdnRateRule {
+
+    private String rule_id;
     private String rule_name;
     private String user_type;
     private String path;
@@ -22,7 +24,8 @@ public class CdnRateRule {
     public CdnRateRule() {
     }
 
-    public CdnRateRule(String rule_name, String user_type, String path, String method, String status, long window, long limit, long block_time, EnforceType enforce, String name_space, String action,long ttl) {
+    public CdnRateRule(String rule_id, String rule_name, String user_type, String path, String method, String status, long window, long limit, long block_time, EnforceType enforce, String name_space, String action, long ttl) {
+        this.rule_id = rule_id;
         this.rule_name = rule_name;
         this.user_type = user_type;
         this.path = path;
@@ -35,6 +38,14 @@ public class CdnRateRule {
         this.name_space = name_space;
         this.action = action;
         this.ttl= ttl;
+    }
+
+    public String getRule_id() {
+        return rule_id;
+    }
+
+    public void setRule_id(String rule_id) {
+        this.rule_id = rule_id;
     }
 
     public String getRule_name() {
@@ -144,19 +155,21 @@ public class CdnRateRule {
         if (limit != that.limit) return false;
         if (ttl != that.ttl) return false;
         if (block_time != that.block_time) return false;
+        if (rule_id != null ? !rule_id.equals(that.rule_id) : that.rule_id != null) return false;
         if (rule_name != null ? !rule_name.equals(that.rule_name) : that.rule_name != null) return false;
         if (user_type != null ? !user_type.equals(that.user_type) : that.user_type != null) return false;
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
         if (method != null ? !method.equals(that.method) : that.method != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
+        if (enforce != null ? !enforce.equals(that.enforce) : that.enforce != null) return false;
         if (name_space != null ? !name_space.equals(that.name_space) : that.name_space != null) return false;
-        if (action != null ? !action.equals(that.action) : that.action != null) return false;
-        return enforce != null ? enforce.equals(that.enforce) : that.enforce == null;
+        return action != null ? action.equals(that.action) : that.action == null;
     }
 
     @Override
     public int hashCode() {
-        int result = rule_name != null ? rule_name.hashCode() : 0;
+        int result = rule_id != null ? rule_id.hashCode() : 0;
+        result = 31 * result + (rule_name != null ? rule_name.hashCode() : 0);
         result = 31 * result + (user_type != null ? user_type.hashCode() : 0);
         result = 31 * result + (path != null ? path.hashCode() : 0);
         result = 31 * result + (method != null ? method.hashCode() : 0);
@@ -174,7 +187,8 @@ public class CdnRateRule {
     @Override
     public String toString() {
         return "{" +
-                "\"rule_name\":\"" + rule_name + '\"' +
+                "\"rule_id\":\"" + rule_id + '\"' +
+                ", \"rule_name\":\"" + rule_name + '\"' +
                 ", \"user_type\":\"" + user_type + '\"' +
                 ", \"path\":\"" + path + '\"' +
                 ", \"method\":\"" + method + '\"' +
@@ -202,6 +216,7 @@ public class CdnRateRule {
 
         CdnRateRuleBuilder builder = new CdnRateRuleBuilder();
 
+        builder.rule_id(rule.get("rule_id").asText());
         builder.rule_name(rule.get("rule_name").asText());
         builder.user_type(rule.get("user_type").asText());
         builder.path(rule.get("path").asText());
@@ -218,6 +233,6 @@ public class CdnRateRule {
     }
 
     public CdnRateRule(CdnRateRuleBuilder builder) {
-        this(builder.rule_name, builder.user_type, builder.path, builder.method, builder.status, builder.window, builder.limit, builder.block_time, builder.enforce, builder.name_space, builder.action,builder.ttl);
+        this(builder.rule_id, builder.rule_name, builder.user_type, builder.path, builder.method, builder.status, builder.window, builder.limit, builder.block_time, builder.enforce, builder.name_space, builder.action, builder.ttl);
     }
 }

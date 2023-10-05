@@ -43,6 +43,7 @@ public class LaunchRulesParserTest {
             this.rulesContents = "{\n" +
                     "  \"LAUNCH\": [\n" +
                     "    {\n" +
+                    "      \"rule_id\": \"AT-LAUNCH-1\",\n" +
                     "      \"rule_name\": \"launch county block\",\n" +
                     "      \"block_kind\": \"upmid\",\n" +
                     "      \"limit\": 10,\n" +
@@ -80,6 +81,7 @@ public class LaunchRulesParserTest {
         public void updateLaunchRemoteRule_NoLaunchSection() {
             this.rulesContents = "{\n" +
                     "    \"WAF\": [{\n" +
+                    "      \"rule_id\": \"AT-WAF-1\",\n" +
                     "      \"rule_name\": \"waf_checkouts\",\n" +
                     "      \"user_type\": \"ipaddress\",\n" +
                     "      \"path\": \"/foo/checkouts\",\n" +
@@ -97,13 +99,14 @@ public class LaunchRulesParserTest {
 
     @Test
     public void testParse() {
-        LaunchRateRule rateRule1 = new LaunchRateRuleBuilder().blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.ON).build();
-        LaunchRateRule rateRule2 = new LaunchRateRuleBuilder().blockKind(BlockKind.ipaddress).limit(20L).windowSize(5L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.ON).build();
-        LaunchRateRule rateRule3 = new LaunchRateRuleBuilder().blockKind(BlockKind.county).limit(1000L).windowSize(1L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.OFF).build();
+        LaunchRateRule rateRule1 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-1").blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.ON).build();
+        LaunchRateRule rateRule2 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-2").blockKind(BlockKind.ipaddress).limit(20L).windowSize(5L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.ON).build();
+        LaunchRateRule rateRule3 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-3").blockKind(BlockKind.county).limit(1000L).windowSize(1L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.OFF).build();
 
         String s3LaunchRule = "{\n" +
                 "  \"LAUNCH\": [\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-LAUNCH-1\",\n" +
                 "      \"rule_name\": \"launch county block\",\n" +
                 "      \"block_kind\": \"upmid\",\n" +
                 "      \"limit\": 10,\n" +
@@ -113,6 +116,7 @@ public class LaunchRulesParserTest {
                 "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-LAUNCH-2\",\n" +
                 "      \"rule_name\": \"launch trueClientIp block\",\n" +
                 "      \"block_kind\": \"trueClientIp\",\n" +
                 "      \"limit\": 20,\n" +
@@ -122,6 +126,7 @@ public class LaunchRulesParserTest {
                 "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-LAUNCH-3\",\n" +
                 "      \"rule_name\": \"launch upmid block\",\n" +
                 "      \"block_kind\": \"county\",\n" +
                 "      \"limit\": 1000,\n" +

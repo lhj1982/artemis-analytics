@@ -17,11 +17,11 @@ public class WafRateRuleWindowAssignerTest {
 
     @Test
     public void testWafWindowAssignerTest() {
-        WafRateRule wafRateRule = new WafRateRule("abc", "ipaddress", "/foo/bar/", "GET", "200", 600L, 10L, 1200L, EnforceType.YES, "abc", "block",90);
+        WafRateRule wafRateRule = new WafRateRule("AT-WAF-1", "abc", "ipaddress", "/foo/bar/", "GET", "200", 10L, 10L, 60L, EnforceType.YES, "abc", "block",90);
         Tuple3<String, WafRateRule, Long> element = new Tuple3<>("100.100.100.100", wafRateRule, 0L);
         WafRateRuleWindowAssigner assigner = new WafRateRuleWindowAssigner();
         Collection<TimeWindow> collection = assigner.assignWindows(element, 2, null);
         assertEquals(1, collection.size());
-        assertEquals(new TimeWindow(0,36000000), collection.iterator().next());
+        assertEquals(new TimeWindow(0,600000), collection.iterator().next());
     }
 }

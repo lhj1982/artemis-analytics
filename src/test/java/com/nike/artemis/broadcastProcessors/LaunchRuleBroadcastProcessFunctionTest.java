@@ -24,7 +24,7 @@ public class LaunchRuleBroadcastProcessFunctionTest {
 
     @Test
     public void testLaunchRuleBroadcastProcessFunction() throws Exception {
-        LaunchRateRule rateRule = new LaunchRateRuleBuilder().blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).ruleState(LaunchRateRule.RuleState.ON).build();
+        LaunchRateRule rateRule = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-1").blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).ruleState(LaunchRateRule.RuleState.ON).build();
         LaunchRequestEvent launchSnsEvent = new LaunchRequestEvent.Builder()
                 .addresses(new ArrayList<>(Arrays.asList(new Address("上海马戏城", "上海市", "闸北区", "CN-51", null, "XA"))))
                 .user(new User("12123434-1212-459e-9c7c-4df29d4b8ccc"))
