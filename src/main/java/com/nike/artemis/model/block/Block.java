@@ -142,7 +142,7 @@ public class Block {
     @Override
     public String toString() {
         return "{" +
-                "\"rule_id\":\"" + blockProducer + '\"' +
+                "  \"ruleId\":\"" + blockProducer + '\"' +
                 ", \"userType\":\"" + userType + '\"' +
                 ", \"user\":\"" + user + '\"' +
                 ", \"disposalDescition\":\"" + disposalDecision + '\"' +
