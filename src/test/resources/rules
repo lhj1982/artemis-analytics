@@ -12,7 +12,8 @@
         "block_time": 30,
         "enforce": "YES",
         "name_space": "artemis_test",
-        "action": "captcha"
+        "action": "captcha".
+        "ttl": 90
     }, {
         "rule_id": "AT-CDN-2",
         "rule_name": "cdn_ip_rule",
@@ -25,7 +26,8 @@
         "block_time": 30,
         "enforce": "YES",
         "name_space": "artemis_test",
-        "action": "captcha"
+        "action": "captcha",
+        "ttl": 90
     }, {
         "rule_id": "AT-CDN-3",
         "rule_name": "cdn_upmid_rule_block_test",
@@ -38,7 +40,8 @@
         "block_time": 30,
         "enforce": "YES",
         "name_space": "artemis_test",
-        "action": "block"
+        "action": "block",
+        "ttl": 90
     }, {
         "rule_id": "AT-CDN-4",
         "rule_name": "cdn_ip_rule_demo",
@@ -51,7 +54,8 @@
         "block_time": 30,
         "enforce": "YES",
         "name_space": "artemis_test",
-        "action": "captcha"
+        "action": "captcha",
+        "ttl": 90
     }, {
         "rule_id": "AT-CDN-5",
         "rule_name": "cdn_upmid_rule_captcha",
@@ -64,7 +68,8 @@
         "block_time": 30,
         "enforce": "YES",
         "name_space": "artemis_test",
-        "action": "captcha"
+        "action": "captcha",
+        "ttl": 90
     }, {
         "rule_id": "AT-CDN-6",
         "rule_name": "cdn_upmid_rule_block",
@@ -77,7 +82,8 @@
         "block_time": 30,
         "enforce": "YES",
         "name_space": "artemis_test",
-        "action": "block"
+        "action": "block",
+        "ttl": 90
     }],
     "WAF": [{
         "rule_id": "AT-WAF-1",
@@ -90,7 +96,8 @@
         "limit": 3,
         "block_time": 5,
         "enforce": "YES",
-        "name_space": "artemis_test"
+        "name_space": "artemis_test",
+        "ttl": 90
     }, {
         "rule_id": "AT-WAF-2",
         "rule_name": "waf_002_umid_orders_history",
@@ -103,7 +110,8 @@
         "block_time": 10,
         "enforce": "YES",
         "name_space": "artemis_test",
-        "action": "captcha"
+        "action": "captcha",
+        "ttl": 90
     }],
     "LAUNCH": [{
         "rule_id": "AT-LAUNCH-1",
