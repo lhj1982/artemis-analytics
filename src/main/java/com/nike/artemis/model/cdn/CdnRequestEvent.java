@@ -7,13 +7,15 @@ public class CdnRequestEvent {
     private String user;
     private String method;
     private String path;
+    private String status;
 
-    public CdnRequestEvent(long time, String userType, String user, String method, String path) {
+    public CdnRequestEvent(long time, String userType, String user, String method, String path,String status) {
         this.time = time;
         this.userType = userType;
         this.user = user;
         this.method = method;
         this.path = path;
+        this.status = status;
     }
 
     public long getTime() {
@@ -56,6 +58,14 @@ public class CdnRequestEvent {
         this.path = path;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "CdnRequestEvent{" +
@@ -64,6 +74,7 @@ public class CdnRequestEvent {
                 ", user='" + user + '\'' +
                 ", method='" + method + '\'' +
                 ", path='" + path + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

@@ -1,6 +1,8 @@
 package com.nike.artemis.rulesParsers;
 
 import static org.junit.Assert.*;
+
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.rules.CdnRateRule;
 import com.nike.artemis.ruleChanges.CdnRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
@@ -46,6 +48,7 @@ public class CdnRulesParserTest {
                     "        \"block_time\": 600,\n" +
                     "        \"enforce\": \"YES\",\n" +
                     "        \"name_space\": \"buy_payments\",\n" +
+                    "        \"ttl\": 90,\n" +
                     "        \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
@@ -69,6 +72,7 @@ public class CdnRulesParserTest {
                     "        \"limit\" 10,\n" +
                     "        \"block_time\": 1200,\n" +
                     "        \"enforce\": \"YES\",\n" +
+                    "        \"ttl\": 90,\n" +
                     "        \"name_space\": \"buy_checkouts\"\n" +
                     "    }]\n" +
                     "}";
@@ -87,6 +91,7 @@ public class CdnRulesParserTest {
                     "      \"block_time\": 1800,\n" +
                     "      \"enforce\": \"YES\",\n" +
                     "      \"name_space\": \"checkout\",\n" +
+                    "      \"ttl\": 90,\n" +
                     "      \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
@@ -95,9 +100,9 @@ public class CdnRulesParserTest {
 
     @Test
     public void testParser() {
-        CdnRateRule cdnRateRule1 = new CdnRateRule("cdn_checkout_rule", "ipaddress", "/foo/bar/checkouts", "GET", "200", 600L, 10L, 1200L, "YES", "buy_checkouts", "block");
-        CdnRateRule cdnRateRule2 = new CdnRateRule("cdn_orders_history_rule", "upmid", "/foo/orders/history", "GET", "200", 300L, 20L, 1200L, "NO", "buy_orders_history", "block");
-        CdnRateRule cdnRateRule3 = new CdnRateRule("cdn_payments_rule", "ipaddress", "/foo/bar/payments", "POST", "204", 1200L, 15L, 600L, "YES", "buy_payments", "block");
+        CdnRateRule cdnRateRule1 = new CdnRateRule("cdn_checkout_rule", "ipaddress", "/foo/bar/checkouts", "GET", "200", 600L, 10L, 1200L, EnforceType.YES, "buy_checkouts", "block",90);
+        CdnRateRule cdnRateRule2 = new CdnRateRule("cdn_orders_history_rule", "upmid", "/foo/orders/history", "GET", "200", 300L, 20L, 1200L, EnforceType.NO, "buy_orders_history", "block",90);
+        CdnRateRule cdnRateRule3 = new CdnRateRule("cdn_payments_rule", "ipaddress", "/foo/bar/payments", "POST", "204", 1200L, 15L, 600L, EnforceType.YES, "buy_payments", "block",90);
 
         String rawRules = "{\n" +
                 "    \"CDN\": [{\n" +
@@ -111,6 +116,7 @@ public class CdnRulesParserTest {
                 "        \"block_time\": 1200,\n" +
                 "        \"enforce\": \"YES\",\n" +
                 "        \"name_space\": \"buy_checkouts\",\n" +
+                "        \"ttl\": 90,\n" +
                 "        \"action\": \"block\"\n" +
                 "    }, {\n" +
                 "        \"rule_name\": \"cdn_orders_history_rule\",\n" +
@@ -123,6 +129,7 @@ public class CdnRulesParserTest {
                 "        \"block_time\": 1200,\n" +
                 "        \"enforce\": \"NO\",\n" +
                 "        \"name_space\": \"buy_orders_history\",\n" +
+                "        \"ttl\": 90,\n" +
                 "        \"action\": \"block\"\n" +
                 "    }, {\n" +
                 "        \"rule_name\": \"cdn_payments_rule\",\n" +
@@ -135,6 +142,7 @@ public class CdnRulesParserTest {
                 "        \"block_time\": 600,\n" +
                 "        \"enforce\": \"YES\",\n" +
                 "        \"name_space\": \"buy_payments\",\n" +
+                "        \"ttl\": 90,\n" +
                 "        \"action\": \"block\"\n" +
                 "    }]\n" +
                 "}";

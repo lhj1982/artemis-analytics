@@ -1,6 +1,7 @@
 package com.nike.artemis.broadcastProcessors;
 
 import com.nike.artemis.broadcastProcessors.CdnRuleBroadCastProcessorFunction;
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
 import com.nike.artemis.model.rules.CdnRateRule;
 import com.nike.artemis.ruleChanges.CdnRuleChange;
@@ -22,8 +23,8 @@ public class CdnRuleBroadcastProcessFunctionTest {
     @Test
     public void testCdnRuleBroadcastProcessFunction() throws Exception {
         String upmid = UUID.randomUUID().toString();
-        CdnRateRule cdnRateRule = new CdnRateRule("cdn_checkouts", "upmid", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, "YES", "checkout", "block");
-        CdnRequestEvent cdnEvent = new CdnRequestEvent(0L, "upmid", upmid, "GET", "/foo/checkouts/x/y/z");
+        CdnRateRule cdnRateRule = new CdnRateRule("cdn_checkouts", "upmid", "/foo/checkouts", "GET", "200", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
+        CdnRequestEvent cdnEvent = new CdnRequestEvent(0L, "upmid", upmid, "GET", "/foo/checkouts/x/y/z","200");
 
         CdnRuleBroadCastProcessorFunction cdnRuleBroadCastProcessorFunction = new CdnRuleBroadCastProcessorFunction();
         MapStateDescriptor<CdnRateRule, Object> cdnRulesStateDescriptor = new MapStateDescriptor<>("CdnRulesBroadcastState", TypeInformation.of(new TypeHint<CdnRateRule>() {}), BasicTypeInfo.of(Object.class));

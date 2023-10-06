@@ -1,6 +1,7 @@
 package com.nike.artemis.aggregators;
 
 import com.nike.artemis.aggregators.CdnRuleCountAggregate;
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.rules.CdnRateRule;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class CdnRuleCountAggregateTest {
     @Test
     public void add_returnsPlusOne() {
         CdnRuleCountAggregate cdnRuleCountAggregate = new CdnRuleCountAggregate();
-        assertEquals(Long.valueOf(2), cdnRuleCountAggregate.add(new Tuple3<>(UUID.randomUUID().toString(), new CdnRateRule("a_b_c", "upmid", "/foo/bar/", "GET", "200", 0L, 0L, 0L, "YES", "abc", "block"), 0L), 1L));
+        assertEquals(Long.valueOf(2), cdnRuleCountAggregate.add(new Tuple3<>(UUID.randomUUID().toString(), new CdnRateRule("a_b_c", "upmid", "/foo/bar/", "GET", "200", 0L, 0L, 0L, EnforceType.YES, "abc", "block",90), 0L), 1L));
     }
 
     @Test

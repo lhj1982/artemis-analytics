@@ -1,5 +1,6 @@
 package com.nike.artemis.ruleSources;
 
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import com.nike.artemis.rulesParsers.CdnRulesParser;
 import com.nike.artemis.model.rules.CdnRateRule;
@@ -39,8 +40,8 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
         running = true;
         // ===================== for local cdn test purpose ====================
 
-//        CdnRuleChange ruleChange1 = new CdnRuleChange(CdnRuleChange.Action.CREATE, new CdnRateRule("abcd", "trueClientIp", "/foo/bar", "GET|POST", "200|404", 30000L,5L, 60L,"true|false","test_buy_checkout"));
-//        CdnRuleChange ruleChange2 = new CdnRuleChange(CdnRuleChange.Action.CREATE, new CdnRateRule("abcd", "upmid", "/foo/bar", "GET|POST", "200|404", 30000L,5L, 60L,"true|false","test_buy_checkout"));
+//        CdnRuleChange ruleChange1 = new CdnRuleChange(CdnRuleChange.Action.CREATE, new CdnRateRule("abcd", "trueClientIp", "/foo/bar", "GET|POST", "200|404", 30000L,5L, 60L, EnforceType.YES,"test_buy_checkout","captcha",90));
+//        CdnRuleChange ruleChange2 = new CdnRuleChange(CdnRuleChange.Action.CREATE, new CdnRateRule("abcd", "upmid", "/foo/bar", "GET|POST", "200|404", 30000L,5L, 60L,EnforceType.NO,"test_buy_checkout","block",90));
 //        CdnRuleChange[] ruleChanges = {ruleChange1, ruleChange2};
 //
 //        for (CdnRuleChange ruleChange : ruleChanges) {

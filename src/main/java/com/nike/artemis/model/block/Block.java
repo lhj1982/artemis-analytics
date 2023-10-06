@@ -11,6 +11,7 @@ public class Block {
     private String duration;
     private String destination;
     private String nameSpace;
+    private String ttl;
 
     public Block() {
     }
@@ -31,7 +32,7 @@ public class Block {
         return new BlockSerializationSchema();
     }
 
-    public Block(String blockProducer, String userType, String user, String disposalDecision, String duration, String destination, String nameSpace) {
+    public Block(String blockProducer, String userType, String user, String disposalDecision, String duration, String destination, String nameSpace,String ttl) {
         this.blockProducer = blockProducer;
         this.userType = userType;
         this.user = user;
@@ -39,6 +40,7 @@ public class Block {
         this.duration = duration;
         this.destination = destination;
         this.nameSpace = nameSpace;
+        this.ttl = ttl;
     }
 
     public String getBlockProducer() {
@@ -97,6 +99,14 @@ public class Block {
         this.nameSpace = nameSpace;
     }
 
+    public String getTtl() {
+        return ttl;
+    }
+
+    public void setTtl(String ttl) {
+        this.ttl = ttl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -112,6 +122,7 @@ public class Block {
             return false;
         if (duration != null ? !duration.equals(block.duration) : block.duration != null) return false;
         if (destination != null ? !destination.equals(block.destination) : block.destination != null) return false;
+        if (ttl != null ? !ttl.equals(block.ttl) : block.ttl != null) return false;
         return nameSpace != null ? nameSpace.equals(block.nameSpace) : block.nameSpace == null;
     }
 
@@ -124,6 +135,7 @@ public class Block {
         result = 31 * result + (duration != null ? duration.hashCode() : 0);
         result = 31 * result + (destination != null ? destination.hashCode() : 0);
         result = 31 * result + (nameSpace != null ? nameSpace.hashCode() : 0);
+        result = 31 * result + (ttl != null ? ttl.hashCode() : 0);
         return result;
     }
 
@@ -137,6 +149,7 @@ public class Block {
                 ", \"duration\":\"" + duration + '\"' +
                 ", \"destination\":\"" + destination + '\"' +
                 ", \"nameSpace\":\"" + nameSpace + '\"' +
+                ", \"expirationTtl\":\"" + ttl + '\"' +
                 '}';
     }
 }

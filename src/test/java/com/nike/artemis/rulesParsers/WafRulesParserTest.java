@@ -1,5 +1,6 @@
 package com.nike.artemis.rulesParsers;
 
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.ruleChanges.WafRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
@@ -50,6 +51,7 @@ public class WafRulesParserTest {
                     "      \"block_time\": 1800,\n" +
                     "      \"enforce\": \"YES\",\n" +
                     "      \"name_space\": \"checkout\",\n" +
+                    "      \"ttl\": 90,\n" +
                     "      \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
@@ -73,6 +75,7 @@ public class WafRulesParserTest {
                     "        \"limit\" 10,\n" +
                     "        \"block_time\": 1200,\n" +
                     "        \"enforce\": \"YES\",\n" +
+                    "        \"ttl\": 90,\n" +
                     "        \"name_space\": \"buy_checkouts\",\n" +
                     "        \"action\": \"block\"\n" +
                     "    }]\n" +
@@ -92,6 +95,7 @@ public class WafRulesParserTest {
                     "      \"block_time\": 1800,\n" +
                     "      \"enforce\": \"YES\",\n" +
                     "      \"name_space\": \"checkout\",\n" +
+                    "      \"ttl\": 90,\n" +
                     "      \"action\": \"block\"\n" +
                     "    }]\n" +
                     "}";
@@ -100,8 +104,8 @@ public class WafRulesParserTest {
 
     @Test
     public void testWafRuleParser() {
-        WafRateRule wafRateRule1 = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, "YES", "checkout", "block");
-        WafRateRule wafRateRule2 =new WafRateRule("waf_orders_history", "umid", "/foo/bar/orders", "GET", "200", 600L, 10L, 1200L, "NO", "orders", "captcha");
+        WafRateRule wafRateRule1 = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
+        WafRateRule wafRateRule2 =new WafRateRule("waf_orders_history", "umid", "/foo/bar/orders", "GET", "200", 600L, 10L, 1200L, EnforceType.NO, "orders", "captcha",90);
 
         String wafS3Rules = "{\n" +
                 "    \"WAF\": [{\n" +
@@ -115,6 +119,7 @@ public class WafRulesParserTest {
                 "      \"block_time\": 1800,\n" +
                 "      \"enforce\": \"YES\",\n" +
                 "      \"name_space\": \"checkout\",\n" +
+                "      \"ttl\": 90,\n" +
                 "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
@@ -128,6 +133,7 @@ public class WafRulesParserTest {
                 "      \"block_time\": 1200,\n" +
                 "      \"enforce\": \"NO\",\n" +
                 "      \"name_space\": \"orders\",\n" +
+                "      \"ttl\": 90,\n" +
                 "      \"action\": \"captcha\"\n" +
                 "    }]\n" +
                 "}";
