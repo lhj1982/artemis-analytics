@@ -58,7 +58,7 @@ public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long,
 //                System.out.println("============[Generated a New Block:  "+new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString())+"]=========");
 //                out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  startTime, newBlockEnd, rateRule.toString()));
                 out.collect(new Block("Launch", rateRule.getBlockKind().name(), blockEntity, rateRule.getAction(),
-                        String.valueOf(newBlockEnd), "dynamo", ""));
+                        String.valueOf(newBlockEnd), "dynamo", "", ""));
                 maxBlockState.update(newBlockEnd);
             }
         }

@@ -1,5 +1,6 @@
 package com.nike.artemis;
 
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.rules.WafRateRule;
 
 public class WafRateRuleBuilder {
@@ -12,9 +13,10 @@ public class WafRateRuleBuilder {
     public long window;
     public long limit;
     public long block_time;
-    public String enforce;
+    public EnforceType enforce;
     public String name_space;
     public String action;
+    public long ttl;
 
     public WafRateRuleBuilder() {
     }
@@ -59,7 +61,7 @@ public class WafRateRuleBuilder {
         return this;
     }
 
-    public WafRateRuleBuilder enforce(String enforce) {
+    public WafRateRuleBuilder enforce(EnforceType enforce) {
         this.enforce = enforce;
         return this;
     }
@@ -73,7 +75,10 @@ public class WafRateRuleBuilder {
         this.action = action;
         return this;
     }
-
+    public WafRateRuleBuilder ttl(long ttl) {
+        this.ttl = ttl;
+        return this;
+    }
     public WafRateRule build() {
         return new WafRateRule(this);
     }

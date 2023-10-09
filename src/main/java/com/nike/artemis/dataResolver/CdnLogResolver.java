@@ -36,7 +36,7 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
                 cdnData.setUnixtime(cdnData.getUnixtime() * 1000L);
             }
             Tuple2<CdnUserType, String> userType = UserIdentifier.identifyCdnUser(cdnData);
-            out.collect(new CdnRequestEvent(cdnData.getUnixtime(), userType.f0.name(), userType.f1, cdnData.getMethod(), cdnData.getUri()));
+            out.collect(new CdnRequestEvent(cdnData.getUnixtime(), userType.f0.name(), userType.f1, cdnData.getMethod(), cdnData.getUri(), cdnData.getReturn_code()));
         } catch (Exception e) {
             LOG.error(LogMsgBuilder.getInstance()
                     .source(CdnRequestEvent.class.getSimpleName())

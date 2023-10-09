@@ -1,6 +1,7 @@
 package com.nike.artemis.broadcastProcessors;
 
 import com.nike.artemis.broadcastProcessors.WafRuleBroadCastProcessorFunction;
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.model.waf.WafRequestEvent;
 import com.nike.artemis.model.waf.WafUserType;
@@ -20,8 +21,8 @@ public class WafRuleBroadcastProcessFunctionTest {
 
     @Test
     public void testWafRuleBroadcastProcessFunction() throws Exception {
-        WafRateRule wafRateRule = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "202", 1200L, 10L, 1800L, "YES", "checkout", "block");
-        WafRequestEvent wafEvent = new WafRequestEvent(0L, WafUserType.ipaddress, "100.100.100.100", "GET", "/foo/checkouts/x/y/z");
+        WafRateRule wafRateRule = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "200", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
+        WafRequestEvent wafEvent = new WafRequestEvent(0L, WafUserType.ipaddress, "100.100.100.100", "GET", "/foo/checkouts/x/y/z","200");
 
         WafRuleBroadCastProcessorFunction wafRuleBroadCastProcessorFunction = new WafRuleBroadCastProcessorFunction();
         MapStateDescriptor<WafRateRule, Object> wafRulesStateDescriptor = new MapStateDescriptor<>("WafRulesBroadcastState", TypeInformation.of(new TypeHint<WafRateRule>() {}), BasicTypeInfo.of(Object.class));

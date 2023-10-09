@@ -48,6 +48,8 @@ public class WafRuleSourceTest {
                 "      \"limit\": 10,\n" +
                 "      \"block_time\": 1800,\n" +
                 "      \"enforce\": \"YES\",\n" +
+                "      \"action\": \"captcha\",\n" +
+                "        \"ttl\": 90,\n" +
                 "      \"name_space\": \"checkout\"\n" +
                 "    },\n" +
                 "    {\n" +
@@ -60,6 +62,8 @@ public class WafRuleSourceTest {
                 "      \"limit\": 10,\n" +
                 "      \"block_time\": 1200,\n" +
                 "      \"enforce\": \"NO\",\n" +
+                "      \"action\": \"captcha\",\n" +
+                "        \"ttl\": 90,\n" +
                 "      \"name_space\": \"orders\"\n" +
                 "    }]\n" +
                 "}";

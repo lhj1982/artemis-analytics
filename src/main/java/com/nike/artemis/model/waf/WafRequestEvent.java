@@ -6,13 +6,15 @@ public class WafRequestEvent {
     private String user;
     private String method;
     private String path;
+    private String status;
 
-    public WafRequestEvent(long time, WafUserType userType, String user, String method, String path) {
+    public WafRequestEvent(long time, WafUserType userType, String user, String method, String path,String status) {
         this.time = time;
         this.userType = userType;
         this.user = user;
         this.method = method;
         this.path = path;
+        this.status = status;
     }
 
     public long getTime() {
@@ -55,6 +57,14 @@ public class WafRequestEvent {
         this.path = path;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "WafRequestEvent{" +
@@ -63,6 +73,7 @@ public class WafRequestEvent {
                 ", user='" + user + '\'' +
                 ", method='" + method + '\'' +
                 ", path='" + path + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

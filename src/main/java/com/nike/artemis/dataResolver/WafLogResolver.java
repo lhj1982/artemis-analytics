@@ -28,7 +28,7 @@ public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> 
         try {
             wafData = objectMapper.readValue(wafLog, WafData.class);
             Tuple2<WafUserType, String> userInfo = UserIdentifier.identifyWafUser(wafData);
-            out.collect(new WafRequestEvent(wafData.getTime().getTime(), userInfo.f0, userInfo.f1, wafData.getRequest_method(), wafData.getRequest_path()));
+            out.collect(new WafRequestEvent(wafData.getTime().getTime(), userInfo.f0, userInfo.f1, wafData.getRequest_method(), wafData.getRequest_path(), wafData.getStatus()));
         } catch (Exception e) {
             LOG.error(LogMsgBuilder.getInstance()
                     .source(WafRequestEvent.class.getSimpleName())

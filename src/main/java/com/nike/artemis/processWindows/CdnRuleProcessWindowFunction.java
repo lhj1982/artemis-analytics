@@ -59,7 +59,7 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                                 cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, newBlockEnd))
                         .build().toString());
                 out.collect(new Block(cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(),
-                        String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space()));
+                        String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl())));
                 maxBlockState.update(newBlockEnd);
             }
         }

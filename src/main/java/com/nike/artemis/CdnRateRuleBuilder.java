@@ -1,5 +1,6 @@
 package com.nike.artemis;
 
+import com.nike.artemis.model.EnforceType;
 import com.nike.artemis.model.rules.CdnRateRule;
 
 public class CdnRateRuleBuilder {
@@ -12,9 +13,10 @@ public class CdnRateRuleBuilder {
     public long window;
     public long limit;
     public long block_time;
-    public String enforce;
+    public EnforceType enforce;
     public String name_space;
     public String action;
+    public long ttl;
 
     public CdnRateRuleBuilder() {
     }
@@ -59,7 +61,7 @@ public class CdnRateRuleBuilder {
         return this;
     }
 
-    public CdnRateRuleBuilder enforce(String enforce) {
+    public CdnRateRuleBuilder enforce(EnforceType enforce) {
         this.enforce = enforce;
         return this;
     }
@@ -73,7 +75,10 @@ public class CdnRateRuleBuilder {
         this.action = action;
         return this;
     }
-
+    public CdnRateRuleBuilder ttl(long ttl) {
+        this.ttl = ttl;
+        return this;
+    }
     public CdnRateRule build() {
         return new CdnRateRule(this);
     }
