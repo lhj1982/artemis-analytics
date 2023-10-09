@@ -2,14 +2,18 @@ package com.nike.artemis.rulesParsers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nike.artemis.ruleProvider.RuleSourceProvider;
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.ruleChanges.WafRuleChange;
+import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,19 +25,19 @@ public class WafRulesParser implements Serializable {
 
     public WafRulesParser() {
     }
+
     public WafRulesParser(RuleSourceProvider s3) {
         this.provider = s3;
     }
 
     public Tuple2<HashSet<WafRateRule>, Collection<WafRuleChange>> getRulesAndChanges(HashSet<WafRateRule> currentRules) {
         HashSet<WafRateRule> s3Rules = this.getRules();
-        if (s3Rules != null){
+        if (s3Rules != null) {
             Collection<WafRuleChange> changes = determineChanges(currentRules, s3Rules);
             return new Tuple2<>(s3Rules, changes);
         }
         return new Tuple2<>(currentRules, new ArrayList<>());
     }
-
 
 
     private HashSet<WafRateRule> getRules() {
@@ -45,14 +49,14 @@ public class WafRulesParser implements Serializable {
 //        File jsonContent = new File("/Users/TTopde/Desktop/aa/artemis-analytics/src/test/resources/rules");
         StringBuilder jsonContent = new StringBuilder();
         String line;
-        try{
-            while ((line = bufferedReader.readLine()) != null){
+        try {
+            while ((line = bufferedReader.readLine()) != null) {
                 line = line.trim();
                 jsonContent.append(line);
             }
             JsonNode jsonRaw = mapper.readTree(jsonContent.toString());
             JsonNode jsonRules = jsonRaw.get("WAF");
-            if ( jsonRules == null ) return new HashSet<>();
+            if (jsonRules == null) return new HashSet<>();
             if (jsonRules.isArray()) {
                 for (JsonNode jsonRule : jsonRules) {
 //                    WafRateRule wafRateRule = mapper.treeToValue(jsonRule, WafRateRule.class);
@@ -61,16 +65,22 @@ public class WafRulesParser implements Serializable {
                 }
             }
             return rules;
-        } catch (Exception e){
-            LOG.error("Location={WafRulesParser} source={} error={}", jsonContent, e.getMessage());
+        } catch (Exception e) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .source(WafRateRule.class.getSimpleName())
+                    .msg("parser waf rules from s3 failed")
+                    .data(jsonContent)
+                    .exception(e)
+                    .build().toString());
             return null;
         }
     }
+
     private Collection<WafRuleChange> determineChanges(HashSet<WafRateRule> currentRules, HashSet<WafRateRule> s3Rules) {
         List<WafRuleChange> changes = new ArrayList<>();
         // Determine any new rules added...
         for (WafRateRule r : s3Rules) {
-            if ((currentRules == null) || (! currentRules.contains(r))) {
+            if ((currentRules == null) || (!currentRules.contains(r))) {
                 changes.add(new WafRuleChange(WafRuleChange.Action.CREATE, r));
             }
         }

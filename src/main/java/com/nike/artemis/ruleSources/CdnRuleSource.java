@@ -1,5 +1,6 @@
 package com.nike.artemis.ruleSources;
 
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import com.nike.artemis.rulesParsers.CdnRulesParser;
 import com.nike.artemis.model.rules.CdnRateRule;
@@ -24,9 +25,10 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
     public HashSet<CdnRateRule> currentRules = new HashSet<>();
     public boolean testMode;
 
-    public CdnRuleSource(){
+    public CdnRuleSource() {
 
     }
+
     public CdnRuleSource(RuleSourceProvider s3, boolean testMode) {
         currentRuleDate = Date.from(Instant.EPOCH);
         parser = new CdnRulesParser(s3);
@@ -35,7 +37,7 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
     }
 
     @Override
-    public void run(SourceContext<CdnRuleChange> ctx){
+    public void run(SourceContext<CdnRuleChange> ctx) {
         running = true;
         // ===================== for local cdn test purpose ====================
 
@@ -63,9 +65,13 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
                 break;
             }
             try {
-                Thread.sleep(60*1000);
+                Thread.sleep(60 * 1000);
             } catch (InterruptedException e) {
-                LOG.error("Location=CdnRuleSource error={}", e);
+                LOG.error(LogMsgBuilder.getInstance()
+                        .source(CdnRateRule.class.getSimpleName())
+                        .msg("generate object CdnRateRule failed")
+                        .exception(e)
+                        .build().toString());
             }
         }
     }

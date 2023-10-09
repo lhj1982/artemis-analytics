@@ -1,9 +1,10 @@
 package com.nike.artemis.ruleSources;
 
-import com.nike.artemis.ruleProvider.RuleSourceProvider;
-import com.nike.artemis.rulesParsers.WafRulesParser;
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.ruleChanges.WafRuleChange;
+import com.nike.artemis.ruleProvider.RuleSourceProvider;
+import com.nike.artemis.rulesParsers.WafRulesParser;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slf4j.Logger;
@@ -52,9 +53,13 @@ public class WafRuleSource implements SourceFunction<WafRuleChange>, Serializabl
                 break;
             }
             try {
-                Thread.sleep(60*1000);
-            } catch (InterruptedException ignored) {
-
+                Thread.sleep(60 * 1000);
+            } catch (InterruptedException e) {
+                LOG.error(LogMsgBuilder.getInstance()
+                        .source(WafRateRule.class.getSimpleName())
+                        .msg("generate object WafRateRule failed")
+                        .exception(e)
+                        .build().toString());
             }
         }
     }

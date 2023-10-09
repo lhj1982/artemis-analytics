@@ -1,5 +1,6 @@
 package com.nike.artemis.processWindows;
 
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.rules.WafRateRule;
 import org.apache.flink.api.common.state.ValueState;
@@ -24,7 +25,8 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
     }
 
     @Override
-    public void process(Tuple2<String, WafRateRule> key, ProcessWindowFunction<Long, Block, Tuple2<String, WafRateRule>, TimeWindow>.Context context, Iterable<Long> elements, Collector<Block> out) throws Exception {
+    public void process(Tuple2<String, WafRateRule> key, ProcessWindowFunction<Long, Block, Tuple2<String, WafRateRule>,
+            TimeWindow>.Context context, Iterable<Long> elements, Collector<Block> out) throws Exception {
         String user = key.f0;
         WafRateRule wafRateRule = key.f1;
 
@@ -38,14 +40,23 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
         }
 
         long currentMaxBlock = maxBlockState.value();
-        LOG.info("in the processWindow WAF: request user: {} window start: {} window endtime: {}",user,  context.window().getStart(),context.window().getEnd());
+        LOG.info(LogMsgBuilder.getInstance()
+                .source(WafRateRule.class.getSimpleName())
+                .msg(String.format("in the processWindow WAF: request user: %s, window start at: %s, window end at: %s",
+                        user, context.window().getStart(), context.window().getEnd()))
+                .build().toString());
         if (count >= wafRateRule.getLimit()) {
-           Long newBlockEnd = context.window().getStart() + wafRateRule.getBlock_time();
-           if (currentMaxBlock < newBlockEnd) {
-               LOG.info("EMIT WAF BLOCK: rule name: {}, user type: {}, user: {}, blockttl: {}", wafRateRule.getRule_name(), wafRateRule.getUser_type(), user, newBlockEnd);
-               out.collect(new Block(wafRateRule.getRule_name(), wafRateRule.getUser_type(), user, wafRateRule.getAction(), String.valueOf(newBlockEnd), "edgeKV", wafRateRule.getName_space()));
-               maxBlockState.update(newBlockEnd);
-           }
+            Long newBlockEnd = context.window().getStart() + wafRateRule.getBlock_time();
+            if (currentMaxBlock < newBlockEnd) {
+                LOG.info(LogMsgBuilder.getInstance()
+                        .source(WafRateRule.class.getSimpleName())
+                        .msg(String.format("EMIT WAF BLOCK: rule name: %s, user type: %s, user: %s, block ttl: %s",
+                                wafRateRule.getRule_name(), wafRateRule.getUser_type(), user, newBlockEnd))
+                        .build().toString());
+                out.collect(new Block(wafRateRule.getRule_name(), wafRateRule.getUser_type(), user, wafRateRule.getAction(),
+                        String.valueOf(newBlockEnd), "edgeKV", wafRateRule.getName_space()));
+                maxBlockState.update(newBlockEnd);
+            }
         }
     }
 
