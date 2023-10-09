@@ -45,7 +45,7 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
             long newBlockEnd = context.window().getStart() + cdnRateRule.getBlock_time();
             if ((currentMaxBlock < newBlockEnd)) {
                 LOG.info("EMIT CDN BLOCK: rule name: {}, user type: {}, user: {}, blockttl: {}", cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, newBlockEnd);
-                out.collect(new Block(cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(), String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl())));
+                out.collect(new Block(cdnRateRule.getRule_id(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(), String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl())));
                 maxBlockState.update(newBlockEnd);
             }
         }

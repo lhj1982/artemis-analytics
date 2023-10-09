@@ -7,6 +7,7 @@ import com.nike.artemis.LaunchRateRuleBuilder;
 import com.nike.artemis.model.launch.LaunchRequestEvent;
 
 public class LaunchRateRule {
+    private String ruleId;
     private BlockKind blockKind;
     private String county;
     private String trueClientIp;
@@ -21,6 +22,8 @@ public class LaunchRateRule {
     public static LaunchRateRule fromRawLine(JsonNode rule) {
 
         LaunchRateRuleBuilder builder = new LaunchRateRuleBuilder();
+
+        builder.ruleId(rule.get("rule_id").asText());
 
         if (rule.get("block_kind").asText().compareToIgnoreCase("county") == 0){
             builder.blockKind(BlockKind.county);
@@ -45,6 +48,14 @@ public class LaunchRateRule {
         }
         builder.action(rule.get("action").asText());
         return builder.build();
+    }
+
+    public String getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(String ruleId) {
+        this.ruleId = ruleId;
     }
 
     public BlockKind getBlockKind() {
@@ -145,7 +156,8 @@ public class LaunchRateRule {
         OFF
     }
 
-    public LaunchRateRule(BlockKind blockKind, String county, String trueClientIp, String upmid,  Long limit, Long windowSize, Long startTime, Long expiration, RuleState ruleState,String action) {
+    public LaunchRateRule(String ruleId, BlockKind blockKind, String county, String trueClientIp, String upmid,  Long limit, Long windowSize, Long startTime, Long expiration, RuleState ruleState,String action) {
+        this.ruleId = ruleId;
         this.blockKind = blockKind;
         this.county = county;
         this.trueClientIp = trueClientIp;
@@ -159,7 +171,7 @@ public class LaunchRateRule {
     }
 
     public LaunchRateRule(LaunchRateRuleBuilder builder){
-        this(builder.blockKind, builder.county, builder.trueClientIp, builder.upmid, builder.limit, builder.windowSize, builder.startTime, builder.expiration, builder.ruleState,builder.action);
+        this(builder.ruleId, builder.blockKind, builder.county, builder.trueClientIp, builder.upmid, builder.limit, builder.windowSize, builder.startTime, builder.expiration, builder.ruleState,builder.action);
     }
 
     @Override
@@ -168,7 +180,7 @@ public class LaunchRateRule {
         if (o == null || getClass() != o.getClass()) return false;
 
         LaunchRateRule rateRule = (LaunchRateRule) o;
-
+        if (ruleId != null ? !ruleId.equals(rateRule.ruleId) : rateRule.ruleId != null) return false;
         if (blockKind != rateRule.blockKind) return false;
         if (county != null ? !county.equals(rateRule.county) : rateRule.county != null) return false;
         if (trueClientIp != null ? !trueClientIp.equals(rateRule.trueClientIp) : rateRule.trueClientIp != null)
@@ -184,6 +196,7 @@ public class LaunchRateRule {
     @Override
     public int hashCode() {
         int result = 7;
+        result = 37 * result + (ruleId != null ? ruleId.hashCode() : 0);
         result = 37 * result + (blockKind != null ? blockKind.asInt() : 0);
         result = 37 * result + (county != null ? county.hashCode() : 0);
         result = 37 * result + (trueClientIp != null ? trueClientIp.hashCode() : 0);

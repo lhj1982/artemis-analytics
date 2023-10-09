@@ -38,6 +38,7 @@ public class CdnRuleSourceTest {
     public void testCdnRuleSource(){
         String rawRules = "{\n" +
                 "    \"CDN\": [{\n" +
+                "        \"rule_id\": \"AT-CDN-1\",\n" +
                 "        \"rule_name\": \"cdn_checkout_rule\",\n" +
                 "        \"user_type\": \"ipaddress\",\n" +
                 "        \"path\": \"/foo/bar/checkouts\",\n" +
@@ -47,10 +48,11 @@ public class CdnRuleSourceTest {
                 "        \"limit\": 10,\n" +
                 "        \"block_time\": 1200,\n" +
                 "        \"enforce\": \"YES\",\n" +
-                "        \"action\": \"captcha\",\n" +
-                "        \"ttl\": 90,\n" +
-                "        \"name_space\": \"buy_checkouts\"\n" +
+                "        \"name_space\": \"buy_checkouts\",\n" +
+                "        \"action\": \"block\",\n" +
+                "        \"ttl\": 90\n" +
                 "    }, {\n" +
+                "        \"rule_id\": \"AT-CDN-2\",\n" +
                 "        \"rule_name\": \"cdn_orders_history_rule\",\n" +
                 "        \"user_type\": \"upmid\",\n" +
                 "        \"path\": \"/foo/orders/history\",\n" +
@@ -60,10 +62,11 @@ public class CdnRuleSourceTest {
                 "        \"limit\": 20,\n" +
                 "        \"block_time\": 1200,\n" +
                 "        \"enforce\": \"NO\",\n" +
-                "        \"action\": \"captcha\",\n" +
-                "        \"ttl\": 90,\n" +
-                "        \"name_space\": \"buy_orders_history\"\n" +
+                "        \"name_space\": \"buy_orders_history\",\n" +
+                "        \"action\": \"block\",\n" +
+                "        \"ttl\": 90\n" +
                 "    }, {\n" +
+                "        \"rule_id\": \"AT-CDN-3\",\n" +
                 "        \"rule_name\": \"cdn_payments_rule\",\n" +
                 "        \"user_type\": \"ipaddress\",\n" +
                 "        \"path\": \"/foo/bar/payments\",\n" +
@@ -73,9 +76,9 @@ public class CdnRuleSourceTest {
                 "        \"limit\": 15,\n" +
                 "        \"block_time\": 600,\n" +
                 "        \"enforce\": \"YES\",\n" +
-                "        \"action\": \"captcha\",\n" +
-                "        \"ttl\": 90,\n" +
-                "        \"name_space\": \"buy_payments\"\n" +
+                "        \"name_space\": \"buy_payments\",\n" +
+                "        \"action\": \"block\",\n" +
+                "        \"ttl\": 90\n" +
                 "    }]\n" +
                 "}";
 

@@ -21,7 +21,7 @@ public class WafRuleBroadcastProcessFunctionTest {
 
     @Test
     public void testWafRuleBroadcastProcessFunction() throws Exception {
-        WafRateRule wafRateRule = new WafRateRule("waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "200", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
+        WafRateRule wafRateRule = new WafRateRule("AT-WAF-1","waf_checkouts", "ipaddress", "/foo/checkouts", "GET", "200", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
         WafRequestEvent wafEvent = new WafRequestEvent(0L, WafUserType.ipaddress, "100.100.100.100", "GET", "/foo/checkouts/x/y/z","200");
 
         WafRuleBroadCastProcessorFunction wafRuleBroadCastProcessorFunction = new WafRuleBroadCastProcessorFunction();
