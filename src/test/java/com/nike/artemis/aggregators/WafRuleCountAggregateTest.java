@@ -19,7 +19,7 @@ public class WafRuleCountAggregateTest {
     @Test
     public void add_returnsPlusOne() {
         WafRuleCountAggregate wafRuleCountAggregate = new WafRuleCountAggregate();
-        assertEquals(Long.valueOf(2), wafRuleCountAggregate.add(new Tuple3<>("100.100.100.100", new WafRateRule("abc", "ipaddress", "/foo/bar", "GET", "202", 0L, 0L, 0L, EnforceType.YES, "checkout", "captcha",90), 0L), 1L));
+        assertEquals(Long.valueOf(2), wafRuleCountAggregate.add(new Tuple3<>("100.100.100.100", new WafRateRule("AT-WAF-1","abc", "ipaddress", "/foo/bar", "GET", "202", 0L, 0L, 0L, EnforceType.YES, "checkout", "captcha",90), 0L), 1L));
     }
 
     @Test

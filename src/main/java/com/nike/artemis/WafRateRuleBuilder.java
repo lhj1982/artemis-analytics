@@ -5,6 +5,7 @@ import com.nike.artemis.model.rules.WafRateRule;
 
 public class WafRateRuleBuilder {
 
+    public String rule_id;
     public String rule_name;
     public String user_type;
     public String path;
@@ -21,6 +22,10 @@ public class WafRateRuleBuilder {
     public WafRateRuleBuilder() {
     }
 
+    public WafRateRuleBuilder rule_id (String rule_id) {
+        this.rule_id = rule_id;
+        return this;
+    }
     public WafRateRuleBuilder rule_name(String rule_name) {
         this.rule_name = rule_name;
         return this;

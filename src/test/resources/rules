@@ -1,76 +1,144 @@
 {
-	"CDN": [
-		{
-			"rule_name": "abcd",
-			"user_type": "ip",
-			"path": "/foo/bar",
-			"method": "GET|POST",
-			"status": "200|404",
-			"window": 30,
-			"limit": 100,
-			"block_time": 60,
-			"enforce": "true|false"
-		},
-		{
-			"rule_name": "abcd",
-			"user_type": "ip/upmid",
-			"path": "/foo/bar",
-			"method": "PUT|POST",
-			"status": "200|404",
-			"window": 30,
-			"limit": 100,
-			"block_time": 60,
-			"enforce": "true|false"
-		}
-	],
-	"WAF": [
-		{
-			"rule_name": "waf rule 101",
-			"user_type": "ip",
-			"path": "/foo/bar",
-			"method": "POST|PUT",
-			"status": "200|404",
-			"window": 30,
-			"limit": 100,
-			"block_time": 60,
-			"enforce": "true|false"
-		},
-		{
-			"rule_name": "waf rule 102",
-			"user_type": "umid",
-			"path": "/foo/bar",
-			"method": "DELETE|PUT",
-			"status": "200|404",
-			"window": 30,
-			"limit": 100,
-			"block_time": 60,
-			"enforce": "true|false"
-		}
-	],
-	"LAUNCH": [
-		{
-			"rule_name": "launch county block",
-			"block_kind": "county",
-			"limit": 40,
-			"window_size": 10,
-			"block_time": 60,
-			"rule_state": "true|false"
-		},
-		{
-			"rule_name": "launch trueClientIp block",
-			"block_kind": "trueClientIp",
-			"limit": 40,
-			"window_size": 10,
-			"block_time": 60,
-			"rule_state": "true|false"
-		},
-		{
-			"rule_name": "launch upmid block",
-			"block_kind": "upmid",
-			"limit": 40,
-			"window_size": 10,
-			"block_time": 60,
-			"rule_state": "true|false"
-		}
-	]
+    "CDN": [
+    {
+        "rule_id": "AT-CDN-1",
+        "rule_name": "cdn_upmid_rule_captcha_test",
+        "user_type": "upmid",
+        "path": "/product_feed/threads/v3",
+        "method": "GET",
+        "status": "200",
+        "window": 10,
+        "limit": 5,
+        "block_time": 30,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "action": "captcha".
+        "ttl": 90
+    }, {
+        "rule_id": "AT-CDN-2",
+        "rule_name": "cdn_ip_rule",
+        "user_type": "ipaddress",
+        "path": "/product_feed/threads/v3",
+        "method": "GET",
+        "status": "200",
+        "window": 10,
+        "limit": 5,
+        "block_time": 30,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "action": "captcha",
+        "ttl": 90
+    }, {
+        "rule_id": "AT-CDN-3",
+        "rule_name": "cdn_upmid_rule_block_test",
+        "user_type": "upmid",
+        "path": "/product_feed/threads/v3",
+        "method": "GET",
+        "status": "200",
+        "window": 10,
+        "limit": 6,
+        "block_time": 30,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "action": "block",
+        "ttl": 90
+    }, {
+        "rule_id": "AT-CDN-4",
+        "rule_name": "cdn_ip_rule_demo",
+        "user_type": "ipaddress",
+        "path": "/buy/checkouts/v3",
+        "method": "PUT",
+        "status": "200",
+        "window": 10,
+        "limit": 5,
+        "block_time": 30,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "action": "captcha",
+        "ttl": 90
+    }, {
+        "rule_id": "AT-CDN-5",
+        "rule_name": "cdn_upmid_rule_captcha",
+        "user_type": "upmid",
+        "path": "/buy/checkouts/v3",
+        "method": "PUT",
+        "status": "200",
+        "window": 10,
+        "limit": 5,
+        "block_time": 30,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "action": "captcha",
+        "ttl": 90
+    }, {
+        "rule_id": "AT-CDN-6",
+        "rule_name": "cdn_upmid_rule_block",
+        "user_type": "upmid",
+        "path": "/buy/checkouts/v3",
+        "method": "PUT",
+        "status": "200",
+        "window": 10,
+        "limit": 6,
+        "block_time": 30,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "action": "block",
+        "ttl": 90
+    }],
+    "WAF": [{
+        "rule_id": "AT-WAF-1",
+        "rule_name": "waf_001_ipaddress_product_feet_threads_v2",
+        "user_type": "trueClientIp",
+        "path": "/product_feed/threads/v2",
+        "method": "GET",
+        "status": "200",
+        "window": 5,
+        "limit": 3,
+        "block_time": 5,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "ttl": 90
+    }, {
+        "rule_id": "AT-WAF-2",
+        "rule_name": "waf_002_umid_orders_history",
+        "user_type": "umid",
+        "path": "/orders/history",
+        "method": "GET",
+        "status": "200",
+        "window": 10,
+        "limit": 10,
+        "block_time": 10,
+        "enforce": "YES",
+        "name_space": "artemis_test",
+        "action": "captcha",
+        "ttl": 90
+    }],
+    "LAUNCH": [{
+        "rule_id": "AT-LAUNCH-1",
+        "rule_name": "launch county block",
+        "block_kind": "county",
+        "limit": 5,
+        "window_size": 10,
+        "block_time": 60,
+        "rule_state": "ON",
+        "action": "captcha"
+    }, {
+        "rule_id": "AT-LAUNCH-2",
+        "rule_name": "launch trueClientIp block",
+        "block_kind": "trueClientIp",
+        "limit": 5,
+        "window_size": 10,
+        "block_time": 60,
+        "rule_state": "ON",
+        "action": "captcha"
+    }, {
+        "rule_id": "AT-LAUNCH-3",
+        "rule_name": "launch upmid block",
+        "block_kind": "upmid",
+        "limit": 5,
+        "window_size": 10,
+        "block_time": 60,
+        "rule_state": "ON",
+        "action": "captcha"
+    }]
 }

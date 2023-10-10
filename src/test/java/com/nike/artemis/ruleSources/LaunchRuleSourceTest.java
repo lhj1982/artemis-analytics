@@ -39,6 +39,7 @@ public class LaunchRuleSourceTest {
         String s3LaunchRule = "{\n" +
                 "  \"LAUNCH\": [\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-LAUNCH-1\",\n" +
                 "      \"rule_name\": \"launch county block\",\n" +
                 "      \"block_kind\": \"upmid\",\n" +
                 "      \"limit\": 10,\n" +
@@ -48,6 +49,7 @@ public class LaunchRuleSourceTest {
                 "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-LAUNCH-2\",\n" +
                 "      \"rule_name\": \"launch trueClientIp block\",\n" +
                 "      \"block_kind\": \"trueClientIp\",\n" +
                 "      \"limit\": 20,\n" +
@@ -57,6 +59,7 @@ public class LaunchRuleSourceTest {
                 "      \"action\": \"block\"\n" +
                 "    },\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-LAUNCH-3\",\n" +
                 "      \"rule_name\": \"launch upmid block\",\n" +
                 "      \"block_kind\": \"county\",\n" +
                 "      \"limit\": 1000,\n" +

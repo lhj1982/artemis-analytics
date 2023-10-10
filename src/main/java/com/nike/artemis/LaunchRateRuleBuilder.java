@@ -4,6 +4,7 @@ import com.nike.artemis.model.rules.LaunchRateRule;
 
 public class LaunchRateRuleBuilder {
 
+    public String ruleId;
     public BlockKind blockKind;
     public String county;
     public String trueClientIp;
@@ -17,6 +18,10 @@ public class LaunchRateRuleBuilder {
 
     public LaunchRateRuleBuilder(){}
 
+    public LaunchRateRuleBuilder ruleId(String ruleId) {
+        this.ruleId = ruleId;
+        return this;
+    }
     public LaunchRateRuleBuilder blockKind(BlockKind blockKind){
         this.blockKind = blockKind;
         return this;

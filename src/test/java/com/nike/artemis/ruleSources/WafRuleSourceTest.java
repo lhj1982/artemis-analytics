@@ -39,6 +39,7 @@ public class WafRuleSourceTest {
     public void testWafRuleSource(){
         String wafS3Rules = "{\n" +
                 "    \"WAF\": [{\n" +
+                "      \"rule_id\": \"AT-WAF-1\",\n" +
                 "      \"rule_name\": \"waf_checkouts\",\n" +
                 "      \"user_type\": \"ipaddress\",\n" +
                 "      \"path\": \"/foo/checkouts\",\n" +
@@ -48,11 +49,12 @@ public class WafRuleSourceTest {
                 "      \"limit\": 10,\n" +
                 "      \"block_time\": 1800,\n" +
                 "      \"enforce\": \"YES\",\n" +
-                "      \"action\": \"captcha\",\n" +
-                "        \"ttl\": 90,\n" +
-                "      \"name_space\": \"checkout\"\n" +
+                "      \"name_space\": \"checkout\",\n" +
+                "      \"action\": \"block\",\n" +
+                "      \"ttl\": 90\n" +
                 "    },\n" +
                 "    {\n" +
+                "      \"rule_id\": \"AT-WAF-2\",\n" +
                 "      \"rule_name\": \"waf_orders_history\",\n" +
                 "      \"user_type\": \"umid\",\n" +
                 "      \"path\": \"/foo/bar/orders\",\n" +
@@ -62,9 +64,9 @@ public class WafRuleSourceTest {
                 "      \"limit\": 10,\n" +
                 "      \"block_time\": 1200,\n" +
                 "      \"enforce\": \"NO\",\n" +
-                "      \"action\": \"captcha\",\n" +
-                "        \"ttl\": 90,\n" +
-                "      \"name_space\": \"orders\"\n" +
+                "      \"name_space\": \"checkout\",\n" +
+                "      \"action\": \"block\",\n" +
+                "      \"ttl\": 90\n" +
                 "    }]\n" +
                 "}";
 
