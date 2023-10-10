@@ -26,7 +26,7 @@ public class CdnRuleBroadCastProcessorFunction extends BroadcastProcessFunction<
             Tuple3<String, CdnRateRule, Long>>.ReadOnlyContext ctx, Collector<Tuple3<String, CdnRateRule, Long>> out) throws Exception {
         for (Map.Entry<CdnRateRule, Object> entry : ctx.getBroadcastState(cdnRulesStateDescriptor).immutableEntries()) {
             if (entry.getKey().appliesTo(requestEvent)) {
-                LOG.info(LogMsgBuilder.getInstance()
+                LOG.debug(LogMsgBuilder.getInstance()
                         .source(CdnRequestEvent.class.getSimpleName())
                         .msg(String.format("matched CDN event: %s", requestEvent))
                         .build().toString());

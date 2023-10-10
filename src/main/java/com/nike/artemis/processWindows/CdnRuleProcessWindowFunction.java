@@ -41,11 +41,11 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
             context.globalState().getState(currentCdnMaxBlockByUserAndRule).update(0L);
         }
         long currentMaxBlock = maxBlockState.value();
-        LOG.info(LogMsgBuilder.getInstance()
+        LOG.debug(LogMsgBuilder.getInstance()
                 .source(CdnRateRule.class.getSimpleName())
                 .msg(String.format("Processing CDN data timeStamp :%s", LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli()))
                 .build().toString());
-        LOG.info(LogMsgBuilder.getInstance()
+        LOG.debug(LogMsgBuilder.getInstance()
                 .source(CdnRateRule.class.getSimpleName())
                 .msg(String.format("in the processWindow CDN: request user: %s, window start at: %s, window end at: %s",
                         user, context.window().getStart(), context.window().getEnd()))

@@ -40,7 +40,7 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
         }
 
         long currentMaxBlock = maxBlockState.value();
-        LOG.info(LogMsgBuilder.getInstance()
+        LOG.debug(LogMsgBuilder.getInstance()
                 .source(WafRateRule.class.getSimpleName())
                 .msg(String.format("in the processWindow WAF: request user: %s, window start at: %s, window end at: %s",
                         user, context.window().getStart(), context.window().getEnd()))

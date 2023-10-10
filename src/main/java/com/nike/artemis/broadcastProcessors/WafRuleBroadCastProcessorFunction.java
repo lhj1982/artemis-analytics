@@ -28,7 +28,7 @@ public class WafRuleBroadCastProcessorFunction extends BroadcastProcessFunction<
             Tuple3<String, WafRateRule, Long>>.ReadOnlyContext ctx, Collector<Tuple3<String, WafRateRule, Long>> out) throws Exception {
         for (Map.Entry<WafRateRule, Object> entry : ctx.getBroadcastState(wafRulesStateDescriptor).immutableEntries()) {
             if (entry.getKey().appliesTo(wafRequestEvent)) {
-                LOG.info(LogMsgBuilder.getInstance()
+                LOG.debug(LogMsgBuilder.getInstance()
                         .source(WafRequestEvent.class.getSimpleName())
                         .msg(String.format("matched WAF event: %s", wafRequestEvent))
                         .build().toString());

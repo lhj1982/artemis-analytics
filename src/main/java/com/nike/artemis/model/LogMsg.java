@@ -1,13 +1,9 @@
 package com.nike.artemis.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import java.io.Serializable;
-
 public class LogMsg {
-    //    private static final long serialVersionUID = -8223396713006724441L;
     private String source;
     private String msg;
     private Object data;
