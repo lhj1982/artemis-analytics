@@ -1,5 +1,6 @@
 package com.nike.artemis.processWindows;
 
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.rules.CdnRateRule;
 import org.apache.flink.api.common.state.ValueState;
@@ -26,7 +27,8 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
     }
 
     @Override
-    public void process(Tuple2<String, CdnRateRule> key, ProcessWindowFunction<Long, Block, Tuple2<String, CdnRateRule>, TimeWindow>.Context context, Iterable<Long> elements, Collector<Block> out) throws Exception {
+    public void process(Tuple2<String, CdnRateRule> key, ProcessWindowFunction<Long, Block, Tuple2<String, CdnRateRule>,
+            TimeWindow>.Context context, Iterable<Long> elements, Collector<Block> out) throws Exception {
         String user = key.f0;
         CdnRateRule cdnRateRule = key.f1;
 
@@ -39,13 +41,25 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
             context.globalState().getState(currentCdnMaxBlockByUserAndRule).update(0L);
         }
         long currentMaxBlock = maxBlockState.value();
-        LOG.info("Processing CDN data timeStamp :{}", LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli());
-        LOG.info("in the processWindow CDN: request user: {} window start: {} window endtime: {}", user, context.window().getStart(), context.window().getEnd());
+        LOG.debug(LogMsgBuilder.getInstance()
+                .source(CdnRateRule.class.getSimpleName())
+                .msg(String.format("Processing CDN data timeStamp :%s", LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli()))
+                .build().toString());
+        LOG.debug(LogMsgBuilder.getInstance()
+                .source(CdnRateRule.class.getSimpleName())
+                .msg(String.format("in the processWindow CDN: request user: %s, window start at: %s, window end at: %s",
+                        user, context.window().getStart(), context.window().getEnd()))
+                .build().toString());
         if (count >= cdnRateRule.getLimit()) {
             long newBlockEnd = context.window().getStart() + cdnRateRule.getBlock_time();
             if ((currentMaxBlock < newBlockEnd)) {
-                LOG.info("EMIT CDN BLOCK: rule name: {}, user type: {}, user: {}, blockttl: {}", cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, newBlockEnd);
-                out.collect(new Block(cdnRateRule.getRule_id(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(), String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl())));
+                LOG.info(LogMsgBuilder.getInstance()
+                        .source(CdnRateRule.class.getSimpleName())
+                        .msg(String.format("EMIT CDN BLOCK: rule name: %s, user type: %s, user: %s, block ttl: %s",
+                                cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, newBlockEnd))
+                        .build().toString());
+                out.collect(new Block(cdnRateRule.getRule_id(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(),
+                        String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl())));
                 maxBlockState.update(newBlockEnd);
             }
         }

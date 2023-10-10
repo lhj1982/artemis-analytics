@@ -3,6 +3,7 @@ package com.nike.artemis.rulesParsers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.rules.LaunchRateRule;
 import com.nike.artemis.ruleChanges.LaunchRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
@@ -10,7 +11,10 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -20,8 +24,9 @@ public class LaunchRulesParser implements Serializable {
     public static Logger LOG = LoggerFactory.getLogger(LaunchRulesParser.class);
     public RuleSourceProvider provider;
 
-    public LaunchRulesParser () {
+    public LaunchRulesParser() {
     }
+
     public LaunchRulesParser(RuleSourceProvider ruleSourceProvider) {
         this.provider = ruleSourceProvider;
     }
@@ -36,8 +41,9 @@ public class LaunchRulesParser implements Serializable {
     }
 
 
-     /**
+    /**
      * reading rules from s3
+     *
      * @return set of rules which got from s3
      */
     private HashSet<LaunchRateRule> getRules() {
@@ -48,8 +54,8 @@ public class LaunchRulesParser implements Serializable {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(rulesStream));
         StringBuilder jsonContent = new StringBuilder();
         String line;
-        try{
-            while ((line = bufferedReader.readLine()) != null){
+        try {
+            while ((line = bufferedReader.readLine()) != null) {
                 line = line.trim();
                 jsonContent.append(line);
             }
@@ -63,17 +69,23 @@ public class LaunchRulesParser implements Serializable {
                 }
             }
             return rules;
-        } catch (Exception e){
-            LOG.error("Location={RulesParser} source={} error={}", jsonContent, e.getMessage());
+        } catch (Exception e) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .source(LaunchRateRule.class.getSimpleName())
+                    .msg("parser launch rules from s3 failed")
+                    .data(jsonContent)
+                    .exception(e)
+                    .build().toString());
             return null;
         }
 
     }
+
     private Collection<LaunchRuleChange> determineChanges(HashSet<LaunchRateRule> currentRules, HashSet<LaunchRateRule> s3Rules) {
         List<LaunchRuleChange> changes = new ArrayList<>();
         // Determine any new rules added...
         for (LaunchRateRule r : s3Rules) {
-            if ((currentRules == null) || (! currentRules.contains(r))) {
+            if ((currentRules == null) || (!currentRules.contains(r))) {
                 changes.add(new LaunchRuleChange(LaunchRuleChange.Action.CREATE, r));
             }
         }

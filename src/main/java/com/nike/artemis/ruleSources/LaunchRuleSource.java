@@ -1,14 +1,14 @@
 package com.nike.artemis.ruleSources;
 
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.rules.LaunchRateRule;
-import com.nike.artemis.rulesParsers.LaunchRulesParser;
 import com.nike.artemis.ruleChanges.LaunchRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
+import com.nike.artemis.rulesParsers.LaunchRulesParser;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -25,9 +25,10 @@ public class LaunchRuleSource implements SourceFunction<LaunchRuleChange>, Seria
     public HashSet<LaunchRateRule> currentRules = new HashSet<>();
     public boolean testMode;
 
-    public LaunchRuleSource(){
+    public LaunchRuleSource() {
     }
-    public LaunchRuleSource(RuleSourceProvider ruleSourceProvider, boolean testMode){
+
+    public LaunchRuleSource(RuleSourceProvider ruleSourceProvider, boolean testMode) {
         currentRuleDate = Date.from(Instant.EPOCH);
         parser = new LaunchRulesParser(ruleSourceProvider);
         provider = ruleSourceProvider;
@@ -58,9 +59,9 @@ public class LaunchRuleSource implements SourceFunction<LaunchRuleChange>, Seria
 
         // ========================= reading rules from s3 =====================
 
-        while (running){
+        while (running) {
             Date lastModified = provider.getLastModified();
-            if (currentRuleDate.before(lastModified)){
+            if (currentRuleDate.before(lastModified)) {
                 Tuple2<HashSet<LaunchRateRule>, Collection<LaunchRuleChange>> rulesAndChanges = parser.getRulesAndChanges(currentRules);
                 for (LaunchRuleChange ruleChange : rulesAndChanges.f1) {
                     ctx.collect(ruleChange);
@@ -73,13 +74,16 @@ public class LaunchRuleSource implements SourceFunction<LaunchRuleChange>, Seria
                 break;
             }
             try {
-                Thread.sleep(60*1000);
+                Thread.sleep(60 * 1000);
             } catch (InterruptedException e) {
-                LOG.error("Location=LaunchRuleSource error={}", e);
+                LOG.error(LogMsgBuilder.getInstance()
+                        .source(LaunchRateRule.class.getSimpleName())
+                        .msg("generate object LaunchRateRule failed")
+                        .exception(e)
+                        .build().toString());
             }
 
         }
-
 
 
     }

@@ -1,5 +1,6 @@
 package com.nike.artemis.Utils;
 
+import com.nike.artemis.LogMsgBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,90 +25,123 @@ public class KafkaHelpers {
         // note: this won't work when running locally
         Properties cdnLogKafkaProperties = applicationProperties.get(RUNTIME_PROPERTIES_KAFKA_CDN);
 
-        if(cdnLogKafkaProperties == null) {
-            LOG.error("Unable to retrieve FlinkApplicationProperties; please ensure that you've " +
-                    "supplied them via application properties.");
+        if (cdnLogKafkaProperties == null) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve FlinkApplicationProperties; please ensure that you've " +
+                            "supplied them via application properties.")
+                    .build().toString());
             return null;
         }
 
-        if(!cdnLogKafkaProperties.containsKey(ALI_KAFKA_BOOTSTRAP_SERVERS)) {
-            LOG.error("Unable to retrieve property: " + ALI_KAFKA_BOOTSTRAP_SERVERS);
+        if (!cdnLogKafkaProperties.containsKey(ALI_KAFKA_BOOTSTRAP_SERVERS)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + ALI_KAFKA_BOOTSTRAP_SERVERS)
+                    .build().toString());
             return null;
         }
 
-        if(!cdnLogKafkaProperties.containsKey(KAFKA_SOURCE_TOPIC_KEY)) {
-            LOG.error("Unable to retrieve property: " + KAFKA_SOURCE_TOPIC_KEY);
+        if (!cdnLogKafkaProperties.containsKey(KAFKA_SOURCE_TOPIC_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + KAFKA_SOURCE_TOPIC_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!cdnLogKafkaProperties.containsKey(KAFKA_CONSUMER_GROUP_ID_KEY)) {
-            LOG.error("Unable to retrieve property: " + KAFKA_CONSUMER_GROUP_ID_KEY);
+        if (!cdnLogKafkaProperties.containsKey(KAFKA_CONSUMER_GROUP_ID_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + KAFKA_CONSUMER_GROUP_ID_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!cdnLogKafkaProperties.containsKey(TRUSTSTORE_S3_BUCKET_KEY)) {
-            LOG.error("Unable to retrieve property: " + TRUSTSTORE_S3_BUCKET_KEY);
+        if (!cdnLogKafkaProperties.containsKey(TRUSTSTORE_S3_BUCKET_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + TRUSTSTORE_S3_BUCKET_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!cdnLogKafkaProperties.containsKey(TRUSTSTORE_S3_PATH_KEY)) {
-            LOG.error("Unable to retrieve property: " + TRUSTSTORE_S3_PATH_KEY);
+        if (!cdnLogKafkaProperties.containsKey(TRUSTSTORE_S3_PATH_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + TRUSTSTORE_S3_PATH_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!cdnLogKafkaProperties.containsKey(USERNAME)) {
-            LOG.error("Unable to retrieve property: " + USERNAME);
+        if (!cdnLogKafkaProperties.containsKey(USERNAME)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + USERNAME)
+                    .build().toString());
             return null;
         }
 
-        if(!cdnLogKafkaProperties.containsKey(PASSWORD)) {
-            LOG.error("Unable to retrieve property: " + PASSWORD);
+        if (!cdnLogKafkaProperties.containsKey(PASSWORD)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + PASSWORD)
+                    .build().toString());
             return null;
         }
 
 
         return cdnLogKafkaProperties;
     }
+
     public static Properties getWafLogKafkaProperties(Map<String, Properties> applicationProperties) throws IOException {
         Properties wafLogKafkaProperties = applicationProperties.get(RUNTIME_PROPERTIES_KAFKA_WAF);
-        if(wafLogKafkaProperties == null) {
-            LOG.error("Unable to retrieve wafLogKafka properties please ensure that you've " +
-                    "supplied them via application properties.");
+        if (wafLogKafkaProperties == null) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve wafLogKafka properties please ensure that you've " +
+                            "supplied them via application properties.")
+                    .build().toString());
             return null;
         }
 
-        if(!wafLogKafkaProperties.containsKey(ALI_KAFKA_BOOTSTRAP_SERVERS)) {
-            LOG.error("Unable to retrieve property: " + ALI_KAFKA_BOOTSTRAP_SERVERS);
+        if (!wafLogKafkaProperties.containsKey(ALI_KAFKA_BOOTSTRAP_SERVERS)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + ALI_KAFKA_BOOTSTRAP_SERVERS)
+                    .build().toString());
             return null;
         }
 
-        if(!wafLogKafkaProperties.containsKey(KAFKA_SOURCE_TOPIC_KEY)) {
-            LOG.error("Unable to retrieve property: " + KAFKA_SOURCE_TOPIC_KEY);
+        if (!wafLogKafkaProperties.containsKey(KAFKA_SOURCE_TOPIC_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + KAFKA_SOURCE_TOPIC_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!wafLogKafkaProperties.containsKey(KAFKA_CONSUMER_GROUP_ID_KEY)) {
-            LOG.error("Unable to retrieve property: " + KAFKA_CONSUMER_GROUP_ID_KEY);
+        if (!wafLogKafkaProperties.containsKey(KAFKA_CONSUMER_GROUP_ID_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + KAFKA_CONSUMER_GROUP_ID_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!wafLogKafkaProperties.containsKey(TRUSTSTORE_S3_BUCKET_KEY)) {
-            LOG.error("Unable to retrieve property: " + TRUSTSTORE_S3_BUCKET_KEY);
+        if (!wafLogKafkaProperties.containsKey(TRUSTSTORE_S3_BUCKET_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + TRUSTSTORE_S3_BUCKET_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!wafLogKafkaProperties.containsKey(TRUSTSTORE_S3_PATH_KEY)) {
-            LOG.error("Unable to retrieve property: " + TRUSTSTORE_S3_PATH_KEY);
+        if (!wafLogKafkaProperties.containsKey(TRUSTSTORE_S3_PATH_KEY)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + TRUSTSTORE_S3_PATH_KEY)
+                    .build().toString());
             return null;
         }
 
-        if(!wafLogKafkaProperties.containsKey(USERNAME)) {
-            LOG.error("Unable to retrieve property: " + USERNAME);
+        if (!wafLogKafkaProperties.containsKey(USERNAME)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + USERNAME)
+                    .build().toString());
             return null;
         }
 
-        if(!wafLogKafkaProperties.containsKey(PASSWORD)) {
-            LOG.error("Unable to retrieve property: " + PASSWORD);
+        if (!wafLogKafkaProperties.containsKey(PASSWORD)) {
+            LOG.error(LogMsgBuilder.getInstance()
+                    .msg("Unable to retrieve property: " + PASSWORD)
+                    .build().toString());
             return null;
         }
         return wafLogKafkaProperties;
