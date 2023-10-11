@@ -74,7 +74,7 @@ public class LaunchRulesParser implements Serializable {
                     .source(LaunchRateRule.class.getSimpleName())
                     .msg("parser launch rules from s3 failed")
                     .data(jsonContent)
-                    .exception(e)
+                    .exception(e.getMessage())
                     .build().toString());
             return null;
         }

@@ -79,7 +79,7 @@ public class LaunchRuleSource implements SourceFunction<LaunchRuleChange>, Seria
                 LOG.error(LogMsgBuilder.getInstance()
                         .source(LaunchRateRule.class.getSimpleName())
                         .msg("generate object LaunchRateRule failed")
-                        .exception(e)
+                        .exception(e.getMessage())
                         .build().toString());
             }
 

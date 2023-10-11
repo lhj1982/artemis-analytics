@@ -71,7 +71,7 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
                 LOG.error(LogMsgBuilder.getInstance()
                         .source(CdnRateRule.class.getSimpleName())
                         .msg("generate object CdnRateRule failed")
-                        .exception(e)
+                        .exception(e.getMessage())
                         .build().toString());
             }
         }

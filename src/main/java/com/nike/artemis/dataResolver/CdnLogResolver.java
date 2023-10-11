@@ -42,7 +42,7 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
                     .source(CdnRequestEvent.class.getSimpleName())
                     .msg("resolve cdn data from kafka failed")
                     .data(cdnLog)
-                    .exception(e)
+                    .exception(e.getMessage())
                     .build().toString());
         }
 

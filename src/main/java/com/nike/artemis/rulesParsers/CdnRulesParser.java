@@ -73,7 +73,7 @@ public class CdnRulesParser implements Serializable {
                     .source(CdnRateRule.class.getSimpleName())
                     .msg("parser cdn rules from s3 failed")
                     .data(jsonContent)
-                    .exception(e)
+                    .exception(e.getMessage())
                     .build().toString());
             return null;
         }

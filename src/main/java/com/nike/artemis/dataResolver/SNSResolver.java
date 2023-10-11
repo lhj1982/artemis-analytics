@@ -43,7 +43,7 @@ public class SNSResolver implements FlatMapFunction<String, LaunchRequestEvent> 
                     .source(LaunchRequestEvent.class.getSimpleName())
                     .msg("resolve lunch data from sns failed")
                     .data(jsonRequestMessage)
-                    .exception(e)
+                    .exception(e.getMessage())
                     .build().toString());
         }
 

@@ -7,13 +7,13 @@ public class LogMsg {
     private String source;
     private String msg;
     private Object data;
-    private Exception exception;
+    private String exception;
 
 
     public LogMsg() {
     }
 
-    public LogMsg(String source, String msg, Object data, Exception exception) {
+    public LogMsg(String source, String msg, Object data, String exception) {
         this.source = source;
         this.msg = msg;
         this.data = data;
@@ -44,11 +44,11 @@ public class LogMsg {
         this.data = data;
     }
 
-    public Exception getException() {
+    public String getException() {
         return exception;
     }
 
-    public void setException(Exception exception) {
+    public void setException(String exception) {
         this.exception = exception;
     }
 
