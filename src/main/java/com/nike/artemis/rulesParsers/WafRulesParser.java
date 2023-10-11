@@ -70,7 +70,7 @@ public class WafRulesParser implements Serializable {
                     .source(WafRateRule.class.getSimpleName())
                     .msg("parser waf rules from s3 failed")
                     .data(jsonContent)
-                    .exception(e)
+                    .exception(e.getMessage())
                     .build().toString());
             return null;
         }

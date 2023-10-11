@@ -14,7 +14,7 @@ public class LogMsgBuilder {
     private String source;
     private String msg;
     private Object data;
-    private Exception exception;
+    private String exception;
 
     public LogMsgBuilder source(String source) {
         this.source = source;
@@ -31,7 +31,7 @@ public class LogMsgBuilder {
         return this;
     }
 
-    public LogMsgBuilder exception(Exception exception) {
+    public LogMsgBuilder exception(String exception) {
         this.exception = exception;
         return this;
     }

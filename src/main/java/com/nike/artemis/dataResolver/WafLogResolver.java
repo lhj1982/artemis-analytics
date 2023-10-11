@@ -34,7 +34,7 @@ public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> 
                     .source(WafRequestEvent.class.getSimpleName())
                     .msg("resolve waf data from kafka failed")
                     .data(wafLog)
-                    .exception(e)
+                    .exception(e.getMessage())
                     .build().toString());
         }
     }
