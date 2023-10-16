@@ -143,6 +143,9 @@ public class WafRateRule {
         this.ttl = ttl;
     }
 
+    public boolean isEnforce() {
+        return enforce == EnforceType.YES;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

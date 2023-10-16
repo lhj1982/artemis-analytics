@@ -60,6 +60,12 @@ public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long,
                 out.collect(new Block(rateRule.getRuleId(), rateRule.getBlockKind().name(), blockEntity, rateRule.getAction(),
                         String.valueOf(newBlockEnd), "dynamo", "", ""));
                 maxBlockState.update(newBlockEnd);
+            } else {
+                LOG.info(LogMsgBuilder.getInstance()
+                        .source(LaunchRateRule.class.getSimpleName())
+                        .msg(String.format("Rule EnforceType: NO , Launch info: block kind: %s, block entity: %s,rule id: %s ",
+                                rateRule.getBlockKind().name(), blockEntity, rateRule.getRuleId()))
+                        .build().toString());
             }
         }
     }

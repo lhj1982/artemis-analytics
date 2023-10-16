@@ -52,7 +52,7 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                 .build().toString());
         if (count >= cdnRateRule.getLimit()) {
             long newBlockEnd = context.window().getStart() + cdnRateRule.getBlock_time();
-            if ((currentMaxBlock < newBlockEnd)) {
+            if ((currentMaxBlock < newBlockEnd) && cdnRateRule.isEnforce()) {
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(CdnRateRule.class.getSimpleName())
                         .msg(String.format("EMIT CDN BLOCK: rule name: %s, user type: %s, user: %s, block ttl: %s",
@@ -61,6 +61,12 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                 out.collect(new Block(cdnRateRule.getRule_id(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(),
                         String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl())));
                 maxBlockState.update(newBlockEnd);
+            } else {
+                LOG.info(LogMsgBuilder.getInstance()
+                        .source(CdnRateRule.class.getSimpleName())
+                        .msg(String.format("Rule EnforceType: NO , CDN info: rule id :%s,rule name: %s, user type: %s, user: %s, blockttl: %s",
+                                cdnRateRule.getRule_id(), cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, newBlockEnd))
+                        .build().toString());
             }
         }
     }

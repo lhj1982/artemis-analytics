@@ -188,6 +188,10 @@
                                     <mainClass>com.nike.artemis.Main</mainClass>
                                 </transformer>
                             </transformers>
+                            <!--this attribute will generate 2 jar: origin and shade-->
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <!-- this attribute  -->
+                            <shadedClassifierName>shade</shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>

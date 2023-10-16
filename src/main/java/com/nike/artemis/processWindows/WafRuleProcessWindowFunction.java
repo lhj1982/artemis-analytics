@@ -47,7 +47,7 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                 .build().toString());
         if (count >= wafRateRule.getLimit()) {
             Long newBlockEnd = context.window().getStart() + wafRateRule.getBlock_time();
-            if (currentMaxBlock < newBlockEnd) {
+            if (currentMaxBlock < newBlockEnd && wafRateRule.isEnforce()) {
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(WafRateRule.class.getSimpleName())
                         .msg(String.format("EMIT WAF BLOCK: rule name: %s, user type: %s, user: %s, block ttl: %s",
@@ -56,6 +56,12 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                 out.collect(new Block(wafRateRule.getRule_id(), wafRateRule.getUser_type(), user, wafRateRule.getAction(),
                         String.valueOf(newBlockEnd), "edgeKV", wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl())));
                 maxBlockState.update(newBlockEnd);
+            } else {
+                LOG.info(LogMsgBuilder.getInstance()
+                        .source(WafRateRule.class.getSimpleName())
+                        .msg(String.format("Rule EnforceType: NO, WAF info: rule name: %s, user type: %s, user: %s",
+                                wafRateRule.getRule_name(), wafRateRule.getUser_type(), user))
+                        .build().toString());
             }
         }
     }

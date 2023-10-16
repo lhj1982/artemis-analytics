@@ -37,7 +37,7 @@ public class CdnRateRule {
         this.enforce = enforce;
         this.name_space = name_space;
         this.action = action;
-        this.ttl= ttl;
+        this.ttl = ttl;
     }
 
     public String getRule_id() {
@@ -142,6 +142,10 @@ public class CdnRateRule {
 
     public void setTtl(long ttl) {
         this.ttl = ttl;
+    }
+
+    public boolean isEnforce() {
+        return enforce == EnforceType.YES;
     }
 
     @Override
