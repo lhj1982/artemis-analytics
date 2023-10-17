@@ -1,0 +1,16 @@
+{
+  "rules" : [
+    {
+      "displayName" : "Branch Coverage percentage above 0",
+      "metricKey" : "BranchCoverage",
+      "value" : "0",
+      "comparator" : "GTE"
+    },
+    {
+      "displayName" : "Line Coverage percentage above 50",
+      "metricKey" : "LineCoverage",
+      "value" : "50",
+      "comparator" : "GTE"
+    }
+  ]
+}

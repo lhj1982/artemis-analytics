@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A role used by artemis-analytics, artemis-analytics-execution-role
+
+Parameters:
+  RoleVersionSuffix:
+    Type: String
+    Default: "-v1"
+
+Mappings:
+  Accounts:
+    "439314357471": # litx test
+      s3BucketName: "litx-test-artemis-analytics"
+    "439413396736": # litx prod
+      s3BucketName: "litx-prod-artemis-analytics"
+
+Resources:
+  KinesisExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "artemis-analytics-kinesis-execution-role${RoleVersionSuffix}"
+      Path: /teams/anti-bot/
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - kinesisanalytics.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Sub "${AWS::AccountId}"
+              ArnEquals:
+                aws:SourceArn: !Sub "arn:aws-cn:kinesisanalytics:${AWS::Region}:${AWS::AccountId}:application/artemis-*"
+
+  S3Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "ArtemisAnalyticsS3Permissions${RoleVersionSuffix}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Resource: !Sub
+              - 'arn:aws-cn:s3:::${s3Bucket}/*'
+              - s3Bucket: !FindInMap [ Accounts, !Ref "AWS::AccountId", s3BucketName ]
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource:
+              !Join [
+                ":",
+                [
+                  "arn:aws-cn:s3::",
+                  !FindInMap [ Accounts, !Ref "AWS::AccountId", s3BucketName ],
+                ],
+              ]
+      Roles:
+        - !Ref KinesisExecutionRole
+  LoggingPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "ArtemisAnalyticsLoggingPermissions${RoleVersionSuffix}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:DescribeLogGroups
+            Resource:
+              - !Sub "arn:aws-cn:logs:${AWS::Region}:${AWS::AccountId}:log-group:*"
+          - Effect: Allow
+            Action:
+              - logs:DescribeLogStreams
+            Resource:
+              - !Sub "arn:aws-cn:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesis-analytics/artemis-analytics${RoleVersionSuffix}:log-stream:*"
+          - Effect: Allow
+            Action:
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws-cn:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesis-analytics/artemis-analytics${RoleVersionSuffix}:log-stream:artemis-analytics${RoleVersionSuffix}"
+      Roles:
+        - !Ref KinesisExecutionRole
+  KDSPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "ArtemisAnalyticsKinesisDataStreamPermissions${RoleVersionSuffix}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:*
+            Resource:
+              - !Sub "arn:aws-cn:kinesis:${AWS::Region}:${AWS::AccountId}:stream/artemis-input-stream"
+              - !Sub "arn:aws-cn:kinesis:${AWS::Region}:${AWS::AccountId}:stream/artemis-blocker-stream"
+      Roles:
+        - !Ref KinesisExecutionRole
+  CloudwatchMetricPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "ArtemisAnalyticsMetricsPermission${RoleVersionSuffix}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+            Resource:
+              - "*"
+      Roles:
+        - !Ref KinesisExecutionRole
+  VPCAndENIPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "ArtemisAnalyticsVPCAndENIPermissions${RoleVersionSuffix}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ec2:DescribeVpcs
+              - ec2:DescribeSubnets
+              - ec2:DescribeSecurityGroups
+              - ec2:DescribeDhcpOptions
+              - ec2:CreateNetworkInterface
+              - ec2:CreateNetworkInterfacePermission
+              - ec2:DescribeNetworkInterfaces
+              - ec2:DeleteNetworkInterface
+            Resource:
+              - "*"
+      Roles:
+        - !Ref KinesisExecutionRole
+
+Outputs:
+  ExecutionRoleName:
+    Value: !GetAtt KinesisExecutionRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-KinesisRoleArn"

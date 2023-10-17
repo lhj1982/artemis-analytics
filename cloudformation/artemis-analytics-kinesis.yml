@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Simple KDA Flink application
+Parameters:
+  ArtemisAnalyticsJarFile:
+    Type: String
+    Default: artemis-analytics.jar
+
+  VersionSuffix:
+    Type: String
+    Default: -v1
+
+  AliCDNKafkaBootstrapServers:
+    Type: String
+    Default: alikafka-post-cn-lbj3d0eqm002-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-3.alikafka.aliyuncs.com:9093
+
+#  AliWAFKafkaBootstrapServers:
+#    Type: String
+#    Default: alikafka-post-cn-nwy3caw7v008-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-nwy3caw7v008-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-nwy3caw7v008-3.alikafka.aliyuncs.com:9093
+
+  KafkaTruststoreKey:
+    Type: String
+    Default: mix.4096.client.truststore.jks
+  
+  IDNPaths:
+    Description: these are the WAF paths the we do phonenumber check when processing waf request thru artemis
+    Type: String
+    Default: /credential_lookup/v1,/challenge/password/v1,/verification_code/send/v1,/password_reset/v1
+  
+Mappings:
+  Accounts:
+    "439314357471": # litx test
+      s3BucketName: "litx-test-artemis-analytics"
+    "439413396736": # litx prod
+      s3BucketName: "litx-prod-artemis-analytics"
+
+  Networks:
+    "439314357471":
+      "VPC": "vpc-0c79181af7cd89765"
+      "Subnet": "subnet-0af00467fb8f8713f"
+      "SG": "sg-024f6ba21996520d6"
+    "439413396736":
+#      Change the info to prod
+      "VPC": "vpc-0c79181af7cd89765"
+      "Subnet": "subnet-0af00467fb8f8713f"
+      "SG": "sg-024f6ba21996520d6"
+
+
+Resources:
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/kinesis-analytics/artemis-analytics${VersionSuffix}'
+
+  LogStream:
+    Type: AWS::Logs::LogStream
+    DependsOn: LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/kinesis-analytics/artemis-analytics${VersionSuffix}'
+      LogStreamName: !Sub 'artemis-analytics${VersionSuffix}'
+
+  ArtemisAnalytics:
+    Type: AWS::KinesisAnalyticsV2::Application
+    Properties:
+      ApplicationName: !Sub 'artemis-analytics${VersionSuffix}'
+      RuntimeEnvironment: FLINK-1_13
+      ServiceExecutionRole: !Sub 'arn:aws-cn:iam::${AWS::AccountId}:role/teams/anti-bot/artemis-analytics-kinesis-execution-role'
+      ApplicationConfiguration:
+        ApplicationCodeConfiguration:
+          CodeContent:
+            S3ContentLocation:
+              BucketARN: !Join [ ':', ['arn:aws-cn:s3::', !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]] ]
+              FileKey: !Ref ArtemisAnalyticsJarFile
+          CodeContentType: 'ZIPFILE'
+        EnvironmentProperties:
+          PropertyGroups:
+            - PropertyGroupId: 'cdnLogKafka'
+              PropertyMap:
+                AliKafkaBootstrapServers: !Ref AliCDNKafkaBootstrapServers
+                KafkaConsumerGroupId: 'ali_cdn_log_group'
+                KafkaSourceTopic: 'ali_cdn_filtered_log'
+                TruststoreS3Bucket: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
+                TruststoreS3Path: !Sub 'truststore/${KafkaTruststoreKey}'
+                username: 'ArtemisCDNKafka'
+                password: '5ZMvI2YPuVrahN5c3aTrhZt3QGkoKegV'
+#            - PropertyGroupId: 'wafLogKafka'
+#              PropertyMap:
+#                AliKafkaBootstrapServers: !Ref AliWAFKafkaBootstrapServers
+#                KafkaConsumerGroupId: 'ali_waf_log_group'
+#                KafkaSourceTopic: 'ali_waf_log'
+#                TruststoreS3Bucket: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
+#                TruststoreS3Path: !Sub 'truststore/${KafkaTruststoreKey}'
+#                username: 'aliWafLogKafka'
+#                password: 'aliWafLogKafka123'
+            - PropertyGroupId: rulesBucket
+              PropertyMap:
+                RulesBucketName: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
+                RulesKeyName: 'rules/rule'
+            - PropertyGroupId: 'checkPath'
+              PropertyMap:
+                urlPath: !Ref IDNPaths
+        ApplicationSnapshotConfiguration:
+          SnapshotsEnabled: False
+        FlinkApplicationConfiguration:
+          CheckpointConfiguration:
+            CheckpointingEnabled: False
+            ConfigurationType: CUSTOM
+          MonitoringConfiguration:
+            ConfigurationType: CUSTOM
+            LogLevel: INFO
+            MetricsLevel: APPLICATION
+        VpcConfigurations:
+          - SecurityGroupIds:
+            - !FindInMap [Networks, !Ref "AWS::AccountId", SG]
+            SubnetIds:
+            - !FindInMap [Networks, !Ref "AWS::AccountId", Subnet]
+
+  BasicApplicationV2CloudWatchLoggingOption:
+    Type: AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption
+    Properties:
+      ApplicationName:
+        Ref: ArtemisAnalytics
+      CloudWatchLoggingOption:
+        LogStreamARN:
+          Fn::Join:
+          - ":"
+          - - arn:aws-cn:logs
+            - Ref: AWS::Region
+            - Ref: AWS::AccountId
+            - log-group
+            - Ref: LogGroup
+            - log-stream
+            - Ref: LogStream

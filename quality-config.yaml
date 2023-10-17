@@ -1,0 +1,28 @@
+qualityConfig:
+  application:
+    name: artemis-analytics
+    owner: Frank Zhao
+    team: Launch Anti-Bot
+    email: Lst-gc-cdn-antibots.admin@nike.com
+    costcenter: 104420
+    organization: Web Eng - nike.com Cloud Capability
+    domain: artemis
+  phases:
+    build:
+      - junit:
+          metricSource: junit
+          metricFile: target/surefire-reports/*.xml
+          reportFiles:
+            - target/surefire-reports/*.xml
+          reportIndex: target/site/surefire-report.html
+          required: true
+          qualityGate: true
+      - Jacoco:
+          metricSource: jacoco
+          metricFile: target/site/jacoco/jacoco.xml
+          metricRules: coverage-rules.json
+          reportFiles:
+            - target/site/jacoco/**/*
+          reportIndex: target/site/jacoco/index.html
+          required: true
+          qualityGate: true
