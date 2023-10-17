@@ -60,13 +60,13 @@ import org.slf4j.LoggerFactory;
 
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class Main {
     public static Logger LOG = LoggerFactory.getLogger(Main.class);
 
     public static final String RUNTIME_PROPERTIES_S3_BUCKET = "rulesBucket";
+    public static final String RUNTIME_PROPERTIES_CHECK_PHONE_NUMBER_FOR_PATH = "checkPath";
 
     public static void main(String[] args) throws Exception {
 
@@ -94,6 +94,12 @@ public class Main {
         producerConfig.setProperty("AggregationEnabled", "false");
         S3RuleSourceProviderImpl s3RuleSourceProvider = new S3RuleSourceProviderImpl(nemesisConfig);
 
+        List<String> wafRequestPaths = new ArrayList<>();
+        Properties properties = applicationProperties.get(RUNTIME_PROPERTIES_CHECK_PHONE_NUMBER_FOR_PATH);
+        for (Enumeration<Object> elements = properties.elements(); elements.hasMoreElements(); ) {
+            String element = elements.nextElement().toString();
+            wafRequestPaths.addAll(List.of(element.split(",")));
+        }
 
         //=============================== SNS REQUEST DATA STREAM ================
 
@@ -159,7 +165,7 @@ public class Main {
                 .build().toString());
         KafkaSource<String> wafKafkaSource = AliKafkaSource.getKafkaSource(env, wafLogKafkaProperties);
         DataStream<WafRequestEvent> waf_log_kafka_source = env.fromSource(wafKafkaSource, WatermarkStrategy.noWatermarks(), "WAF Log Kafka Source")
-                .flatMap(new WafLogResolver());
+                .flatMap(new WafLogResolver(wafRequestPaths));
 
         MapStateDescriptor<WafRateRule, Object> wafRulesStateDescriptor = new MapStateDescriptor<>("WafRulesBroadcastState",
                 TypeInformation.of(new TypeHint<WafRateRule>() {}), BasicTypeInfo.of(Object.class));

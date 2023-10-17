@@ -14,7 +14,7 @@ public class WafLogResolverTest {
 
     @Test
     public void parseValidWafLog_IP() {
-        WafLogResolver wafLogResolver = new WafLogResolver();
+        WafLogResolver wafLogResolver = new WafLogResolver(null);
         List<WafRequestEvent> out = new ArrayList<>();
         ListCollector<WafRequestEvent> collector = new ListCollector<>(out);
 
@@ -74,7 +74,7 @@ public class WafLogResolverTest {
 
     @Test
     public void parseValidWafLog_Umid() {
-        WafLogResolver wafLogResolver = new WafLogResolver();
+        WafLogResolver wafLogResolver = new WafLogResolver(null);
         List<WafRequestEvent> out = new ArrayList<>();
         ListCollector<WafRequestEvent> collector = new ListCollector<>(out);
 
@@ -127,7 +127,7 @@ public class WafLogResolverTest {
 
     @Test
     public void doesNotFail_whenEmptyWafLog() {
-        WafLogResolver wafLogResolver = new WafLogResolver();
+        WafLogResolver wafLogResolver = new WafLogResolver(null);
         List<WafRequestEvent> out = new ArrayList<>();
         ListCollector<WafRequestEvent> collector = new ListCollector<>(out);
 

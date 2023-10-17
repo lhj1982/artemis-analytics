@@ -12,10 +12,17 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> {
 
     public static Logger LOG = LoggerFactory.getLogger(WafLogResolver.class);
+    private final List<String> requestPaths;
     ObjectMapper objectMapper = new ObjectMapper();
+
+    public WafLogResolver(List<String> requestPaths) {
+        this.requestPaths = requestPaths;
+    }
 
     @Override
     public void flatMap(String wafLog, Collector<WafRequestEvent> out) {
@@ -27,7 +34,7 @@ public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> 
         WafData wafData = null;
         try {
             wafData = objectMapper.readValue(wafLog, WafData.class);
-            Tuple2<WafUserType, String> userInfo = UserIdentifier.identifyWafUser(wafData);
+            Tuple2<WafUserType, String> userInfo = UserIdentifier.identifyWafUser(this.requestPaths, wafData);
             out.collect(new WafRequestEvent(wafData.getTime().getTime(), userInfo.f0, userInfo.f1, wafData.getRequest_method(), wafData.getRequest_path(), wafData.getStatus()));
         } catch (Exception e) {
             LOG.error(LogMsgBuilder.getInstance()
