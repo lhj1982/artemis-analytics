@@ -47,20 +47,26 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                 .build().toString());
         if (count >= wafRateRule.getLimit()) {
             Long newBlockEnd = context.window().getStart() + wafRateRule.getBlock_time();
+            Block block = new Block(wafRateRule.getRule_id(), wafRateRule.getUser_type(), user, wafRateRule.getAction(),
+                    String.valueOf(newBlockEnd), "edgeKV", wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl()));
             if (currentMaxBlock < newBlockEnd && wafRateRule.isEnforce()) {
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(WafRateRule.class.getSimpleName())
-                        .msg(String.format("EMIT WAF BLOCK: rule name: %s, user type: %s, user: %s, block ttl: %s",
-                                wafRateRule.getRule_name(), wafRateRule.getUser_type(), user, newBlockEnd))
+                        .msg("EMIT WAF BLOCK")
+                        .block(block)
+                        .ruleName(wafRateRule.getRule_name())
+                        .path(wafRateRule.getPath())
                         .build().toString());
-                out.collect(new Block(wafRateRule.getRule_id(), wafRateRule.getUser_type(), user, wafRateRule.getAction(),
-                        String.valueOf(newBlockEnd), "edgeKV", wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl())));
+                out.collect(block);
                 maxBlockState.update(newBlockEnd);
             } else {
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(WafRateRule.class.getSimpleName())
                         .msg(String.format("Rule EnforceType: NO, WAF info: rule name: %s, user type: %s, user: %s",
                                 wafRateRule.getRule_name(), wafRateRule.getUser_type(), user))
+                        .block(block)
+                        .ruleName(wafRateRule.getRule_name())
+                        .path(wafRateRule.getPath())
                         .build().toString());
             }
         }

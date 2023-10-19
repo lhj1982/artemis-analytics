@@ -47,24 +47,25 @@ public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long,
 
         if (count >= rateRule.getLimit()) {
             long newBlockEnd = context.window().getStart() + rateRule.getExpiration();
+            Block block = new Block(rateRule.getRuleId(), rateRule.getBlockKind().name(), blockEntity, rateRule.getAction(),
+                    String.valueOf(newBlockEnd), "dynamo", "", "");
             if ((currentMaxBlock < newBlockEnd) && rateRule.isEnforce()) {
                 Long startTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli();
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(LaunchRateRule.class.getSimpleName())
-                        .msg(String.format("Block Generated: block kind: %s, block entity: %s, start time: %s, end time: %s, rule name: %s, timeStamp: %s",
-                                rateRule.getBlockKind().name(), blockEntity, startTime, newBlockEnd, rateRule,
-                                LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli()))
+                        .msg("EMIT LAUNCH BLOCK")
+                        .block(block)
                         .build().toString());
 //                System.out.println("============[Generated a New Block:  "+new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString())+"]=========");
 //                out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  startTime, newBlockEnd, rateRule.toString()));
-                out.collect(new Block(rateRule.getRuleId(), rateRule.getBlockKind().name(), blockEntity, rateRule.getAction(),
-                        String.valueOf(newBlockEnd), "dynamo", "", ""));
+                out.collect(block);
                 maxBlockState.update(newBlockEnd);
             } else {
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(LaunchRateRule.class.getSimpleName())
-                        .msg(String.format("Rule EnforceType: NO , Launch info: block kind: %s, block entity: %s,rule id: %s ",
+                        .msg(String.format("Rule EnforceType: NO, LAUNCH info: block kind: %s, block entity: %s,rule id: %s ",
                                 rateRule.getBlockKind().name(), blockEntity, rateRule.getRuleId()))
+                        .block(block)
                         .build().toString());
             }
         }
