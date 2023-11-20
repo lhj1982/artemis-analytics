@@ -1,0 +1,97 @@
+#!groovy
+@Library(['cicd-pipeline']) _
+
+import groovy.transform.Field
+import groovy.json.JsonOutput
+
+@Field def teamName = 'GC-Bots'
+@Field def versionSuffix = ''
+@Field def cfStackName = "artemis-analytics-execution-role$versionSuffix"
+@Field def cfTemplateFile = './cloudformation/artemis-analytics-execution-role.yml'
+@Field def cfParameters = [
+    RoleVersionSuffix: versionSuffix
+]
+
+def config = [
+    usePraDispatch: false,
+    tags: [
+            'Name': 'artemis-analytics',
+            'costcenter': '104420',
+            'classification'  : 'Silver',
+            'email': 'Lst-gc-cdn-antibots.admin@nike.com',
+            'owner': teamName,
+            'nike-department': 'Web Eng - nike.com Cloud Capability',
+            'nike-domain': teamName,
+            'nike-application': 'artemis-analytics-execution-role',
+            'nike-distributionlist': 'Lst-gc-cdn-antibots.admin@nike.com',
+            'nike-owner'           : 'Frank.Zhao@nike.com',
+    ],
+    branchMatcher: [
+            PROD_RELEASE: ['main'],
+            TEST_RELEASE: ['^(?!main$).*$']
+    ],
+    buildFlow: [
+            PULL_REQUEST: ["Prepare"],
+            TEST_RELEASE : ['Prepare', 'Deploy Infrastructure'],
+            PROD_RELEASE : ['Prepare', 'Deploy Infrastructure'],
+    ],
+    deploymentEnvironment: [
+        testAccount: [
+            agentLabel: 'ec2-ondemand-agent-cn',
+            deployFlow: [
+                TEST_RELEASE: ['Archive Current State', 'Deploy Infrastructure'],
+            ],
+            aws: [
+                role: "NIKE.cicd.tool",
+                roleAccount: "439314357471",
+                region: "cn-northwest-1",
+            ],
+            cf: [
+                stackName: cfStackName,
+                templateFile: cfTemplateFile,
+                parameters: cfParameters,
+            ],
+            tags: [
+                'nike-environment': 'test',
+            ],
+        ],
+//        prodAccount: [
+//            deployFlow: [
+//                PROD_RELEASE: ['Archive Current State', 'Deploy Infrastructure'],
+//            ],
+//            aws: [
+//                role: "team.cloudformation.role",
+//                roleAccount: "1234567890",
+//                region: "us-west-2",
+//            ],
+//            preDeployHook: [
+//                build: [
+//                    image: "openjdk",
+//                    cmd: "whoami && uname -a && env"
+//                ]
+//            ],
+//            cf: [
+//                stackName: "prod-infrastructure",
+//                templateFile: "cfStackTest.json",
+//                parameters: cfParameters,
+//            ],
+//            tags: [
+//                'nike-environment': 'prod',
+//            ],
+//            postDeployHook: [
+//                build: [
+//                    image: "openjdk",
+//                    cmd: "whoami && uname -a && env"
+//                ]
+//            ],
+//        ],
+    ],
+    notify: [
+            slack: [
+                    onCondition: ['Build Start', 'Failure', 'Success', 'Unstable'],
+                    channel: '#gc-artemis-analytic-pipeline',
+            ],
+    ],
+]
+echo ("Config: ${JsonOutput.prettyPrint(JsonOutput.toJson(config))}")
+cloudformationPipeline(config)

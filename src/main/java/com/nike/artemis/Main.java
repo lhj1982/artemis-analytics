@@ -153,45 +153,45 @@ public class Main {
                 .name("CDN Log processor");
 
 
-        Properties wafLogKafkaProperties = KafkaHelpers.getWafLogKafkaProperties(applicationProperties);
-        if (wafLogKafkaProperties == null) {
-            LOG.error(LogMsgBuilder.getInstance()
-                    .msg("Incorrectly WAF log specified application properties. Exiting...")
-                    .build().toString());
-            return;
-        }
-        LOG.info(LogMsgBuilder.getInstance()
-                .msg(String.format("properties of waf log kafka: %s", wafLogKafkaProperties))
-                .build().toString());
-        KafkaSource<String> wafKafkaSource = AliKafkaSource.getKafkaSource(env, wafLogKafkaProperties);
-        DataStream<WafRequestEvent> waf_log_kafka_source = env.fromSource(wafKafkaSource, WatermarkStrategy.noWatermarks(), "WAF Log Kafka Source")
-                .flatMap(new WafLogResolver(wafRequestPaths));
-
-        MapStateDescriptor<WafRateRule, Object> wafRulesStateDescriptor = new MapStateDescriptor<>("WafRulesBroadcastState",
-                TypeInformation.of(new TypeHint<WafRateRule>() {}), BasicTypeInfo.of(Object.class));
-        BroadcastStream<WafRuleChange> wafRuleDs = env.addSource(new WafRuleSource(s3RuleSourceProvider, false))
-                .name("WAF Rule Source S3").broadcast(wafRulesStateDescriptor);
-
-        DataStream<Block> wafBlockDs = waf_log_kafka_source
-                .connect(wafRuleDs)
-                .process(new WafRuleBroadCastProcessorFunction())
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, WafRateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(30))
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple3<String, WafRateRule, Long>>() {
-                    @Override
-                    public long extractTimestamp(Tuple3<String, WafRateRule, Long> element, long recordTimestamp) {
-                        return element.f2;
-                    }
-                }).withIdleness(Duration.ofSeconds(10)))
-                .keyBy(new KeySelector<Tuple3<String, WafRateRule, Long>, Tuple2<String, WafRateRule>>() {
-                    @Override
-                    public Tuple2<String, WafRateRule> getKey(Tuple3<String, WafRateRule, Long> value) throws Exception {
-                        return new Tuple2<>(value.f0, value.f1);
-                    }
-                })
-                .window(new WafRateRuleWindowAssigner())
-                .trigger(new WafRuleTrigger())
-                .aggregate(new WafRuleCountAggregate(), new WafRuleProcessWindowFunction())
-                .name("WAF Log processor");
+//        Properties wafLogKafkaProperties = KafkaHelpers.getWafLogKafkaProperties(applicationProperties);
+//        if (wafLogKafkaProperties == null) {
+//            LOG.error(LogMsgBuilder.getInstance()
+//                    .msg("Incorrectly WAF log specified application properties. Exiting...")
+//                    .build().toString());
+//            return;
+//        }
+//        LOG.info(LogMsgBuilder.getInstance()
+//                .msg(String.format("properties of waf log kafka: %s", wafLogKafkaProperties))
+//                .build().toString());
+//        KafkaSource<String> wafKafkaSource = AliKafkaSource.getKafkaSource(env, wafLogKafkaProperties);
+//        DataStream<WafRequestEvent> waf_log_kafka_source = env.fromSource(wafKafkaSource, WatermarkStrategy.noWatermarks(), "WAF Log Kafka Source")
+//                .flatMap(new WafLogResolver(wafRequestPaths));
+//
+//        MapStateDescriptor<WafRateRule, Object> wafRulesStateDescriptor = new MapStateDescriptor<>("WafRulesBroadcastState",
+//                TypeInformation.of(new TypeHint<WafRateRule>() {}), BasicTypeInfo.of(Object.class));
+//        BroadcastStream<WafRuleChange> wafRuleDs = env.addSource(new WafRuleSource(s3RuleSourceProvider, false))
+//                .name("WAF Rule Source S3").broadcast(wafRulesStateDescriptor);
+//
+//        DataStream<Block> wafBlockDs = waf_log_kafka_source
+//                .connect(wafRuleDs)
+//                .process(new WafRuleBroadCastProcessorFunction())
+//                .assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple3<String, WafRateRule, Long>>forBoundedOutOfOrderness(Duration.ofSeconds(30))
+//                        .withTimestampAssigner(new SerializableTimestampAssigner<Tuple3<String, WafRateRule, Long>>() {
+//                    @Override
+//                    public long extractTimestamp(Tuple3<String, WafRateRule, Long> element, long recordTimestamp) {
+//                        return element.f2;
+//                    }
+//                }).withIdleness(Duration.ofSeconds(10)))
+//                .keyBy(new KeySelector<Tuple3<String, WafRateRule, Long>, Tuple2<String, WafRateRule>>() {
+//                    @Override
+//                    public Tuple2<String, WafRateRule> getKey(Tuple3<String, WafRateRule, Long> value) throws Exception {
+//                        return new Tuple2<>(value.f0, value.f1);
+//                    }
+//                })
+//                .window(new WafRateRuleWindowAssigner())
+//                .trigger(new WafRuleTrigger())
+//                .aggregate(new WafRuleCountAggregate(), new WafRuleProcessWindowFunction())
+//                .name("WAF Log processor");
 
         //=============================== SNS EVENT SIMULATOR =====================
 //        DataStream<RequestEvent> requestEventDataStream = env.addSource(new SnsRequestGenerator())
@@ -239,7 +239,7 @@ public class Main {
         });
 
         cdnBlockDs.addSink(sink).name("CDN Block sink");
-        wafBlockDs.addSink(sink).name("WAF Block sink");
+//        wafBlockDs.addSink(sink).name("WAF Block sink");
         launchBlockDs.addSink(sink).name("LAUNCH Block sink");
 
         env.execute();

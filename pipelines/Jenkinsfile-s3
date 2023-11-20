@@ -1,0 +1,86 @@
+#!groovy
+@Library('cicd-pipeline') _
+
+def config = [
+    usePraDispatch: false,
+    buildFlow: [
+            PULL_REQUEST    : ['Build', 'Compile', 'Quality Gate'],
+            TEST_RELEASE    : ['Build', 'Compile', 'Quality Gate'],
+            PROD_RELEASE    : ['Build', 'Compile', 'Quality Gate'],
+    ],
+    branchMatcher: [
+            PROD_RELEASE: ['main'],
+            TEST_RELEASE: ['^(?!main$).*$']],
+    build : [
+            image: 'maven:3.5-jdk-11',
+            cmd: 'mvn --batch-mode clean surefire-report:report package',
+    ],
+    additionalStashes : [
+            buildFragment: [
+                    includes: "target/**"
+            ],
+    ],
+    qma: [
+            configFile: 'quality-config.yaml'
+    ],
+    deploymentEnvironment : [
+        test: [
+            agentLabel: 'ec2-ondemand-agent-cn',
+            deployFlow: [
+                    TEST_RELEASE    : ['S3Publish']
+            ],
+            aws: [
+                account: "439314357471",
+                role: "NIKE.cicd.tool",
+                region: "cn-northwest-1",
+            ],
+            s3: [
+                bucket: "litx-test-artemis-analytics",
+                target: "artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar",
+                source: "target/" + "artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar"
+            ],
+        ],
+//        prod: [
+//            deployFlow: [
+//                RELEASE         : ['S3Publish']
+//            ],
+//            aws: [
+//                account: "22222222222",
+//                role: "prod-publisher",
+//                region: "us-east-1",
+//            ],
+//            s3: [
+//                bucket: "your-prod-bucket-name",
+//                target: "",
+//                source: "jekyll/_site"
+//            ],
+//            s3Copy: [
+//                fromBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
+//                fromPath: "deploy/",
+//                toBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
+//                toPath: "rollbackCopyFiles/",
+//                copyAllFiles: true
+//            ],
+//            s3Sync: [
+//                fromBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
+//                fromPath: "deploy/",
+//                toBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
+//                toPath: "rollbackSync/"
+//            ],
+//            integrationTest: [
+//                cmd : "echo 'My integration test here if required'",
+//            ],
+//            tags : [
+//                'nike-environment': "prod",
+//            ]
+//        ],
+    ],
+    notify: [
+        slack: [
+            onCondition: ['Build Start', 'Failure', 'Success', 'Unstable'],
+            channel: '#tsering-topden-test',
+        ],
+    ],
+]
+
+s3PublishPipeline(config)

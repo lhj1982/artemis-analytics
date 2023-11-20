@@ -1,0 +1,123 @@
+#!groovy
+@Library(['cicd-pipeline', 'cop-pipeline-step']) _
+
+import groovy.transform.Field
+import groovy.json.JsonOutput
+
+@Field def teamName = 'GC-Bots'
+@Field def versionSuffix = ''
+@Field def artemisJarfileName
+
+node('ec2-ondemand-agent-cn') {
+    genericBuild([
+            image: "amazon/aws-cli",
+            aws: [
+                    role: "gc-antibots-bmx-s3-role",
+                    roleAccount: "439314357471",
+                    region: "cn-northwest-1",
+            ],
+            withClosure:{
+                def tempAwsResponse = steps.readJSON(text: steps.sh(
+                        returnStdout: true,
+                        script: "aws s3api list-objects-v2 --bucket litx-test-artemis-analytics --prefix code/ " +
+                                "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
+                                "--output=json --region=cn-northwest-1"
+                ).trim())
+                artemisJarfileName = tempAwsResponse[0]
+            },
+    ])
+    steps.echo "\n***\n\tThis is the latest news: ${artemisJarfileName}\n"
+}
+
+def config = [
+    usePraDispatch: false,
+    tags: [
+            'Name': 'artemis-analytics',
+            'costcenter': '104420',
+            'classification'  : 'Silver',
+            'email': 'Lst-gc-cdn-antibots.admin@nike.com',
+            'owner': teamName,
+            'nike-department': 'Web Eng - nike.com Cloud Capability',
+            'nike-domain': teamName,
+            'nike-application': 'artemis-analytics-flink',
+            'nike-distributionlist': 'Lst-gc-cdn-antibots.admin@nike.com',
+            'nike-owner'           : 'Frank.Zhao@nike.com',
+    ],
+    branchMatcher: [
+            PULL_REQUEST: [],
+            PROD_RELEASE: ['main'],
+            TEST_RELEASE: ['^(?!main$).*$'],
+    ],
+
+    deploymentEnvironment: [
+        test: [
+            agentLabel: 'ec2-ondemand-agent-cn',
+            deployFlow: [
+                    TEST_RELEASE: ['Build','Archive Current State', 'Deploy Infrastructure', 'Post-Deploy Hook'],
+            ],
+            aws: [
+                role: "NIKE.cicd.tool",
+                roleAccount: "439314357471",
+                region: "cn-northwest-1",
+            ],
+            cf: [
+                stackName: "artemis-analytics-test",
+                templateFile: "./cloudformation/artemis-analytics-kinesis.yml",
+                parameters: [
+                        VersionSuffix: versionSuffix,
+                        ArtemisAnalyticsJarFile: artemisJarfileName
+                ],
+            ],
+            postDeployHook: [
+                    build: [
+                            image: "amazon/aws-cli",
+                            cmd: "aws kinesisanalyticsv2 start-application --application-name artemis-analytics",
+                            aws: [
+                                    role: "NIKE.cicd.tool",
+                                    roleAccount: "439314357471",
+                                    region: "cn-northwest-1",
+                            ],
+                    ],
+            ],
+            tags: [
+                'nike-environment': 'test',
+            ],
+        ],
+
+//        prod: [
+//            deployFlow: [
+//                    PROD_RELEASE: ['Archive Current State', 'Deploy Infrastructure'],
+//            ],
+//            aws: [
+//                role: "team.cloudformation.role",
+//                roleAccount: "1234567890",
+//                region: "us-west-2",
+//            ],
+//            cf: [
+//                stackName: "prod-infrastructure",
+//                templateFile: "cfStackTest.json",
+//                parameters: [
+//                    HowmanyPipelines: 10,
+//                    HowmanySteps: 5,
+//                    YourName: "COP-PIPELINE-PROD"
+//                ],
+//            ],
+//            tags: [
+//                'nike-environment': 'prod',
+//            ],
+//            postDeployHook: [
+//                build: [
+//                    image: "openjdk",
+//                    cmd: "whoami && uname -a && env"
+//                ]
+//            ],
+//        ],
+    ],
+    notify: [
+            slack: [
+                    onCondition: ['Build Start', 'Failure', 'Success', 'Unstable'],
+                    channel: '#tsering-topden-test',
+            ],
+    ],
+]
+cloudformationPipeline(config)
