@@ -71,7 +71,7 @@ def config = [
             postDeployHook: [
                     build: [
                             image: "amazon/aws-cli",
-                            cmd: "aws kinesisanalyticsv2 start-application --application-name artemis-analytics",
+                            cmd: "aws kinesisanalyticsv2 start-application --application-name artemis-analytics-test",
                             aws: [
                                     role: "NIKE.cicd.tool",
                                     roleAccount: "439314357471",
