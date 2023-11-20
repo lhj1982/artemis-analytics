@@ -36,7 +36,7 @@ def config = [
             ],
             s3: [
                 bucket: "litx-test-artemis-analytics",
-                target: "artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar",
+                target: "code/artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar",
                 source: "target/" + "artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar"
             ],
         ],
