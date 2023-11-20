@@ -64,7 +64,7 @@ def config = [
                 stackName: "artemis-analytics-test",
                 templateFile: "./cloudformation/artemis-analytics-kinesis.yml",
                 parameters: [
-                        VersionSuffix: versionSuffix,
+                        VersionSuffix: '-test',
                         ArtemisAnalyticsJarFile: artemisJarfileName
                 ],
             ],
