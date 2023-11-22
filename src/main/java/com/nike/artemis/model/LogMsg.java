@@ -12,12 +12,16 @@ public class LogMsg {
     private Block block;
     private String ruleName;
     private String path;
+    private Long blockTime;
+    private Long windowStart;
+    private Long windowEnd;
 
 
     public LogMsg() {
     }
 
-    public LogMsg(String source, String msg, Object data, String exception, Block block, String ruleName, String path) {
+    public LogMsg(String source, String msg, Object data, String exception, Block block, String ruleName, String path,
+                  Long blockTime, Long windowStart, Long windowEnd) {
         this.source = source;
         this.msg = msg;
         this.data = data;
@@ -25,6 +29,9 @@ public class LogMsg {
         this.block = block;
         this.ruleName = ruleName;
         this.path = path;
+        this.blockTime = blockTime;
+        this.windowStart = windowStart;
+        this.windowEnd = windowEnd;
     }
 
     public String getSource() {
@@ -81,6 +88,30 @@ public class LogMsg {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public Long getBlockTime() {
+        return blockTime;
+    }
+
+    public void setBlockTime(Long blockTime) {
+        this.blockTime = blockTime;
+    }
+
+    public Long getWindowStart() {
+        return windowStart;
+    }
+
+    public void setWindowStart(Long windowStart) {
+        this.windowStart = windowStart;
+    }
+
+    public Long getWindowEnd() {
+        return windowEnd;
+    }
+
+    public void setWindowEnd(Long windowEnd) {
+        this.windowEnd = windowEnd;
     }
 
     @Override

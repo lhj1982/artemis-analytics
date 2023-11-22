@@ -54,24 +54,24 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
             long newBlockEnd = context.window().getStart() + cdnRateRule.getBlock_time();
             Block block = new Block(cdnRateRule.getRule_id(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(),
                     String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl()));
-            if (currentMaxBlock < newBlockEnd && cdnRateRule.isEnforce()) {
+            if (currentMaxBlock < newBlockEnd) {
+                String logMsg;
+                if (cdnRateRule.isEnforce()) {
+                    out.collect(block);
+                    maxBlockState.update(newBlockEnd);
+                    logMsg = "EMIT CDN BLOCK";
+                } else {
+                    logMsg = "CDN Rule EnforceType: NO";
+                }
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(CdnRateRule.class.getSimpleName())
-                        .msg("EMIT CDN BLOCK")
+                        .msg(logMsg)
                         .block(block)
                         .ruleName(cdnRateRule.getRule_name())
                         .path(cdnRateRule.getPath())
-                        .build().toString());
-                out.collect(block);
-                maxBlockState.update(newBlockEnd);
-            } else {
-                LOG.info(LogMsgBuilder.getInstance()
-                        .source(CdnRateRule.class.getSimpleName())
-                        .msg(String.format("Rule EnforceType: NO, CDN info: rule id :%s,rule name: %s, user type: %s, user: %s, blockttl: %s",
-                                cdnRateRule.getRule_id(), cdnRateRule.getRule_name(), cdnRateRule.getUser_type(), user, newBlockEnd))
-                        .block(block)
-                        .ruleName(cdnRateRule.getRule_name())
-                        .path(cdnRateRule.getPath())
+                        .blockTime(context.currentWatermark())
+                        .windowStart(context.window().getStart())
+                        .windowEnd(context.window().getEnd())
                         .build().toString());
             }
         }

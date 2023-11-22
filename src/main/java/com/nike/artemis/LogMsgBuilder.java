@@ -19,6 +19,9 @@ public class LogMsgBuilder {
     private Block block;
     private String ruleName;
     private String path;
+    private Long blockTime;
+    private Long windowStart;
+    private Long windowEnd;
 
     public LogMsgBuilder source(String source) {
         this.source = source;
@@ -55,8 +58,24 @@ public class LogMsgBuilder {
         return this;
     }
 
+    public LogMsgBuilder blockTime(Long blockTime) {
+        this.blockTime = blockTime;
+        return this;
+    }
+
+    public LogMsgBuilder windowStart(Long windowStart) {
+        this.windowStart = windowStart;
+        return this;
+    }
+
+    public LogMsgBuilder windowEnd(Long windowEnd) {
+        this.windowEnd = windowEnd;
+        return this;
+    }
+
     public LogMsg build() {
-        return new LogMsg(this.source, this.msg, this.data, this.exception, this.block, this.ruleName, this.path);
+        return new LogMsg(this.source, this.msg, this.data, this.exception, this.block, this.ruleName, this.path,
+                this.blockTime, this.windowStart, this.windowEnd);
     }
 
 }

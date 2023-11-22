@@ -49,23 +49,22 @@ public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long,
             long newBlockEnd = context.window().getStart() + rateRule.getExpiration();
             Block block = new Block(rateRule.getRuleId(), rateRule.getBlockKind().name(), blockEntity, rateRule.getAction(),
                     String.valueOf(newBlockEnd), "dynamo", "", "");
-            if ((currentMaxBlock < newBlockEnd) && rateRule.isEnforce()) {
-                Long startTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli();
+            if (currentMaxBlock < newBlockEnd) {
+                String logMsg;
+                if (rateRule.isEnforce()) {
+                    out.collect(block);
+                    maxBlockState.update(newBlockEnd);
+                    logMsg = "EMIT LAUNCH BLOCK";
+                } else {
+                    logMsg = "LAUNCH Rule EnforceType: NO";
+                }
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(LaunchRateRule.class.getSimpleName())
-                        .msg("EMIT LAUNCH BLOCK")
+                        .msg(logMsg)
                         .block(block)
-                        .build().toString());
-//                System.out.println("============[Generated a New Block:  "+new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli(), newBlockEnd, rateRule.toString())+"]=========");
-//                out.collect(new BlockEvent(rateRule.getBlockKind().name(), blockEntity,  startTime, newBlockEnd, rateRule.toString()));
-                out.collect(block);
-                maxBlockState.update(newBlockEnd);
-            } else {
-                LOG.info(LogMsgBuilder.getInstance()
-                        .source(LaunchRateRule.class.getSimpleName())
-                        .msg(String.format("Rule EnforceType: NO, LAUNCH info: block kind: %s, block entity: %s,rule id: %s ",
-                                rateRule.getBlockKind().name(), blockEntity, rateRule.getRuleId()))
-                        .block(block)
+                        .blockTime(context.currentWatermark())
+                        .windowStart(context.window().getStart())
+                        .windowEnd(context.window().getEnd())
                         .build().toString());
             }
         }

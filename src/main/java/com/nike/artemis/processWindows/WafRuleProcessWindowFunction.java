@@ -49,24 +49,24 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
             Long newBlockEnd = context.window().getStart() + wafRateRule.getBlock_time();
             Block block = new Block(wafRateRule.getRule_id(), wafRateRule.getUser_type(), user, wafRateRule.getAction(),
                     String.valueOf(newBlockEnd), "edgeKV", wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl()));
-            if (currentMaxBlock < newBlockEnd && wafRateRule.isEnforce()) {
+            if (currentMaxBlock < newBlockEnd) {
+                String logMsg;
+                if (wafRateRule.isEnforce()) {
+                    logMsg = "EMIT WAF BLOCK";
+                    out.collect(block);
+                    maxBlockState.update(newBlockEnd);
+                } else {
+                    logMsg = "WAF Rule EnforceType: NO";
+                }
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(WafRateRule.class.getSimpleName())
-                        .msg("EMIT WAF BLOCK")
+                        .msg(logMsg)
                         .block(block)
                         .ruleName(wafRateRule.getRule_name())
                         .path(wafRateRule.getPath())
-                        .build().toString());
-                out.collect(block);
-                maxBlockState.update(newBlockEnd);
-            } else {
-                LOG.info(LogMsgBuilder.getInstance()
-                        .source(WafRateRule.class.getSimpleName())
-                        .msg(String.format("Rule EnforceType: NO, WAF info: rule name: %s, user type: %s, user: %s",
-                                wafRateRule.getRule_name(), wafRateRule.getUser_type(), user))
-                        .block(block)
-                        .ruleName(wafRateRule.getRule_name())
-                        .path(wafRateRule.getPath())
+                        .blockTime(context.currentWatermark())
+                        .windowStart(context.window().getStart())
+                        .windowEnd(context.window().getEnd())
                         .build().toString());
             }
         }
