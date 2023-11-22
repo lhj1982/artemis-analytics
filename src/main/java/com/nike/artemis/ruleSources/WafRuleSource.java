@@ -55,9 +55,10 @@ public class WafRuleSource implements SourceFunction<WafRuleChange>, Serializabl
             try {
                 Thread.sleep(60 * 1000);
             } catch (InterruptedException e) {
-                LOG.error(LogMsgBuilder.getInstance()
+                Thread.currentThread().interrupt();
+                LOG.warn(LogMsgBuilder.getInstance()
                         .source(WafRateRule.class.getSimpleName())
-                        .msg("generate object WafRateRule failed")
+                        .msg("generate object WafRateRule warning")
                         .exception(e.getMessage())
                         .build().toString());
             }

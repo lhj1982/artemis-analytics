@@ -76,9 +76,10 @@ public class LaunchRuleSource implements SourceFunction<LaunchRuleChange>, Seria
             try {
                 Thread.sleep(60 * 1000);
             } catch (InterruptedException e) {
-                LOG.error(LogMsgBuilder.getInstance()
+                Thread.currentThread().interrupt();
+                LOG.warn(LogMsgBuilder.getInstance()
                         .source(LaunchRateRule.class.getSimpleName())
-                        .msg("generate object LaunchRateRule failed")
+                        .msg("generate object LaunchRateRule warning")
                         .exception(e.getMessage())
                         .build().toString());
             }

@@ -22,7 +22,7 @@ public class UserIdentifier {
     static Base64.Decoder DECODER = Base64.getUrlDecoder();
     static ObjectMapper mapper = new ObjectMapper();
     public static Tuple2<CdnUserType, String> identifyCdnUser(CdnData cdnData) throws JsonProcessingException {
-        if (cdnData.getUser_info().contains("auth=Bearer")) {
+        if (cdnData.getUser_info().contains("auth=Bearer ")) {
             String jwtToken = cdnData.getUser_info().split("auth=Bearer ")[1].split("\\|\\|cacheCtl")[0];
             if (JWT_REGEX.matcher(jwtToken).find()) {
                 String upmid = getUpmid(jwtToken);

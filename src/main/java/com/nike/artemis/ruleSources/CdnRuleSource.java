@@ -68,9 +68,10 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
             try {
                 Thread.sleep(60 * 1000);
             } catch (InterruptedException e) {
-                LOG.error(LogMsgBuilder.getInstance()
+                Thread.currentThread().interrupt();
+                LOG.warn(LogMsgBuilder.getInstance()
                         .source(CdnRateRule.class.getSimpleName())
-                        .msg("generate object CdnRateRule failed")
+                        .msg("generate object CdnRateRule warning")
                         .exception(e.getMessage())
                         .build().toString());
             }
