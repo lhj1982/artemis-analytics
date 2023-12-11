@@ -9,14 +9,6 @@ Parameters:
     Type: String
     Default: -v1
 
-  AliCDNKafkaBootstrapServers:
-    Type: String
-    Default: alikafka-post-cn-lbj3d0eqm002-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-3.alikafka.aliyuncs.com:9093
-
-#  AliWAFKafkaBootstrapServers:
-#    Type: String
-#    Default: alikafka-post-cn-nwy3caw7v008-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-nwy3caw7v008-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-nwy3caw7v008-3.alikafka.aliyuncs.com:9093
-
   KafkaTruststoreKey:
     Type: String
     Default: mix.4096.client.truststore.jks
@@ -39,11 +31,19 @@ Mappings:
       "Subnet": "subnet-0af00467fb8f8713f"
       "SG": "sg-024f6ba21996520d6"
     "439413396736":
-#      Change the info to prod
-      "VPC": "vpc-0c79181af7cd89765"
-      "Subnet": "subnet-0af00467fb8f8713f"
-      "SG": "sg-024f6ba21996520d6"
-
+      "VPC": "vpc-099901a9739cc760a"
+      "Subnet": "subnet-035cc1fa75d8d0584"
+      "SG": "sg-0610c67f236db9c22"
+  Kafka:
+#    TODO fetch the secret from the SSM
+    "439314357471": # litx test
+      BootstrapServers: "alikafka-post-cn-lbj3d0eqm002-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-3.alikafka.aliyuncs.com:9093"
+      username: "ArtemisCDNKafka"
+      password: "5ZMvI2YPuVrahN5c3aTrhZt3QGkoKegV"
+    "439413396736": # litx prod
+      BootstrapServers: "alikafka-post-cn-x0r3g5hjf005-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-x0r3g5hjf005-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-x0r3g5hjf005-3.alikafka.aliyuncs.com:9093"
+      username: "aliCdnLogKafka"
+      password: "aliCdnLogKafka123"
 
 Resources:
 
@@ -64,7 +64,7 @@ Resources:
     Properties:
       ApplicationName: !Sub 'artemis-analytics${VersionSuffix}'
       RuntimeEnvironment: FLINK-1_13
-      ServiceExecutionRole: !Sub 'arn:aws-cn:iam::${AWS::AccountId}:role/teams/anti-bot/artemis-analytics-kinesis-execution-role'
+      ServiceExecutionRole: !Sub 'arn:aws-cn:iam::${AWS::AccountId}:role/teams/anti-bot/artemis-analytics-kinesis-execution-role${VersionSuffix}'
       ApplicationConfiguration:
         ApplicationCodeConfiguration:
           CodeContent:
@@ -76,13 +76,13 @@ Resources:
           PropertyGroups:
             - PropertyGroupId: 'cdnLogKafka'
               PropertyMap:
-                AliKafkaBootstrapServers: !Ref AliCDNKafkaBootstrapServers
+                AliKafkaBootstrapServers: !FindInMap [Kafka, !Ref "AWS::AccountId", BootstrapServers]
                 KafkaConsumerGroupId: 'ali_cdn_log_group'
                 KafkaSourceTopic: 'ali_cdn_filtered_log'
                 TruststoreS3Bucket: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
                 TruststoreS3Path: !Sub 'truststore/${KafkaTruststoreKey}'
-                username: 'ArtemisCDNKafka'
-                password: '5ZMvI2YPuVrahN5c3aTrhZt3QGkoKegV'
+                username: !FindInMap [Kafka, !Ref "AWS::AccountId", username]
+                password: !FindInMap [Kafka, !Ref "AWS::AccountId", password]
 #            - PropertyGroupId: 'wafLogKafka'
 #              PropertyMap:
 #                AliKafkaBootstrapServers: !Ref AliWAFKafkaBootstrapServers
