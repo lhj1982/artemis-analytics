@@ -131,3 +131,37 @@ Resources:
             - Ref: LogGroup
             - log-stream
             - Ref: LogStream
+  CpuUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CPU alarm for apache flink[artemis-analytics]
+      AlarmActions:
+        - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
+      MetricName: cpuUtilization
+      Namespace: AWS/KinesisAnalytics
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '3'
+      Threshold: '90'
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: Application
+          Value:
+            Ref: ArtemisAnalytics
+  MemoryUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Memory alarm for apache flink[artemis-analytics]
+      AlarmActions:
+        - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
+      MetricName: heapMemoryUtilization
+      Namespace: AWS/KinesisAnalytics
+      Statistic: Average
+      Period: '300'
+      EvaluationPeriods: '3'
+      Threshold: '80'
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: Application
+          Value:
+            Ref: ArtemisAnalytics
