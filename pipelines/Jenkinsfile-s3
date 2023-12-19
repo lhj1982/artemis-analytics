@@ -25,60 +25,42 @@ def config = [
     ],
     deploymentEnvironment : [
         test: [
-            agentLabel: 'ec2-ondemand-agent-cn',
-            deployFlow: [
-                    TEST_RELEASE    : ['S3Publish']
-            ],
-            aws: [
-                account: "439314357471",
-                role: "NIKE.cicd.tool",
-                region: "cn-northwest-1",
-            ],
-            s3: [
-                bucket: "litx-test-artemis-analytics",
-                target: "code/artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar",
-                source: "target/" + "artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar"
-            ],
+                agentLabel: 'ec2-ondemand-agent-cn',
+                deployFlow: [
+                        TEST_RELEASE    : ['S3Publish']
+                ],
+                aws: [
+                        account: "439314357471",
+                        role: "NIKE.cicd.tool",
+                        region: "cn-northwest-1",
+                ],
+                s3: [
+                        bucket: "litx-test-artemis-analytics",
+                        target: "code/artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar",
+                        source: "target/" + "artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar"
+                ],
         ],
-//        prod: [
-//            deployFlow: [
-//                RELEASE         : ['S3Publish']
-//            ],
-//            aws: [
-//                account: "22222222222",
-//                role: "prod-publisher",
-//                region: "us-east-1",
-//            ],
-//            s3: [
-//                bucket: "your-prod-bucket-name",
-//                target: "",
-//                source: "jekyll/_site"
-//            ],
-//            s3Copy: [
-//                fromBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
-//                fromPath: "deploy/",
-//                toBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
-//                toPath: "rollbackCopyFiles/",
-//                copyAllFiles: true
-//            ],
-//            s3Sync: [
-//                fromBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
-//                fromPath: "deploy/",
-//                toBucket: "cop-pipeline-sample-s3-publish-us-west-2-299281322080",
-//                toPath: "rollbackSync/"
-//            ],
-//            integrationTest: [
-//                cmd : "echo 'My integration test here if required'",
-//            ],
-//            tags : [
-//                'nike-environment': "prod",
-//            ]
-//        ],
+        prod: [
+                agentLabel: 'ec2-ondemand-agent-cn',
+                deployFlow: [
+                        PROD_RELEASE     : ['S3Publish']
+                ],
+                aws: [
+                        account: "439413396736",
+                        role: "NIKE.cicd.tool",
+                        region: "cn-northwest-1",
+                ],
+                s3: [
+                        bucket: "litx-prod-artemis-analytics",
+                        target: "code/artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar",
+                        source: "target/" + "artemis-analytic-0.1.0.${env.BUILD_NUMBER}.jar"
+                ],
+        ]
     ],
     notify: [
-        slack: [
-            onCondition: ['Build Start', 'Failure', 'Success', 'Unstable'],
-            channel: '#tsering-topden-test',
+            slack: [
+                    onCondition: ['Build Start', 'Failure', 'Success', 'Unstable'],
+                    channel: '#gc-artemis-analytic-pipeline',
         ],
     ],
 ]

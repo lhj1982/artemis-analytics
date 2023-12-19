@@ -2,31 +2,47 @@
 @Library(['cicd-pipeline', 'cop-pipeline-step']) _
 
 import groovy.transform.Field
-import groovy.json.JsonOutput
 
 @Field def teamName = 'GC-Bots'
 @Field def versionSuffix = ''
 @Field def artemisJarfileName
 
+@Field Map testAWS = [
+        role: "gc-antibots-bmx-s3-role",
+        roleAccount: "439314357471",
+        region: "cn-northwest-1",
+]
+
+@Field Map prodAWS = [
+        role: "gc-antibots-bmx-s3-role",
+        roleAccount: "439413396736",
+        region: "cn-northwest-1",
+]
+def awsCliTest = "aws s3api list-objects-v2 --bucket litx-test-artemis-analytics --prefix code/ " +
+                "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
+                "--output=json --region=cn-northwest-1"
+
+def awsClitProd = "aws s3api list-objects-v2 --bucket litx-prod-artemis-analytics --prefix code/ " +
+                "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
+                "--output=json --region=cn-northwest-1"
+
+def awsCli = params.Deploy_Environment == 'prod' ? awsClitProd : awsCliTest
+
+Map getAWSRole = params.Deploy_Environment == 'prod' ? prodAWS : testAWS
+
 node('ec2-ondemand-agent-cn') {
     genericBuild([
             image: "amazon/aws-cli",
-            aws: [
-                    role: "gc-antibots-bmx-s3-role",
-                    roleAccount: "439314357471",
-                    region: "cn-northwest-1",
-            ],
+            aws: getAWSRole,
             withClosure:{
                 def tempAwsResponse = steps.readJSON(text: steps.sh(
                         returnStdout: true,
-                        script: "aws s3api list-objects-v2 --bucket litx-test-artemis-analytics --prefix code/ " +
-                                "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
-                                "--output=json --region=cn-northwest-1"
+                        script: awsCli
                 ).trim())
                 artemisJarfileName = tempAwsResponse[0]
             },
     ])
-    steps.echo "\n***\n\tThis is the latest news: ${artemisJarfileName}\n"
+    steps.echo "\n*****************************\n\tThis is the latest news: ${artemisJarfileName}\n*****************************"
 }
 
 def config = [
@@ -61,7 +77,7 @@ def config = [
                 region: "cn-northwest-1",
             ],
             cf: [
-                stackName: "artemis-analytics-test",
+                stackName: "artemis-analytics"+versionSuffix,
                 templateFile: "./cloudformation/artemis-analytics-kinesis.yml",
                 parameters: [
                         VersionSuffix: '-test',
@@ -84,39 +100,33 @@ def config = [
             ],
         ],
 
-//        prod: [
-//            deployFlow: [
-//                    PROD_RELEASE: ['Archive Current State', 'Deploy Infrastructure'],
-//            ],
-//            aws: [
-//                role: "team.cloudformation.role",
-//                roleAccount: "1234567890",
-//                region: "us-west-2",
-//            ],
-//            cf: [
-//                stackName: "prod-infrastructure",
-//                templateFile: "cfStackTest.json",
-//                parameters: [
-//                    HowmanyPipelines: 10,
-//                    HowmanySteps: 5,
-//                    YourName: "COP-PIPELINE-PROD"
-//                ],
-//            ],
-//            tags: [
-//                'nike-environment': 'prod',
-//            ],
-//            postDeployHook: [
-//                build: [
-//                    image: "openjdk",
-//                    cmd: "whoami && uname -a && env"
-//                ]
-//            ],
-//        ],
+        prod: [
+                agentLabel: 'ec2-ondemand-agent-cn',
+                deployFlow: [
+                        PROD_RELEASE: ['Archive Current State', 'Deploy Infrastructure'],
+                ],
+                aws: [
+                        role: "NIKE.cicd.tool",
+                        roleAccount: "439413396736",
+                        region: "cn-northwest-1",
+                ],
+                cf: [
+                        stackName: "artemis-analytics"+versionSuffix,
+                        templateFile: "./cloudformation/artemis-analytics-kinesis.yml",
+                        parameters: [
+                                VersionSuffix: '-prod',
+                                ArtemisAnalyticsJarFile: artemisJarfileName
+                        ],
+                ],
+                tags: [
+                        'nike-environment': 'prod',
+                ],
+        ],
     ],
     notify: [
             slack: [
                     onCondition: ['Build Start', 'Failure', 'Success', 'Unstable'],
-                    channel: '#tsering-topden-test',
+                    channel: '#gc-artemis-analytic-pipeline',
             ],
     ],
 ]

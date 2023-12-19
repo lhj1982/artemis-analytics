@@ -136,6 +136,56 @@ Resources:
       Roles:
         - !Ref KinesisExecutionRole
 
+  ArtemisBmxS3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "gc-antibots-bmx-s3-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "arn:aws-cn:iam::108851027208:role/brewmaster-base-gc-cdn-antibots"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "artemis-analytics-bmx-s3-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: "VisualEditor0"
+                Effect: "Allow"
+                Action: "s3:ListObjects"
+                Resource:
+                  !Join [
+                    ":",
+                    [
+                      "arn:aws-cn:s3::",
+                      !FindInMap [ Accounts, !Ref "AWS::AccountId", s3BucketName ],
+                    ],
+                  ]
+  MyBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !FindInMap [ Accounts, !Ref "AWS::AccountId", s3BucketName ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'Statement1'
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws-cn:iam::${AWS::AccountId}:role/gc-antibots-bmx-s3-role'
+            Action: 's3:ListBucket'
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws-cn:s3:::'
+                  - !FindInMap [ Accounts, !Ref "AWS::AccountId", s3BucketName ]
+              - !Join
+                - ''
+                - - 'arn:aws-cn:s3:::'
+                  - !FindInMap [ Accounts, !Ref "AWS::AccountId", s3BucketName ]
+                  - '/*'
 Outputs:
   ExecutionRoleName:
     Value: !GetAtt KinesisExecutionRole.Arn
