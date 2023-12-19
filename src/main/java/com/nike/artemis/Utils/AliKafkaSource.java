@@ -36,6 +36,10 @@ public class AliKafkaSource {
     private static void configureConnectorPropsWithConfigProviders(KafkaSourceBuilder<String> builder, Properties appProperties) {
         // see https://github.com/aws-samples/msk-config-providers
 
+        //open auto commit
+        builder.setProperty("enable.auto.commit", "true");
+        builder.setProperty("auto.commit.interval.ms","5000");
+
         // define names of config providers:
         builder.setProperty("config.providers", "secretsmanager,s3import");
 
