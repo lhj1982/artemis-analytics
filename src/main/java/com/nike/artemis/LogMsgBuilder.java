@@ -78,4 +78,8 @@ public class LogMsgBuilder {
                 this.blockTime, this.windowStart, this.windowEnd);
     }
 
+    @Override
+    public String toString() {
+        return this.build().toString();
+    }
 }

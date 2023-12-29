@@ -59,8 +59,7 @@ public class WafRuleSource implements SourceFunction<WafRuleChange>, Serializabl
                 LOG.warn(LogMsgBuilder.getInstance()
                         .source(WafRateRule.class.getSimpleName())
                         .msg("generate object WafRateRule warning")
-                        .exception(e.getMessage())
-                        .build().toString());
+                        .exception(e.getMessage()).toString());
             }
         }
     }

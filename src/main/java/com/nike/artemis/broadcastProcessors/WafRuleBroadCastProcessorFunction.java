@@ -30,8 +30,7 @@ public class WafRuleBroadCastProcessorFunction extends BroadcastProcessFunction<
             if (entry.getKey().appliesTo(wafRequestEvent)) {
                 LOG.debug(LogMsgBuilder.getInstance()
                         .source(WafRequestEvent.class.getSimpleName())
-                        .msg(String.format("matched WAF event: %s", wafRequestEvent))
-                        .build().toString());
+                        .msg(String.format("matched WAF event: %s", wafRequestEvent)).toString());
                 out.collect(new Tuple3<>(wafRequestEvent.getUser(), entry.getKey(), wafRequestEvent.getTime()));
             }
         }
@@ -45,15 +44,13 @@ public class WafRuleBroadCastProcessorFunction extends BroadcastProcessFunction<
                 ctx.getBroadcastState(wafRulesStateDescriptor).put(wafRuleChange.wafRateRule, null);
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(WafRequestEvent.class.getSimpleName())
-                        .msg(String.format("WAF RULE CREATE rule=%s", wafRuleChange.wafRateRule))
-                        .build().toString());
+                        .msg(String.format("WAF RULE CREATE rule=%s", wafRuleChange.wafRateRule)).toString());
                 break;
             case DELETE:
                 ctx.getBroadcastState(wafRulesStateDescriptor).remove(wafRuleChange.wafRateRule);
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(WafRequestEvent.class.getSimpleName())
-                        .msg(String.format("WAF RULE DELETE rule=%s", wafRuleChange.wafRateRule))
-                        .build().toString());
+                        .msg(String.format("WAF RULE DELETE rule=%s", wafRuleChange.wafRateRule)).toString());
                 break;
         }
     }

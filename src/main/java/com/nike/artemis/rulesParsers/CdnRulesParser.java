@@ -3,15 +3,17 @@ package com.nike.artemis.rulesParsers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nike.artemis.LogMsgBuilder;
-import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import com.nike.artemis.model.rules.CdnRateRule;
 import com.nike.artemis.ruleChanges.CdnRuleChange;
-import com.nike.artemis.ruleSources.CdnRuleSource;
+import com.nike.artemis.ruleProvider.RuleSourceProvider;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -73,8 +75,7 @@ public class CdnRulesParser implements Serializable {
                     .source(CdnRateRule.class.getSimpleName())
                     .msg("parser cdn rules from s3 failed")
                     .data(jsonContent)
-                    .exception(e.getMessage())
-                    .build().toString());
+                    .exception(e.getMessage()).toString());
             return null;
         }
 

@@ -1,18 +1,16 @@
 package com.nike.artemis.Utils;
 
-import com.nike.artemis.Utils.KafkaHelpers;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.KafkaSourceBuilder;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.Properties;
 
 public class AliKafkaSource {
 
 
-    public static KafkaSource<String> getKafkaSource(StreamExecutionEnvironment env, Properties appProperties) {
+    public static KafkaSource<String> getKafkaSource(Properties appProperties) {
 
         KafkaSourceBuilder<String> builder = KafkaSource.builder();
 
@@ -22,15 +20,13 @@ public class AliKafkaSource {
 
         configureConnectorPropsWithConfigProviders(builder, appProperties);
 
-        KafkaSource<String> source = builder
+        return builder
                 .setBootstrapServers(brokers)
                 .setTopics(inputTopic)
                 .setGroupId(consumerGroupId)
                 .setStartingOffsets(OffsetsInitializer.latest())
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
-
-        return source;
     }
 
     private static void configureConnectorPropsWithConfigProviders(KafkaSourceBuilder<String> builder, Properties appProperties) {

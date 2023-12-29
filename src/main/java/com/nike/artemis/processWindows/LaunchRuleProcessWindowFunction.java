@@ -13,9 +13,6 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
 public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long, Block, Tuple3<String, String, LaunchRateRule>, TimeWindow> {
     public static Logger LOG = LoggerFactory.getLogger(LaunchRuleProcessWindowFunction.class);
     ValueStateDescriptor<Long> currentMaxBlockDescriptor;
@@ -64,8 +61,7 @@ public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long,
                         .block(block)
                         .blockTime(context.currentWatermark())
                         .windowStart(context.window().getStart())
-                        .windowEnd(context.window().getEnd())
-                        .build().toString());
+                        .windowEnd(context.window().getEnd()).toString());
             }
         }
     }

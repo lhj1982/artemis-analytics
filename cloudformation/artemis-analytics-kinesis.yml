@@ -17,6 +17,11 @@ Parameters:
     Description: these are the WAF paths the we do phonenumber check when processing waf request thru artemis
     Type: String
     Default: /credential_lookup/v1,/challenge/password/v1,/verification_code/send/v1,/password_reset/v1
+
+  BlockMethods:
+    Description: data sources to be analyzed(cdn,waf,launch...)
+    Type: String
+    Default: cdn,launch
   
 Mappings:
   Accounts:
@@ -99,6 +104,9 @@ Resources:
             - PropertyGroupId: 'checkPath'
               PropertyMap:
                 urlPath: !Ref IDNPaths
+            - PropertyGroupId: 'sink'
+              PropertyMap:
+                methods: !Ref BlockMethods
         ApplicationSnapshotConfiguration:
           SnapshotsEnabled: False
         FlinkApplicationConfiguration:

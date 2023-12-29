@@ -25,8 +25,8 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
     public void flatMap(String cdnLog, Collector<CdnRequestEvent> out) {
         LOG.info(LogMsgBuilder.getInstance()
                 .source(CdnRequestEvent.class.getSimpleName())
-                .msg(String.format("logs from Ali cloud CDN kafka: %s,arrivalTime :%s", cdnLog, LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli()))
-                .build().toString());
+                .msg(String.format("logs from Ali cloud CDN kafka: %s,arrivalTime :%s", cdnLog,
+                        LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli())).toString());
 
         CdnData cdnData = null;
         try {
@@ -42,8 +42,7 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
                     .source(CdnRequestEvent.class.getSimpleName())
                     .msg("resolve cdn data from kafka failed")
                     .data(cdnLog)
-                    .exception(e.getMessage())
-                    .build().toString());
+                    .exception(e.getMessage()).toString());
         }
 
     }
