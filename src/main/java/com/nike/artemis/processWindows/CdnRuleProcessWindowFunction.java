@@ -44,16 +44,17 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
         LOG.debug(LogMsgBuilder.getInstance()
                 .source(CdnRateRule.class.getSimpleName())
                 .msg(String.format("Processing CDN data timeStamp :%s", LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli()))
-                .build().toString());
+                .toString());
         LOG.debug(LogMsgBuilder.getInstance()
                 .source(CdnRateRule.class.getSimpleName())
                 .msg(String.format("in the processWindow CDN: request user: %s, window start at: %s, window end at: %s",
-                        user, context.window().getStart(), context.window().getEnd()))
-                .build().toString());
+                        user, context.window().getStart(), context.window().getEnd())).toString());
+
         if (count >= cdnRateRule.getLimit()) {
             long newBlockEnd = context.window().getStart() + cdnRateRule.getBlock_time();
             Block block = new Block(cdnRateRule.getRule_id(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(),
                     String.valueOf(newBlockEnd), "edgeKV", cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl()));
+
             if (currentMaxBlock < newBlockEnd) {
                 String logMsg;
                 if (cdnRateRule.isEnforce()) {
@@ -71,8 +72,7 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                         .path(cdnRateRule.getPath())
                         .blockTime(context.currentWatermark())
                         .windowStart(context.window().getStart())
-                        .windowEnd(context.window().getEnd())
-                        .build().toString());
+                        .windowEnd(context.window().getEnd()).toString());
             }
         }
     }

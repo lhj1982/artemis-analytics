@@ -72,8 +72,7 @@ public class CdnRuleSource implements SourceFunction<CdnRuleChange> {
                 LOG.warn(LogMsgBuilder.getInstance()
                         .source(CdnRateRule.class.getSimpleName())
                         .msg("generate object CdnRateRule warning")
-                        .exception(e.getMessage())
-                        .build().toString());
+                        .exception(e.getMessage()).toString());
             }
         }
     }

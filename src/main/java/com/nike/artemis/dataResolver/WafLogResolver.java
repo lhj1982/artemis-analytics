@@ -28,8 +28,7 @@ public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> 
     public void flatMap(String wafLog, Collector<WafRequestEvent> out) {
         LOG.debug(LogMsgBuilder.getInstance()
                 .source(WafRequestEvent.class.getSimpleName())
-                .msg(String.format("logs from Ali cloud WAF kafka: %s", wafLog))
-                .build().toString());
+                .msg(String.format("logs from Ali cloud WAF kafka: %s", wafLog)).toString());
 
         WafData wafData = null;
         try {
@@ -41,8 +40,7 @@ public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> 
                     .source(WafRequestEvent.class.getSimpleName())
                     .msg("resolve waf data from kafka failed")
                     .data(wafLog)
-                    .exception(e.getMessage())
-                    .build().toString());
+                    .exception(e.getMessage()).toString());
         }
     }
 }

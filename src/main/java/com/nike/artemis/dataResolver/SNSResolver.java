@@ -23,8 +23,8 @@ public class SNSResolver implements FlatMapFunction<String, LaunchRequestEvent> 
 
         LOG.debug(LogMsgBuilder.getInstance()
                 .source(LaunchRequestEvent.class.getSimpleName())
-                .msg(String.format("before extraction: %s, current_time: %s", jsonRequestMessage, LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli()))
-                .build().toString());
+                .msg(String.format("before extraction: %s, current_time: %s",
+                        jsonRequestMessage, LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli())).toString());
 
         final LaunchRequestEvent requestEvent;
         try {
@@ -33,8 +33,7 @@ public class SNSResolver implements FlatMapFunction<String, LaunchRequestEvent> 
             if (requestEvent.getAddresses() == null || requestEvent.experience.launchId == null || requestEvent.user.upmId == null || requestEvent.device.trueClientIp == null) {
                 LOG.warn(LogMsgBuilder.getInstance()
                         .source(LaunchRequestEvent.class.getSimpleName())
-                        .msg(String.format("Missing fields: %s", requestEvent))
-                        .build().toString());
+                        .msg(String.format("Missing fields: %s", requestEvent)).toString());
             } else {
                 out.collect(requestEvent);
             }
@@ -43,9 +42,7 @@ public class SNSResolver implements FlatMapFunction<String, LaunchRequestEvent> 
                     .source(LaunchRequestEvent.class.getSimpleName())
                     .msg("resolve lunch data from sns failed")
                     .data(jsonRequestMessage)
-                    .exception(e.getMessage())
-                    .build().toString());
+                    .exception(e.getMessage()).toString());
         }
-
     }
 }

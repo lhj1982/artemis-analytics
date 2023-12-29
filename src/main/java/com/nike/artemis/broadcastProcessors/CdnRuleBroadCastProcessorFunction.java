@@ -28,8 +28,7 @@ public class CdnRuleBroadCastProcessorFunction extends BroadcastProcessFunction<
             if (entry.getKey().appliesTo(requestEvent)) {
                 LOG.debug(LogMsgBuilder.getInstance()
                         .source(CdnRequestEvent.class.getSimpleName())
-                        .msg(String.format("matched CDN event: %s", requestEvent))
-                        .build().toString());
+                        .msg(String.format("matched CDN event: %s", requestEvent)).toString());
                 out.collect(new Tuple3<>(requestEvent.getUser(), entry.getKey(), requestEvent.getTime()));
             }
         }
@@ -43,15 +42,13 @@ public class CdnRuleBroadCastProcessorFunction extends BroadcastProcessFunction<
                 ctx.getBroadcastState(cdnRulesStateDescriptor).put(cdnRuleChange.cdnRateRule, null);
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(CdnRequestEvent.class.getSimpleName())
-                        .msg(String.format("CDN RULE CREATE rule=%s", cdnRuleChange.cdnRateRule))
-                        .build().toString());
+                        .msg(String.format("CDN RULE CREATE rule=%s", cdnRuleChange.cdnRateRule)).toString());
                 break;
             case DELETE:
                 ctx.getBroadcastState(cdnRulesStateDescriptor).remove(cdnRuleChange.cdnRateRule);
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(CdnRequestEvent.class.getSimpleName())
-                        .msg(String.format("CDN RULE DELETE rule=%s", cdnRuleChange.cdnRateRule))
-                        .build().toString());
+                        .msg(String.format("CDN RULE DELETE rule=%s", cdnRuleChange.cdnRateRule)).toString());
                 break;
         }
     }

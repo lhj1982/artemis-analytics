@@ -80,8 +80,7 @@ public class LaunchRuleSource implements SourceFunction<LaunchRuleChange>, Seria
                 LOG.warn(LogMsgBuilder.getInstance()
                         .source(LaunchRateRule.class.getSimpleName())
                         .msg("generate object LaunchRateRule warning")
-                        .exception(e.getMessage())
-                        .build().toString());
+                        .exception(e.getMessage()).toString());
             }
 
         }

@@ -61,15 +61,13 @@ public class LaunchRuleBroadCastProcessorFunction extends BroadcastProcessFuncti
                 ctx.getBroadcastState(rulesStateDescriptor).put(value.rule, null);
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(CdnRequestEvent.class.getSimpleName())
-                        .msg(String.format("LAUNCH RULE CREATE rule=%s", value.rule))
-                        .build().toString());
+                        .msg(String.format("LAUNCH RULE CREATE rule=%s", value.rule)).toString());
                 break;
             case DELETE:
                 ctx.getBroadcastState(rulesStateDescriptor).remove(value.rule);
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(WafRequestEvent.class.getSimpleName())
-                        .msg(String.format("LAUNCH RULE DELETE rule=%s", value.rule))
-                        .build().toString());
+                        .msg(String.format("LAUNCH RULE DELETE rule=%s", value.rule)).toString());
                 break;
         }
     }

@@ -15,8 +15,6 @@ import java.util.Collections;
 
 public class CdnRateRuleWindowAssigner extends WindowAssigner<Tuple3<String, CdnRateRule, Long>, TimeWindow> {
 
-
-
     @Override
     public Collection<TimeWindow> assignWindows(Tuple3<String, CdnRateRule, Long> element, long timestamp, WindowAssignerContext context) {
         long start = getWindowStartTime(timestamp, element.f1);
@@ -24,7 +22,7 @@ public class CdnRateRuleWindowAssigner extends WindowAssigner<Tuple3<String, Cdn
     }
 
     private long getWindowStartTime(long timestamp, CdnRateRule rateRule) {
-        return (timestamp / rateRule.getWindow() ) * rateRule.getWindow();
+        return (timestamp / rateRule.getWindow()) * rateRule.getWindow();
     }
 
     @Override
