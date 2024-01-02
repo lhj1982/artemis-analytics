@@ -15,6 +15,11 @@ def config = [
             image: 'maven:3.5-jdk-11',
             cmd: 'mvn --batch-mode clean surefire-report:report package',
     ],
+    cache:[
+            strategy: 'mountAsDockerVolume',
+            isolation: 'branch',
+            tool: 'mvn'
+    ],
     additionalStashes : [
             buildFragment: [
                     includes: "target/**"

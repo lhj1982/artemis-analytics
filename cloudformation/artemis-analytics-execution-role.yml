@@ -13,6 +13,12 @@ Mappings:
     "439413396736": # litx prod
       s3BucketName: "litx-prod-artemis-analytics"
 
+  CommerceAccounts: # this is used for cross account kds reading from commerce
+    "439314357471":
+      account: "734176943427"
+    "439413396736":
+      account: "734147128161"
+
 Resources:
   KinesisExecutionRole:
     Type: AWS::IAM::Role
@@ -98,6 +104,15 @@ Resources:
             Resource:
               - !Sub "arn:aws-cn:kinesis:${AWS::Region}:${AWS::AccountId}:stream/artemis-input-stream"
               - !Sub "arn:aws-cn:kinesis:${AWS::Region}:${AWS::AccountId}:stream/artemis-blocker-stream"
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Resource:
+              - !Join
+                - ''
+                - - !Sub 'arn:aws-cn:iam::'
+                  - !FindInMap [ CommerceAccounts, !Ref "AWS::AccountId", account ]
+                  - ':role/role_to_access_kds_cross_account_artemis'
       Roles:
         - !Ref KinesisExecutionRole
   CloudwatchMetricPolicy:

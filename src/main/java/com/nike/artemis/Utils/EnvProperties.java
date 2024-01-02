@@ -9,12 +9,22 @@ public class EnvProperties {
     public static final String AWS_REGION = "cn-northwest-1";
     public static final String RUNTIME_PROPERTIES_S3_BUCKET = "rulesBucket";
     public static final String RUNTIME_PROPERTIES_CHECK_PHONE_NUMBER_FOR_PATH = "checkPath";
+    private static final String ROLE_SESSION_NAME = "ksassumedrolesession";
+    private static final String RUNTIME_PROPERTIES_COMMERCE_ROLE = "isbotResult";
 
     public static Properties kinesisConsumerConfig() {
         Properties consumerConfig = new Properties();
-        consumerConfig.put(AWSConfigConstants.AWS_REGION, AWS_REGION);
-        consumerConfig.put(ConsumerConfigConstants.STREAM_INITIAL_POSITION, "LATEST");
+        consumerConfig.setProperty(AWSConfigConstants.AWS_REGION, AWS_REGION);
+        consumerConfig.setProperty(ConsumerConfigConstants.STREAM_INITIAL_POSITION, "LATEST");
         return consumerConfig;
+    }
+
+    public static Properties kinesisCrossAccountConfig(Map<String, Properties> applicationProperties) {
+        Properties properties = kinesisConsumerConfig();
+        properties.setProperty(AWSConfigConstants.AWS_CREDENTIALS_PROVIDER, "ASSUME_ROLE");
+        properties.setProperty(AWSConfigConstants.AWS_ROLE_ARN, applicationProperties.get(RUNTIME_PROPERTIES_COMMERCE_ROLE).get("commerceRoleArn").toString());
+        properties.setProperty(AWSConfigConstants.AWS_ROLE_SESSION_NAME, ROLE_SESSION_NAME);
+        return properties;
     }
 
     public static Properties nemesisConfig(Map<String, Properties> applicationProperties) {
