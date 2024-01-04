@@ -145,7 +145,7 @@ public class Block {
                 "  \"ruleId\":\"" + blockProducer + '\"' +
                 ", \"userType\":\"" + userType + '\"' +
                 ", \"user\":\"" + user + '\"' +
-                ", \"disposalDescition\":\"" + disposalDecision + '\"' +
+                ", \"disposalDecision\":\"" + disposalDecision + '\"' +
                 ", \"duration\":\"" + duration + '\"' +
                 ", \"destination\":\"" + destination + '\"' +
                 ", \"nameSpace\":\"" + nameSpace + '\"' +

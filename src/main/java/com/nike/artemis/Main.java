@@ -3,10 +3,7 @@ package com.nike.artemis;
 import com.amazonaws.services.kinesisanalytics.runtime.KinesisAnalyticsRuntime;
 import com.nike.artemis.Utils.EnvProperties;
 import com.nike.artemis.model.block.Block;
-import com.nike.artemis.processingPipeline.BlockProcessingPipeline;
-import com.nike.artemis.processingPipeline.CdnBlockProcessingPipeline;
-import com.nike.artemis.processingPipeline.LaunchBlockProcessingPipeline;
-import com.nike.artemis.processingPipeline.WafBlockProcessingPipeline;
+import com.nike.artemis.processingPipeline.*;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisProducer;
 import org.apache.flink.streaming.connectors.kinesis.KinesisPartitioner;
@@ -32,6 +29,7 @@ public class Main {
             put("cdn", new CdnBlockProcessingPipeline());
             put("waf", new WafBlockProcessingPipeline());
             put("launch", new LaunchBlockProcessingPipeline());
+            put("isbot", new IsBotBlockProcessingPipeline());
         }};
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -40,7 +38,7 @@ public class Main {
         Map<String, Properties> applicationProperties = KinesisAnalyticsRuntime.getApplicationProperties();
 
         //=============================== Block Sink =============================
-        FlinkKinesisProducer<Block> sink = new FlinkKinesisProducer<>(Block.sinkSerializer(), EnvProperties.kinesisConsumerConfig());
+        FlinkKinesisProducer<Block> sink = new FlinkKinesisProducer<>(Block.sinkSerializer(), EnvProperties.kinesisProducerConfig());
         sink.setDefaultStream("artemis-blocker-stream");
         sink.setCustomPartitioner(new KinesisPartitioner<Block>() {
             @Override

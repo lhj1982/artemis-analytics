@@ -21,14 +21,16 @@ Parameters:
   BlockMethods:
     Description: data sources to be analyzed(cdn,waf,launch...)
     Type: String
-    Default: cdn,launch
+    Default: cdn,launch,isbot
   
 Mappings:
   Accounts:
     "439314357471": # litx test
       s3BucketName: "litx-test-artemis-analytics"
+      commerceAccount: "734176943427"
     "439413396736": # litx prod
       s3BucketName: "litx-prod-artemis-analytics"
+      commerceAccount: "734147128161"
 
   Networks:
     "439314357471":
@@ -107,6 +109,13 @@ Resources:
             - PropertyGroupId: 'sink'
               PropertyMap:
                 methods: !Ref BlockMethods
+            - PropertyGroupId: 'isbotResult'
+              PropertyMap:
+                commerceRoleArn: !Join
+                    - ''
+                    - - 'arn:aws-cn:iam::'
+                      - !FindInMap [ Accounts, !Ref "AWS::AccountId", commerceAccount ]
+                      - ':role/role_to_access_kds_cross_account_artemis'
         ApplicationSnapshotConfiguration:
           SnapshotsEnabled: False
         FlinkApplicationConfiguration:
