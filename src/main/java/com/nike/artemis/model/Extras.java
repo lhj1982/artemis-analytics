@@ -1,8 +1,10 @@
 package com.nike.artemis.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Extras{
     public String nikeAppId;
     @JsonProperty("ISBOT_WEBFLUX_REQUEST_ID")

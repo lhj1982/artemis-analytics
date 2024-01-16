@@ -23,7 +23,7 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
 
     @Override
     public void flatMap(String cdnLog, Collector<CdnRequestEvent> out) {
-        LOG.info(LogMsgBuilder.getInstance()
+        LOG.debug(LogMsgBuilder.getInstance()
                 .source(CdnRequestEvent.class.getSimpleName())
                 .msg(String.format("logs from Ali cloud CDN kafka: %s,arrivalTime :%s", cdnLog,
                         LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli())).toString());

@@ -1,23 +1,34 @@
 package com.nike.artemis.model.launch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.nike.artemis.model.Bot;
 
 import java.io.Serializable;
 import java.util.Map;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IsBotData implements Serializable {
-    private String id;
+    private String entityId;
+    private String entryId;
     private String launchId;
-    private String skuId;
     private String upmId;
-    private Map<String, String> validationSummary;
+    private Map<String, String> externalData;
+    private Bot isBotResult;
 
-    public String getId() {
-        return id;
+    public String getEntityId() {
+        return entityId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
+    }
+
+    public String getEntryId() {
+        return entryId;
+    }
+
+    public void setEntryId(String entryId) {
+        this.entryId = entryId;
     }
 
     public String getLaunchId() {
@@ -28,14 +39,6 @@ public class IsBotData implements Serializable {
         this.launchId = launchId;
     }
 
-    public String getSkuId() {
-        return skuId;
-    }
-
-    public void setSkuId(String skuId) {
-        this.skuId = skuId;
-    }
-
     public String getUpmId() {
         return upmId;
     }
@@ -44,12 +47,20 @@ public class IsBotData implements Serializable {
         this.upmId = upmId;
     }
 
-    public Map<String, String> getValidationSummary() {
-        return validationSummary;
+    public Map<String, String> getExternalData() {
+        return externalData;
     }
 
-    public void setValidationSummary(Map<String, String> validationSummary) {
-        this.validationSummary = validationSummary;
+    public void setExternalData(Map<String, String> externalData) {
+        this.externalData = externalData;
+    }
+
+    public Bot getIsBotResult() {
+        return isBotResult;
+    }
+
+    public void setIsBotResult(Bot isBotResult) {
+        this.isBotResult = isBotResult;
     }
 
     @Override
@@ -59,31 +70,34 @@ public class IsBotData implements Serializable {
 
         IsBotData isBotData = (IsBotData) o;
 
-        if (id != null ? !id.equals(isBotData.id) : isBotData.id != null) return false;
+        if (entityId != null ? !entityId.equals(isBotData.entityId) : isBotData.entityId != null) return false;
+        if (entryId != null ? !entryId.equals(isBotData.entryId) : isBotData.entryId != null) return false;
         if (launchId != null ? !launchId.equals(isBotData.launchId) : isBotData.launchId != null) return false;
-        if (skuId != null ? !skuId.equals(isBotData.skuId) : isBotData.skuId != null) return false;
         if (upmId != null ? !upmId.equals(isBotData.upmId) : isBotData.upmId != null) return false;
-        return validationSummary != null ? validationSummary.equals(isBotData.validationSummary) : isBotData.validationSummary == null;
+        if (externalData != null ? !externalData.equals(isBotData.externalData) : isBotData.externalData != null) return false;
+        return isBotResult != null ? isBotResult.equals(isBotData.isBotResult) : isBotData.isBotResult == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = entityId != null ? entityId.hashCode() : 0;
+        result = 31 * result + (entryId != null ? entryId.hashCode() : 0);
         result = 31 * result + (launchId != null ? launchId.hashCode() : 0);
-        result = 31 * result + (skuId != null ? skuId.hashCode() : 0);
         result = 31 * result + (upmId != null ? upmId.hashCode() : 0);
-        result = 31 * result + (validationSummary != null ? validationSummary.hashCode() : 0);
+        result = 31 * result + (externalData != null ? externalData.hashCode() : 0);
+        result = 31 * result + (isBotResult != null ? isBotResult.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "IsBotData{" +
-                "id='" + id + '\'' +
+                "entityId='" + entityId + '\'' +
+                ", entryId='" + entryId + '\'' +
                 ", launchId='" + launchId + '\'' +
-                ", skuId='" + skuId + '\'' +
                 ", upmId='" + upmId + '\'' +
-                ", validationSummary=" + validationSummary +
+                ", externalData=" + externalData +
+                ", isBotResult=" + isBotResult +
                 '}';
     }
 }

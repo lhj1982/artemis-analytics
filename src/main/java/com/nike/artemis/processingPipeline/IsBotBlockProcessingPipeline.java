@@ -15,9 +15,9 @@ import java.util.Properties;
 public class IsBotBlockProcessingPipeline extends BlockProcessingPipeline {
 
     private DataStream<Block> dataSource(StreamExecutionEnvironment env, Map<String, Properties> applicationProperties) {
-        return env.addSource(new FlinkKinesisConsumer<>("tsering-test", new SimpleStringSchema(), EnvProperties.kinesisCrossAccountConfig(applicationProperties)))
+        return env.addSource(new FlinkKinesisConsumer<>("bots-isbot-result-stream", new SimpleStringSchema(), EnvProperties.kinesisCrossAccountConfig(applicationProperties)))
                 .flatMap(new IsBotMessageResolver())
-                .name("IsBot Result Input");
+                .name("IsBot Result Input").disableChaining();
     }
 
     @Override

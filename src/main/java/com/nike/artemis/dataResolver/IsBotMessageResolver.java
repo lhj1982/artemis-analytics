@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.launch.IsBotData;
+import com.nike.artemis.model.rules.CdnRateRule;
+import com.nike.artemis.model.rules.WafRateRule;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -29,8 +31,15 @@ public class IsBotMessageResolver implements FlatMapFunction<String, Block> {
 
         try {
             IsBotData isBotData = mapper.readValue(eventData, IsBotData.class);
-            if (!isBotData.getValidationSummary().isEmpty() && Objects.equals(isBotData.getValidationSummary().get("result"), "INVALID")) {
-                out.collect(new Block("AT-ISBOT-1", "upmid", isBotData.getUpmId(), "catch", "90", "edgeKV-batch", "testIsbot", "90"));
+            if (isBotData.getIsBotResult() != null && isBotData.getIsBotResult().isBot()) {
+                Block block = new Block("AT-ISBOT-1", "upmid", isBotData.getUpmId(), "captcha", "90", "edgeKV-batch", "buy_suspect_users", "90");
+                LOG.info(LogMsgBuilder.getInstance()
+                        .source(IsBotMessageResolver.class.getSimpleName())
+                        .msg("EMIT ISBOT BLOCK")
+                        .block(block)
+                        .blockTime(LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(0)))
+                        .toString());
+                out.collect(block);
             }
         } catch (JsonProcessingException e) {
             LOG.error(LogMsgBuilder.getInstance()
