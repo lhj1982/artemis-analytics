@@ -31,11 +31,11 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-<!--        <repository>-->
-<!--            <id>aliyunmaven</id>-->
-<!--            <name>Aliyun Central</name>-->
-<!--            <url>https://maven.aliyun.com/repository/public</url>-->
-<!--        </repository>-->
+        <repository>
+            <id>aliyunmaven</id>
+            <name>Aliyun Central</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
