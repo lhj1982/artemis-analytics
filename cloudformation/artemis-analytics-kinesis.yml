@@ -126,6 +126,9 @@ Resources:
             ConfigurationType: CUSTOM
             LogLevel: INFO
             MetricsLevel: APPLICATION
+          ParallelismConfiguration:
+            ConfigurationType: CUSTOM
+            AutoScalingEnabled: False
         VpcConfigurations:
           - SecurityGroupIds:
             - !FindInMap [Networks, !Ref "AWS::AccountId", SG]

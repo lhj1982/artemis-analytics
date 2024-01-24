@@ -24,7 +24,7 @@ public class WafRuleTriggerTest {
     @Test
     public void onEventTimeReturns_Continue() throws Exception {
         WafRuleTrigger wafRuleTrigger = new WafRuleTrigger();
-        assertEquals(TriggerResult.CONTINUE, wafRuleTrigger.onEventTime(0, null, null));
+        assertEquals(TriggerResult.PURGE, wafRuleTrigger.onEventTime(0, null, null));
     }
 
 }

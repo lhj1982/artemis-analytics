@@ -23,6 +23,6 @@ public class LaunchRuleTriggerTest {
     @Test
     public void onEventTimeReturns_Continue() throws Exception {
         LaunchRuleTrigger trigger = new LaunchRuleTrigger();
-        assertEquals(TriggerResult.CONTINUE, trigger.onEventTime(0, null, null));
+        assertEquals(TriggerResult.PURGE, trigger.onEventTime(0, null, null));
     }
 }

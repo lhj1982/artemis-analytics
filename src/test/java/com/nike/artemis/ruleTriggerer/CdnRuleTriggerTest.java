@@ -22,6 +22,6 @@ public class CdnRuleTriggerTest {
     @Test
     public void onEventTimeReturns_Continue() throws Exception {
         CdnRuleTrigger cdnRuleTrigger = new CdnRuleTrigger();
-        assertEquals(TriggerResult.CONTINUE, cdnRuleTrigger.onEventTime(0, null, null));
+        assertEquals(TriggerResult.PURGE, cdnRuleTrigger.onEventTime(0, null, null));
     }
 }

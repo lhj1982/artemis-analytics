@@ -16,13 +16,6 @@ import org.slf4j.LoggerFactory;
 public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Block, Tuple2<String, WafRateRule>, TimeWindow> {
 
     static Logger LOG = LoggerFactory.getLogger(WafRuleProcessWindowFunction.class);
-    ValueStateDescriptor<Long> currentWafMaxBlockByUserAndRule;
-
-    @Override
-    public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
-        currentWafMaxBlockByUserAndRule = new ValueStateDescriptor<>("wafMaxBlockByUserAndRule", Long.class);
-    }
 
     @Override
     public void process(Tuple2<String, WafRateRule> key, ProcessWindowFunction<Long, Block, Tuple2<String, WafRateRule>,
@@ -34,41 +27,32 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
             return;
         long count = elements.iterator().next();
 
-        ValueState<Long> maxBlockState = context.globalState().getState(currentWafMaxBlockByUserAndRule);
-        if (maxBlockState.value() == null) {
-            context.globalState().getState(currentWafMaxBlockByUserAndRule).update(0L);
-        }
-
-        long currentMaxBlock = maxBlockState.value();
         LOG.debug(LogMsgBuilder.getInstance()
                 .source(WafRateRule.class.getSimpleName())
                 .msg(String.format("in the processWindow WAF: request user: %s, window start at: %s, window end at: %s",
                         user, context.window().getStart(), context.window().getEnd())).toString());
 
-        if (count >= wafRateRule.getLimit()) {
-            Long newBlockEnd = context.window().getStart() + wafRateRule.getBlock_time();
+        if (count == wafRateRule.getLimit()) {
             Block block = new Block(wafRateRule.getRule_id(), wafRateRule.getUser_type(), user, wafRateRule.getAction(),
-                    String.valueOf(newBlockEnd), "edgeKV", wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl()));
+                    String.valueOf(context.window().getStart() + wafRateRule.getBlock_time()), "edgeKV",
+                    wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl()));
+            String logMsg;
 
-            if (currentMaxBlock < newBlockEnd) {
-                String logMsg;
-                if (wafRateRule.isEnforce()) {
-                    logMsg = "EMIT WAF BLOCK";
-                    out.collect(block);
-                    maxBlockState.update(newBlockEnd);
-                } else {
-                    logMsg = "WAF Rule EnforceType: NO";
-                }
-                LOG.info(LogMsgBuilder.getInstance()
-                        .source(WafRateRule.class.getSimpleName())
-                        .msg(logMsg)
-                        .block(block)
-                        .ruleName(wafRateRule.getRule_name())
-                        .path(wafRateRule.getPath())
-                        .blockTime(context.currentWatermark())
-                        .windowStart(context.window().getStart())
-                        .windowEnd(context.window().getEnd()).toString());
+            if (wafRateRule.isEnforce()) {
+                out.collect(block);
+                logMsg = "EMIT WAF BLOCK";
+            } else {
+                logMsg = "WAF Rule EnforceType: NO";
             }
+            LOG.info(LogMsgBuilder.getInstance()
+                    .source(WafRateRule.class.getSimpleName())
+                    .msg(logMsg)
+                    .block(block)
+                    .ruleName(wafRateRule.getRule_name())
+                    .path(wafRateRule.getPath())
+                    .blockTime(context.currentWatermark())
+                    .windowStart(context.window().getStart())
+                    .windowEnd(context.window().getEnd()).toString());
         }
     }
 

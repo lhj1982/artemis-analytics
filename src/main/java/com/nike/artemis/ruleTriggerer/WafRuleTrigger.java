@@ -19,11 +19,10 @@ public class WafRuleTrigger extends Trigger<Tuple3<String, WafRateRule, Long>, T
 
     @Override
     public TriggerResult onEventTime(long time, TimeWindow window, TriggerContext ctx) {
-        return TriggerResult.CONTINUE;
+        return TriggerResult.PURGE;
     }
 
     @Override
-    public void clear(TimeWindow window, TriggerContext ctx) {
-        ctx.deleteEventTimeTimer(window.maxTimestamp());
+    public void clear(TimeWindow window, TriggerContext ctx) throws Exception {
     }
 }
