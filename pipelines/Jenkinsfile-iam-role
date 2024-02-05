@@ -24,8 +24,8 @@ def config = [
             'nike-owner'           : 'Frank.Zhao@nike.com',
     ],
     branchMatcher: [
-            PROD_RELEASE: ['main'],
-            TEST_RELEASE: ['^(?!main$).*$']
+            TEST_RELEASE: ['main'],
+            PULL_REQUEST: ['^(?!main$).*$'],
     ],
     buildFlow: [
             PULL_REQUEST: ["Prepare"],

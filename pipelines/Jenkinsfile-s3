@@ -9,8 +9,9 @@ def config = [
             PROD_RELEASE    : ['Build', 'Compile', 'Quality Gate'],
     ],
     branchMatcher: [
-            PROD_RELEASE: ['main'],
-            TEST_RELEASE: ['^(?!main$).*$']],
+            TEST_RELEASE: ['main'],
+            PULL_REQUEST: ['^(?!main$).*$'],
+    ],
     build : [
             image: 'maven:3.5-jdk-11',
             cmd: 'mvn --batch-mode clean surefire-report:report package',

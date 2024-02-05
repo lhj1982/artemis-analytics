@@ -34,7 +34,7 @@ public class AliKafkaSource {
 
         //open auto commit
         builder.setProperty("enable.auto.commit", "true");
-        builder.setProperty("auto.commit.interval.ms","5000");
+        builder.setProperty("auto.commit.interval.ms", "5000");
 
         // define names of config providers:
         builder.setProperty("config.providers", "secretsmanager,s3import");
@@ -46,16 +46,15 @@ public class AliKafkaSource {
         // TODO: get the username and password from AWS SSM
         String truststoreS3Bucket = appProperties.get(KafkaHelpers.TRUSTSTORE_S3_BUCKET_KEY).toString();
         String truststoreS3Path = appProperties.get(KafkaHelpers.TRUSTSTORE_S3_PATH_KEY).toString();
-        String username = appProperties.get(KafkaHelpers.USERNAME).toString();
-        String password = appProperties.get(KafkaHelpers.PASSWORD).toString();
-
 
         // properties
         builder.setProperty("ssl.truststore.location", "${s3import::" + truststoreS3Bucket + "/" + truststoreS3Path + "}");
         builder.setProperty("ssl.truststore.password", "KafkaOnsClient");
         builder.setProperty("security.protocol", "SASL_SSL");
         builder.setProperty("sasl.mechanism", "PLAIN");
-        builder.setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""+username+"\" password=\""+password+"\";");
+        builder.setProperty("sasl.jaas.config",
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + appProperties.getProperty(KafkaHelpers.USERNAME)
+                        + "\" password=\"" + appProperties.getProperty(KafkaHelpers.PASSWORD) + "\";");
         builder.setProperty("ssl.endpoint.identification.algorithm", "");
 
     }

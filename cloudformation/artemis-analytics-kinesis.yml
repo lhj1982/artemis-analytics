@@ -45,12 +45,8 @@ Mappings:
 #    TODO fetch the secret from the SSM
     "439314357471": # litx test
       BootstrapServers: "alikafka-post-cn-lbj3d0eqm002-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-3.alikafka.aliyuncs.com:9093"
-      username: "ArtemisCDNKafka"
-      password: "5ZMvI2YPuVrahN5c3aTrhZt3QGkoKegV"
     "439413396736": # litx prod
       BootstrapServers: "alikafka-post-cn-x0r3g5hjf005-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-x0r3g5hjf005-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-x0r3g5hjf005-3.alikafka.aliyuncs.com:9093"
-      username: "aliCdnLogKafka"
-      password: "aliCdnLogKafka123"
 
 Resources:
 
@@ -88,8 +84,8 @@ Resources:
                 KafkaSourceTopic: 'ali_cdn_filtered_log'
                 TruststoreS3Bucket: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
                 TruststoreS3Path: !Sub 'truststore/${KafkaTruststoreKey}'
-                username: !FindInMap [Kafka, !Ref "AWS::AccountId", username]
-                password: !FindInMap [Kafka, !Ref "AWS::AccountId", password]
+                username: "{{resolve:secretsmanager:ali-artemis-kafka-keys:SecretString:username}}"
+                password: "{{resolve:secretsmanager:ali-artemis-kafka-keys:SecretString:password}}"
 #            - PropertyGroupId: 'wafLogKafka'
 #              PropertyMap:
 #                AliKafkaBootstrapServers: !Ref AliWAFKafkaBootstrapServers
@@ -97,8 +93,8 @@ Resources:
 #                KafkaSourceTopic: 'ali_waf_log'
 #                TruststoreS3Bucket: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
 #                TruststoreS3Path: !Sub 'truststore/${KafkaTruststoreKey}'
-#                username: 'aliWafLogKafka'
-#                password: 'aliWafLogKafka123'
+#                username: "{{resolve:secretsmanager:ali-artemis-kafka-keys:SecretString:username}}"
+#                password: "{{resolve:secretsmanager:ali-artemis-kafka-keys:SecretString:username}}"
             - PropertyGroupId: rulesBucket
               PropertyMap:
                 RulesBucketName: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
