@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Objects;
 
 public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> {
     public static Logger LOG = LoggerFactory.getLogger(CdnLogResolver.class);
@@ -35,8 +36,12 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
             if (Long.toString(cdnData.getUnixtime()).length() == 10) {
                 cdnData.setUnixtime(cdnData.getUnixtime() * 1000L);
             }
+            if (Objects.nonNull(cdnData.getSls_receive_time()) && Long.toString(cdnData.getSls_receive_time()).length() == 10) {
+                cdnData.setSls_receive_time(cdnData.getSls_receive_time() * 1000L);
+            }
             Tuple2<CdnUserType, String> userType = UserIdentifier.identifyCdnUser(cdnData);
-            out.collect(new CdnRequestEvent(cdnData.getUnixtime(), userType.f0.name(), userType.f1, cdnData.getMethod(), cdnData.getUri(), cdnData.getReturn_code()));
+            out.collect(new CdnRequestEvent(cdnData.getUnixtime(), userType.f0.name(), userType.f1, cdnData.getMethod(),
+                    cdnData.getUri(), cdnData.getReturn_code(), cdnData.getSls_receive_time()));
         } catch (Exception e) {
             LOG.error(LogMsgBuilder.getInstance()
                     .source(CdnRequestEvent.class.getSimpleName())

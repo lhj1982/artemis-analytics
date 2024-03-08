@@ -24,7 +24,7 @@ public class CdnRuleBroadcastProcessFunctionTest {
     public void testCdnRuleBroadcastProcessFunction() throws Exception {
         String upmid = UUID.randomUUID().toString();
         CdnRateRule cdnRateRule = new CdnRateRule("AT-CDN-1", "cdn_checkouts", "upmid", "/foo/checkouts", "GET", "200", 1200L, 10L, 1800L, EnforceType.YES, "checkout", "block",90);
-        CdnRequestEvent cdnEvent = new CdnRequestEvent(0L, "upmid", upmid, "GET", "/foo/checkouts/x/y/z", "200");
+        CdnRequestEvent cdnEvent = new CdnRequestEvent(0L, "upmid", upmid, "GET", "/foo/checkouts/x/y/z", "200",0L);
 
         CdnRuleBroadCastProcessorFunction cdnRuleBroadCastProcessorFunction = new CdnRuleBroadCastProcessorFunction();
         MapStateDescriptor<CdnRateRule, Object> cdnRulesStateDescriptor = new MapStateDescriptor<>("CdnRulesBroadcastState", TypeInformation.of(new TypeHint<CdnRateRule>() {}), BasicTypeInfo.of(Object.class));

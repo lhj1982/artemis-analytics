@@ -7,7 +7,9 @@ import com.nike.artemis.Utils.KafkaHelpers;
 import com.nike.artemis.WindowAssigners.WafRateRuleWindowAssigner;
 import com.nike.artemis.aggregators.WafRuleCountAggregate;
 import com.nike.artemis.broadcastProcessors.WafRuleBroadCastProcessorFunction;
+import com.nike.artemis.cloudWatchMetricsSink.CloudWatchMetricsSink;
 import com.nike.artemis.dataResolver.WafLogResolver;
+import com.nike.artemis.model.Latency;
 import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.rules.WafRateRule;
 import com.nike.artemis.model.waf.WafRequestEvent;
@@ -26,10 +28,10 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kinesis.sink.KinesisStreamsSink;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,14 +67,7 @@ public class WafBlockProcessingPipeline extends BlockProcessingPipeline {
                 .name("WAF Rule Source S3").broadcast(wafRulesStateDescriptor);
     }
 
-    @Override
-    public DataStream<Block> process(StreamExecutionEnvironment env, Map<String, Properties> applicationProperties) {
-        DataStream<WafRequestEvent> wafDataSource = this.dataSource(env, applicationProperties);
-        BroadcastStream<WafRuleChange> wafRuleSource = this.ruleSource(env, applicationProperties);
-
-        if (Objects.isNull(wafDataSource))
-            throw new RuntimeException("Incorrectly WAF log specified application properties. Exiting...");
-
+    private DataStream<Block> process(DataStream<WafRequestEvent> wafDataSource, BroadcastStream<WafRuleChange> wafRuleSource) {
         return wafDataSource
                 .connect(wafRuleSource)
                 .process(new WafRuleBroadCastProcessorFunction())
@@ -96,8 +91,18 @@ public class WafBlockProcessingPipeline extends BlockProcessingPipeline {
     }
 
     @Override
-    public void execute(StreamExecutionEnvironment env, Map<String, Properties> appProperties, FlinkKinesisProducer<Block> sink) {
-        DataStream<Block> block = this.process(env, appProperties);
-        this.sink(sink, block, "WAF Block sink");
+    public void execute(StreamExecutionEnvironment env, Map<String, Properties> appProperties,
+                        KinesisStreamsSink<Block> kinesisStreamsSink,
+                        CloudWatchMetricsSink<Latency> cloudWatchMetricsSink) {
+        // waf log source
+        DataStream<WafRequestEvent> wafDataSource = this.dataSource(env, appProperties);
+        if (Objects.isNull(wafDataSource))
+            throw new RuntimeException("Incorrectly WAF log specified application properties. Exiting...");
+        // waf rule source
+        BroadcastStream<WafRuleChange> wafRuleSource = this.ruleSource(env, appProperties);
+
+        // block process
+        DataStream<Block> block = this.process(wafDataSource, wafRuleSource);
+        this.sink(kinesisStreamsSink, block, "WAF Block sink");
     }
 }

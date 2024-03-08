@@ -45,9 +45,10 @@ Mappings:
 #    TODO fetch the secret from the SSM
     "439314357471": # litx test
       BootstrapServers: "alikafka-post-cn-lbj3d0eqm002-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-lbj3d0eqm002-3.alikafka.aliyuncs.com:9093"
+      topic: "ali_cdn"
     "439413396736": # litx prod
       BootstrapServers: "alikafka-post-cn-x0r3g5hjf005-1.alikafka.aliyuncs.com:9093,alikafka-post-cn-x0r3g5hjf005-2.alikafka.aliyuncs.com:9093,alikafka-post-cn-x0r3g5hjf005-3.alikafka.aliyuncs.com:9093"
-
+      topic: "ali_cdn"
 Resources:
 
   LogGroup:
@@ -66,7 +67,7 @@ Resources:
     Type: AWS::KinesisAnalyticsV2::Application
     Properties:
       ApplicationName: !Sub 'artemis-analytics${VersionSuffix}'
-      RuntimeEnvironment: FLINK-1_13
+      RuntimeEnvironment: FLINK-1_15
       ServiceExecutionRole: !Sub 'arn:aws-cn:iam::${AWS::AccountId}:role/teams/anti-bot/artemis-analytics-kinesis-execution-role${VersionSuffix}'
       ApplicationConfiguration:
         ApplicationCodeConfiguration:
@@ -81,7 +82,7 @@ Resources:
               PropertyMap:
                 AliKafkaBootstrapServers: !FindInMap [Kafka, !Ref "AWS::AccountId", BootstrapServers]
                 KafkaConsumerGroupId: 'ali_cdn_log_group'
-                KafkaSourceTopic: 'ali_cdn_filtered_log'
+                KafkaSourceTopic: !FindInMap [Kafka, !Ref "AWS::AccountId", topic]
                 TruststoreS3Bucket: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
                 TruststoreS3Path: !Sub 'truststore/${KafkaTruststoreKey}'
                 username: "{{resolve:secretsmanager:ali-artemis-kafka-keys:SecretString:username}}"

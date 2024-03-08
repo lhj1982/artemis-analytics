@@ -13,6 +13,7 @@ public class CdnData {
     private String method;
     private String return_code;
     private String uri;
+    private Long sls_receive_time;
 
     public Long getUnixtime() {
         return unixtime;
@@ -78,6 +79,14 @@ public class CdnData {
         this.uri = uri;
     }
 
+    public Long getSls_receive_time() {
+        return sls_receive_time;
+    }
+
+    public void setSls_receive_time(Long sls_receive_time) {
+        this.sls_receive_time = sls_receive_time;
+    }
+
     @Override
     public String toString() {
         return "CdnData{" +
@@ -89,6 +98,7 @@ public class CdnData {
                 ", method='" + method + '\'' +
                 ", return_code='" + return_code + '\'' +
                 ", uri='" + uri + '\'' +
+                ", sls_receive_time='" + sls_receive_time + '\'' +
                 '}';
     }
 }

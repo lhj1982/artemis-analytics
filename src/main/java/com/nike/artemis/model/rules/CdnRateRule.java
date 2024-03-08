@@ -211,10 +211,22 @@ public class CdnRateRule {
         return (
                 (requestEvent.getPath().startsWith(this.path))
                         && (requestEvent.getUserType().equals(this.user_type))
-                        && (requestEvent.getMethod().equals(this.method))
-                        && (requestEvent.getStatus().equals(this.status))
+                        && (methodCheck(requestEvent.getMethod(), this.method))
+                        && (statusCheck(requestEvent.getStatus(), this.status))
         );
     }
+
+    public boolean methodCheck(String method, String ruleMethod) {
+        return ruleMethod.contains(method);
+    }
+
+    public boolean statusCheck(String status, String ruleStatus) {
+        if ("*".equals(ruleStatus)) {
+            return true;
+        }
+        return status.equals(ruleStatus);
+    }
+
 
     public static CdnRateRule fromRawLine(JsonNode rule) {
 

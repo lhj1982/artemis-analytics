@@ -7,10 +7,13 @@ import com.nike.artemis.Utils.KafkaHelpers;
 import com.nike.artemis.WindowAssigners.CdnRateRuleWindowAssigner;
 import com.nike.artemis.aggregators.CdnRuleCountAggregate;
 import com.nike.artemis.broadcastProcessors.CdnRuleBroadCastProcessorFunction;
+import com.nike.artemis.cloudWatchMetricsSink.CloudWatchMetricsSink;
 import com.nike.artemis.dataResolver.CdnLogResolver;
+import com.nike.artemis.model.Latency;
 import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
 import com.nike.artemis.model.rules.CdnRateRule;
+import com.nike.artemis.processWindows.CdnLatencyProcessFunction;
 import com.nike.artemis.processWindows.CdnRuleProcessWindowFunction;
 import com.nike.artemis.ruleChanges.CdnRuleChange;
 import com.nike.artemis.ruleProvider.S3RuleSourceProviderImpl;
@@ -26,10 +29,10 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kinesis.sink.KinesisStreamsSink;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,14 +69,7 @@ public class CdnBlockProcessingPipeline extends BlockProcessingPipeline {
                 .broadcast(cdnRuleStateDescriptor);
     }
 
-    @Override
-    public DataStream<Block> process(StreamExecutionEnvironment env, Map<String, Properties> applicationProperties) {
-        DataStream<CdnRequestEvent> cdnDataSource = this.dataSource(env, applicationProperties);
-        BroadcastStream<CdnRuleChange> cdnRuleSource = this.ruleSource(env, applicationProperties);
-
-        if (Objects.isNull(cdnDataSource))
-            throw new RuntimeException("Incorrectly WAF log specified application properties. Exiting...");
-
+    private DataStream<Block> process(DataStream<CdnRequestEvent> cdnDataSource, BroadcastStream<CdnRuleChange> cdnRuleSource) {
         return cdnDataSource
                 .connect(cdnRuleSource)
                 .process(new CdnRuleBroadCastProcessorFunction()).name("BroadCast CDN Rules to Cdn Request Event")
@@ -96,9 +92,29 @@ public class CdnBlockProcessingPipeline extends BlockProcessingPipeline {
                 .name("CDN Log processor");
     }
 
+    private DataStream<Latency> latencyProcess(DataStream<CdnRequestEvent> cdnDataSource) {
+        return cdnDataSource.keyBy((KeySelector<CdnRequestEvent, String>) CdnRequestEvent::getUserType)
+                .process(new CdnLatencyProcessFunction()).name("CDN Latency processor");
+    }
+
     @Override
-    public void execute(StreamExecutionEnvironment env, Map<String, Properties> appProperties, FlinkKinesisProducer<Block> sink) {
-        DataStream<Block> block = this.process(env, appProperties);
-        this.sink(sink, block, "CDN Block sink");
+    public void execute(StreamExecutionEnvironment env, Map<String, Properties> appProperties,
+                        KinesisStreamsSink<Block> kinesisStreamsSink,
+                        CloudWatchMetricsSink<Latency> cloudWatchMetricsSink) {
+
+        // cdn log source
+        DataStream<CdnRequestEvent> cdnDataSource = this.dataSource(env, appProperties);
+        if (Objects.isNull(cdnDataSource))
+            throw new RuntimeException("Incorrectly CDN log specified application properties. Exiting...");
+        // cdn rule source
+        BroadcastStream<CdnRuleChange> cdnRuleSource = this.ruleSource(env, appProperties);
+
+        // block process
+        DataStream<Block> block = this.process(cdnDataSource, cdnRuleSource);
+        this.sink(kinesisStreamsSink, block, "CDN Block sink");
+
+        // latency process
+        DataStream<Latency> latency = this.latencyProcess(cdnDataSource);
+        this.latency(cloudWatchMetricsSink, latency, "CDN Latency sink");
     }
 }

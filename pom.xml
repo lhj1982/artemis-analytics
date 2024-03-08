@@ -10,9 +10,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flink.version>1.13.2</flink.version>
+        <flink.version>1.15.4</flink.version>
         <java.version>1.11</java.version>
-        <scala.binary.version>2.12</scala.binary.version>
+        <!--        <scala.binary.version>2.12</scala.binary.version>-->
         <kda.version>2.0.0</kda.version>
         <kda.runtime.version>1.2.0</kda.runtime.version>
         <slf4j.version>1.7.21</slf4j.version>
@@ -20,6 +20,8 @@
         <hamcrest.version>1.3</hamcrest.version>
         <baseRevision>0.1.0</baseRevision>
         <revision>${baseRevision}</revision>
+        <aws.sdk.version>2.20.118</aws.sdk.version>
+        <lombok.version>1.18.28</lombok.version>
     </properties>
 
     <repositories>
@@ -72,13 +74,13 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kinesis_${scala.binary.version}</artifactId>
+            <artifactId>flink-connector-kinesis</artifactId>
             <version>${flink.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
+            <artifactId>flink-streaming-java</artifactId>
             <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -112,20 +114,20 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-test-utils_${scala.binary.version}</artifactId>
+            <artifactId>flink-test-utils</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime_${scala.binary.version}</artifactId>
+            <artifactId>flink-runtime</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
             <classifier>tests</classifier>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
+            <artifactId>flink-streaming-java</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
             <classifier>tests</classifier>
@@ -144,10 +146,37 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_${scala.binary.version}</artifactId>
+            <artifactId>flink-connector-kafka</artifactId>
             <version>${flink.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>cloudwatchlogs</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>cloudwatch</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-aws-base</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>profiles</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -235,7 +264,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <excludes>
-<!--                                    <exclude>software.amazon.awssdk:*</exclude>-->
+                                    <!--                                    <exclude>software.amazon.awssdk:*</exclude>-->
                                     <exclude>org.apache.flink:force-shading</exclude>
                                     <exclude>com.google.code.findbugs:jsr305</exclude>
                                     <exclude>org.slf4j:*</exclude>
@@ -283,32 +312,32 @@
         <!-- This profile helps to make things run out of the box in IntelliJ -->
         <!-- Its adds Flink's core classes to the runtime class path. -->
         <!-- Otherwise they are missing in IntelliJ, because the dependency is 'provided' -->
-<!--        <profile>-->
-<!--            <id>add-dependencies-for-IDEA</id>-->
+        <!--        <profile>-->
+        <!--            <id>add-dependencies-for-IDEA</id>-->
 
-<!--            <activation>-->
-<!--                <property>-->
-<!--                    <name>idea.version</name>-->
-<!--                </property>-->
-<!--            </activation>-->
+        <!--            <activation>-->
+        <!--                <property>-->
+        <!--                    <name>idea.version</name>-->
+        <!--                </property>-->
+        <!--            </activation>-->
 
-<!--            <dependencies>-->
+        <!--            <dependencies>-->
 
-<!--                <dependency>-->
-<!--                    <groupId>org.apache.flink</groupId>-->
-<!--                    <artifactId>flink-java</artifactId>-->
-<!--                    <version>${flink.version}</version>-->
-<!--                    <scope>compile</scope>-->
-<!--                </dependency>-->
+        <!--                <dependency>-->
+        <!--                    <groupId>org.apache.flink</groupId>-->
+        <!--                    <artifactId>flink-java</artifactId>-->
+        <!--                    <version>${flink.version}</version>-->
+        <!--                    <scope>compile</scope>-->
+        <!--                </dependency>-->
 
-<!--                <dependency>-->
-<!--                    <groupId>org.apache.flink</groupId>-->
-<!--                    <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>-->
-<!--                    <version>${flink.version}</version>-->
-<!--                    <scope>compile</scope>-->
-<!--                </dependency>-->
+        <!--                <dependency>-->
+        <!--                    <groupId>org.apache.flink</groupId>-->
+        <!--                    <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>-->
+        <!--                    <version>${flink.version}</version>-->
+        <!--                    <scope>compile</scope>-->
+        <!--                </dependency>-->
 
-<!--            </dependencies>-->
-<!--        </profile>-->
+        <!--            </dependencies>-->
+        <!--        </profile>-->
     </profiles>
 </project>

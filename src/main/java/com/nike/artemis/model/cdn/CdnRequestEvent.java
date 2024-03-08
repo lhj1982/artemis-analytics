@@ -9,13 +9,16 @@ public class CdnRequestEvent {
     private String path;
     private String status;
 
-    public CdnRequestEvent(long time, String userType, String user, String method, String path,String status) {
+    private Long slsTime;
+
+    public CdnRequestEvent(long time, String userType, String user, String method, String path, String status, Long slsTime) {
         this.time = time;
         this.userType = userType;
         this.user = user;
         this.method = method;
         this.path = path;
         this.status = status;
+        this.slsTime = slsTime;
     }
 
     public long getTime() {
@@ -66,6 +69,14 @@ public class CdnRequestEvent {
         this.status = status;
     }
 
+    public Long getSlsTime() {
+        return slsTime;
+    }
+
+    public void setSlsTime(Long slsTime) {
+        this.slsTime = slsTime;
+    }
+
     @Override
     public String toString() {
         return "CdnRequestEvent{" +
@@ -75,6 +86,7 @@ public class CdnRequestEvent {
                 ", method='" + method + '\'' +
                 ", path='" + path + '\'' +
                 ", status='" + status + '\'' +
+                ", slsTime='" + slsTime + '\'' +
                 '}';
     }
 }

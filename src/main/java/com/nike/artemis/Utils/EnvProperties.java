@@ -1,6 +1,6 @@
 package com.nike.artemis.Utils;
 
-import org.apache.flink.streaming.connectors.kinesis.config.AWSConfigConstants;
+import org.apache.flink.connector.aws.config.AWSConfigConstants;
 import org.apache.flink.streaming.connectors.kinesis.config.ConsumerConfigConstants;
 
 import java.util.*;
@@ -38,6 +38,13 @@ public class EnvProperties {
         producerConfig.setProperty(ConsumerConfigConstants.AWS_REGION, AWS_REGION);
         producerConfig.setProperty("AggregationEnabled", "false");
         return producerConfig;
+    }
+
+    public static Properties cloudWatchMetricConfig(){
+        Properties clientProperties = new Properties();
+        clientProperties.setProperty(AWSConfigConstants.HTTP_PROTOCOL_VERSION, "HTTP1_1");
+        clientProperties.setProperty(AWSConfigConstants.AWS_REGION, AWS_REGION);
+        return clientProperties;
     }
 
     public static List<String> wafRequestPaths(Map<String, Properties> applicationProperties) {

@@ -4,10 +4,13 @@ import com.nike.artemis.Utils.EnvProperties;
 import com.nike.artemis.WindowAssigners.LaunchRateRuleWindowAssigner;
 import com.nike.artemis.aggregators.LaunchRuleCountAggregate;
 import com.nike.artemis.broadcastProcessors.LaunchRuleBroadCastProcessorFunction;
+import com.nike.artemis.cloudWatchMetricsSink.CloudWatchMetricsSink;
 import com.nike.artemis.dataResolver.SNSResolver;
+import com.nike.artemis.model.Latency;
 import com.nike.artemis.model.block.Block;
 import com.nike.artemis.model.launch.LaunchRequestEvent;
 import com.nike.artemis.model.rules.LaunchRateRule;
+import com.nike.artemis.processWindows.LaunchLatencyProcessFunction;
 import com.nike.artemis.processWindows.LaunchRuleProcessWindowFunction;
 import com.nike.artemis.ruleChanges.LaunchRuleChange;
 import com.nike.artemis.ruleProvider.S3RuleSourceProviderImpl;
@@ -23,11 +26,11 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.connector.kinesis.sink.KinesisStreamsSink;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisConsumer;
-import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +57,8 @@ public class LaunchBlockProcessingPipeline extends BlockProcessingPipeline {
                 .name("LAUNCH Rule Source S3").broadcast(ruleStateDescriptor);
     }
 
-    @Override
-    public DataStream<Block> process(StreamExecutionEnvironment env, Map<String, Properties> applicationProperties) {
-        DataStream<LaunchRequestEvent> dataSource = this.dataSource(env);
-        BroadcastStream<LaunchRuleChange> ruleSource = this.ruleSource(env, applicationProperties);
+    private DataStream<Block> process(DataStream<LaunchRequestEvent> dataSource, BroadcastStream<LaunchRuleChange> ruleSource) {
+
         return dataSource
                 .connect(ruleSource)
                 .process(new LaunchRuleBroadCastProcessorFunction()).name("Blend BroadCast Rule with Event")
@@ -80,9 +81,26 @@ public class LaunchBlockProcessingPipeline extends BlockProcessingPipeline {
                 .name("Rule Window");
     }
 
+    private DataStream<Latency> latencyProcess(DataStream<LaunchRequestEvent> dataSource) {
+        return dataSource.keyBy((KeySelector<LaunchRequestEvent, String>) LaunchRequestEvent::getEntityId)
+                .process(new LaunchLatencyProcessFunction()).name("LAUNCH Latency processor");
+    }
+
     @Override
-    public void execute(StreamExecutionEnvironment env, Map<String, Properties> appProperties, FlinkKinesisProducer<Block> sink) {
-        DataStream<Block> block = this.process(env, appProperties);
-        this.sink(sink, block, "LAUNCH Block sink");
+    public void execute(StreamExecutionEnvironment env, Map<String, Properties> appProperties,
+                        KinesisStreamsSink<Block> kinesisStreamsSink,
+                        CloudWatchMetricsSink<Latency> cloudWatchMetricsSink) {
+        // launch sns source
+        DataStream<LaunchRequestEvent> dataSource = this.dataSource(env);
+        // launch rule source
+        BroadcastStream<LaunchRuleChange> ruleSource = this.ruleSource(env, appProperties);
+
+        // block process
+        DataStream<Block> block = this.process(dataSource, ruleSource);
+        this.sink(kinesisStreamsSink, block, "LAUNCH Block sink");
+
+        // latency process
+        DataStream<Latency> latency = this.latencyProcess(dataSource);
+        this.latency(cloudWatchMetricsSink, latency, "LAUNCH Latency sink");
     }
 }

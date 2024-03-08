@@ -209,9 +209,20 @@ public class WafRateRule {
         return (
                 (wafRequestEvent.getPath().startsWith(this.path))
                         && (this.user_type.equals(wafRequestEvent.getUserType().name()))
-                        && (this.method.equals(wafRequestEvent.getMethod()))
-                        && (this.status.equals(wafRequestEvent.getStatus()))
+                        && (methodCheck(wafRequestEvent.getMethod(), this.method))
+                        && (statusCheck(wafRequestEvent.getStatus(), this.status))
         );
+    }
+
+    public boolean methodCheck(String method, String ruleMethod) {
+        return ruleMethod.contains(method);
+    }
+
+    public boolean statusCheck(String status, String ruleStatus) {
+        if ("*".equals(ruleStatus)) {
+            return true;
+        }
+        return status.equals(ruleStatus);
     }
 
     public static WafRateRule fromRawLine(JsonNode rule) {
