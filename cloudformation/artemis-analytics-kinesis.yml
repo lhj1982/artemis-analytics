@@ -182,3 +182,35 @@ Resources:
         - Name: Application
           Value:
             Ref: ArtemisAnalytics
+  CdnLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Latency alarm for ali cdn log
+      AlarmActions:
+        - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
+      MetricName: artemis_latency
+      Namespace: cloudwatch-metrics-artemis
+      Statistic: Maximum
+      Period: 10
+      EvaluationPeriods: 1
+      Threshold: 60000
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: type
+          Value: cdn_overall_latency
+  LaunchLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Latency alarm for launch data
+      AlarmActions:
+        - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
+      MetricName: artemis_latency
+      Namespace: cloudwatch-metrics-artemis
+      Statistic: Maximum
+      Period: 10
+      EvaluationPeriods: 1
+      Threshold: 10000
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: type
+          Value: launch_artemis_latency
