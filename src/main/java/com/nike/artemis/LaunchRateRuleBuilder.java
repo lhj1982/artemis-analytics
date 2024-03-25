@@ -1,6 +1,9 @@
 package com.nike.artemis;
 
+import com.nike.artemis.model.launch.BlockKind;
 import com.nike.artemis.model.rules.LaunchRateRule;
+
+import java.util.Map;
 
 public class LaunchRateRuleBuilder {
 
@@ -8,12 +11,13 @@ public class LaunchRateRuleBuilder {
     public BlockKind blockKind;
     public String county;
     public String trueClientIp;
-    public String upmid;
     public Long limit;
     public Long windowSize;
     public Long startTime;
     public Long expiration;
     public String action;
+    public Map<String, Map<String, Long>> whitelist;
+    public Map<String, Map<String, Long>> blacklist;
     public LaunchRateRule.RuleState ruleState;
 
     public LaunchRateRuleBuilder(){}
@@ -34,11 +38,6 @@ public class LaunchRateRuleBuilder {
 
     public LaunchRateRuleBuilder trueClientIp(String trueClientIp){
         this.trueClientIp = trueClientIp;
-        return this;
-    }
-
-    public LaunchRateRuleBuilder upmid(String upmid){
-        this.upmid = upmid;
         return this;
     }
 
@@ -68,6 +67,14 @@ public class LaunchRateRuleBuilder {
     }
     public LaunchRateRuleBuilder action(String action){
         this.action = action;
+        return this;
+    }
+    public LaunchRateRuleBuilder whitelist(Map<String, Map<String, Long>> whitelist){
+        this.whitelist = whitelist;
+        return this;
+    }
+    public LaunchRateRuleBuilder blacklist(Map<String, Map<String, Long>> blacklist){
+        this.blacklist = blacklist;
         return this;
     }
     public LaunchRateRule build(){

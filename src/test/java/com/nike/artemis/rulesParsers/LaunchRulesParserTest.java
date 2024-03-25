@@ -1,11 +1,10 @@
 package com.nike.artemis.rulesParsers;
 
-import com.nike.artemis.BlockKind;
+import com.nike.artemis.model.launch.BlockKind;
 import com.nike.artemis.LaunchRateRuleBuilder;
 import com.nike.artemis.model.rules.LaunchRateRule;
 import com.nike.artemis.ruleChanges.LaunchRuleChange;
 import com.nike.artemis.ruleProvider.RuleSourceProvider;
-import com.nike.artemis.rulesParsers.LaunchRulesParser;
 import org.apache.flink.api.java.tuple.Tuple2;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -45,12 +44,14 @@ public class LaunchRulesParserTest {
                     "    {\n" +
                     "      \"rule_id\": \"AT-LAUNCH-1\",\n" +
                     "      \"rule_name\": \"launch county block\",\n" +
-                    "      \"block_kind\": \"upmid\",\n" +
-                    "      \"limit\": 10,\n" +
+                    "      \"block_kind\": \"county\",\n" +
+                    "      \"limit\": 1000,\n" +
                     "      \"window_size\": 10,\n" +
-                    "      \"block_time\": 30,\n" +
+                    "      \"block_time\": 60,\n" +
                     "      \"rule_state\": \"ON\",\n" +
-                    "      \"action\": \"block\"\n" +
+                    "      \"action\": \"block\",\n" +
+                    "      \"whitelist\": [{\"city\":\"北京市\",\"county\":\"朝阳区\"},{\"city\":\"北京市\",\"county\":\"海淀区\"},{\"city\":\"上海市\",\"county\":\"杨浦区\"},{\"city\":\"上海市\",\"county\":\"黄埔区\"}],\n" +
+                    "      \"blacklist\": [{\"city\":\"北京市\",\"county\":\"通州区\",\"limit\":5},{\"city\":\"北京市\",\"county\":\"西城区\",\"limit\":3},{\"city\":\"上海市\",\"county\":\"浦东区\",\"limit\":4},{\"city\":\"上海市\",\"county\":\"奉贤区\",\"limit\":2}]      \n" +
                     "    }\n" +
                     "  ]\n" +
                     "}";
@@ -66,13 +67,15 @@ public class LaunchRulesParserTest {
             this.rulesContents = "{\n" +
                     "  \"LAUNCH\": [\n" +
                     "    {\n" +
-                    "      \"rule_name \"launch county block\",\n" +
-                    "      \"block_kind\": \"upmid\",\n" +
-                    "      \"limit\": 10,\n" +
+                    "      \"rule_name\": \"launch county block\",\n" +
+                    "      \"block_kind\": \"county\",\n" +
+                    "      \"limit\": 1000,\n" +
                     "      \"window_size\": 10,\n" +
-                    "      \"block_time\": 30,\n" +
+                    "      \"block_time\": 60,\n" +
                     "      \"rule_state\": \"ON\",\n" +
-                    "      \"action\": \"block\"\n" +
+                    "      \"action\": \"block\",\n" +
+                    "      \"whitelist\": [{\"city\":\"北京市\",\"county\":\"朝阳区\"},{\"city\":\"北京市\",\"county\":\"海淀区\"},{\"city\":\"上海市\",\"county\":\"杨浦区\"},{\"city\":\"上海市\",\"county\":\"黄埔区\"}],\n" +
+                    "      \"blacklist\": [{\"city\":\"北京市\",\"county\":\"通州区\",\"limit\":5},{\"city\":\"北京市\",\"county\":\"西城区\",\"limit\":3},{\"city\":\"上海市\",\"county\":\"浦东区\",\"limit\":4},{\"city\":\"上海市\",\"county\":\"奉贤区\",\"limit\":2}]      \n" +
                     "    }\n" +
                     "  ]\n" +
                     "}";
@@ -99,21 +102,22 @@ public class LaunchRulesParserTest {
 
     @Test
     public void testParse() {
-        LaunchRateRule rateRule1 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-1").blockKind(BlockKind.upmid).limit(10L).windowSize(10L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.ON).build();
-        LaunchRateRule rateRule2 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-2").blockKind(BlockKind.ipaddress).limit(20L).windowSize(5L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.ON).build();
-        LaunchRateRule rateRule3 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-3").blockKind(BlockKind.county).limit(1000L).windowSize(1L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.OFF).build();
+        LaunchRateRule rateRule1 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-1").blockKind(BlockKind.county).limit(1000L).windowSize(10L).expiration(60L).action("block").ruleState(LaunchRateRule.RuleState.ON).build();
+        LaunchRateRule rateRule2 = new LaunchRateRuleBuilder().ruleId("AT-LAUNCH-2").blockKind(BlockKind.ipaddress).limit(20L).windowSize(5L).expiration(30L).action("block").ruleState(LaunchRateRule.RuleState.OFF).build();
 
         String s3LaunchRule = "{\n" +
                 "  \"LAUNCH\": [\n" +
                 "    {\n" +
                 "      \"rule_id\": \"AT-LAUNCH-1\",\n" +
                 "      \"rule_name\": \"launch county block\",\n" +
-                "      \"block_kind\": \"upmid\",\n" +
-                "      \"limit\": 10,\n" +
+                "      \"block_kind\": \"county\",\n" +
+                "      \"limit\": 1000,\n" +
                 "      \"window_size\": 10,\n" +
-                "      \"block_time\": 30,\n" +
+                "      \"block_time\": 60,\n" +
                 "      \"rule_state\": \"ON\",\n" +
-                "      \"action\": \"block\"\n" +
+                "      \"action\": \"block\",\n" +
+                "      \"whitelist\": [{\"city\":\"北京市\",\"county\":\"朝阳区\"},{\"city\":\"北京市\",\"county\":\"海淀区\"},{\"city\":\"上海市\",\"county\":\"杨浦区\"},{\"city\":\"上海市\",\"county\":\"黄埔区\"}],\n" +
+                "      \"blacklist\": [{\"city\":\"北京市\",\"county\":\"通州区\",\"limit\":5},{\"city\":\"北京市\",\"county\":\"西城区\",\"limit\":3},{\"city\":\"上海市\",\"county\":\"浦东区\",\"limit\":4},{\"city\":\"上海市\",\"county\":\"奉贤区\",\"limit\":2}]      \n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"rule_id\": \"AT-LAUNCH-2\",\n" +
@@ -121,16 +125,6 @@ public class LaunchRulesParserTest {
                 "      \"block_kind\": \"trueClientIp\",\n" +
                 "      \"limit\": 20,\n" +
                 "      \"window_size\": 5,\n" +
-                "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"ON\",\n" +
-                "      \"action\": \"block\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"rule_id\": \"AT-LAUNCH-3\",\n" +
-                "      \"rule_name\": \"launch upmid block\",\n" +
-                "      \"block_kind\": \"county\",\n" +
-                "      \"limit\": 1000,\n" +
-                "      \"window_size\": 1,\n" +
                 "      \"block_time\": 30,\n" +
                 "      \"rule_state\": \"OFF\",\n" +
                 "      \"action\": \"block\"\n" +
@@ -141,22 +135,19 @@ public class LaunchRulesParserTest {
         LaunchTestRulesProvider launchTestRulesProvider = new LaunchTestRulesProvider(s3LaunchRule);
         LaunchRulesParser rulesParser = new LaunchRulesParser(launchTestRulesProvider);
         Tuple2<HashSet<LaunchRateRule>, Collection<LaunchRuleChange>> rulesAndChanges = rulesParser.getRulesAndChanges(new HashSet<>());
-        assertEquals(3, rulesAndChanges.f0.size());
-        assertEquals(3, rulesAndChanges.f1.size());
-        assertTrue(rulesAndChanges.f0.contains(rateRule1));
-        assertTrue(rulesAndChanges.f0.contains(rateRule2));
-        assertTrue(rulesAndChanges.f0.contains(rateRule3));
-        assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.CREATE, rateRule1)));
-        assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.CREATE, rateRule2)));
-        assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.CREATE, rateRule3)));
-
-        launchTestRulesProvider.updateLaunchRemoteRule_Delete();
-        rulesAndChanges = rulesParser.getRulesAndChanges(new HashSet<>(Arrays.asList(rateRule1, rateRule2, rateRule3)));
-        assertEquals(1, rulesAndChanges.f0.size());
+        assertEquals(2, rulesAndChanges.f0.size());
         assertEquals(2, rulesAndChanges.f1.size());
         assertTrue(rulesAndChanges.f0.contains(rateRule1));
+        assertTrue(rulesAndChanges.f0.contains(rateRule2));
+        assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.CREATE, rateRule1)));
+        assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.CREATE, rateRule2)));
+
+        launchTestRulesProvider.updateLaunchRemoteRule_Delete();
+        rulesAndChanges = rulesParser.getRulesAndChanges(new HashSet<>(Arrays.asList(rateRule1, rateRule2)));
+        assertEquals(1, rulesAndChanges.f0.size());
+        assertEquals(1, rulesAndChanges.f1.size());
+        assertTrue(rulesAndChanges.f0.contains(rateRule1));
         assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.DELETE, rateRule2)));
-        assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.DELETE, rateRule3)));
 
 
         launchTestRulesProvider.updateLaunchRemoteRule_Null();
@@ -181,10 +172,6 @@ public class LaunchRulesParserTest {
         assertEquals(2, rulesAndChanges.f1.size());
         assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.DELETE, rateRule1)));
         assertTrue(rulesAndChanges.f1.contains(new LaunchRuleChange(LaunchRuleChange.Action.DELETE, rateRule2)));
-
-
-
-
 
     }
 }

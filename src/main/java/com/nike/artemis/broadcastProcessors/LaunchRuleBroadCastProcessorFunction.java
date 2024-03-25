@@ -1,8 +1,9 @@
 package com.nike.artemis.broadcastProcessors;
 
 
-import com.nike.artemis.BlockKind;
+import com.nike.artemis.model.launch.BlockKind;
 import com.nike.artemis.LogMsgBuilder;
+import com.nike.artemis.model.Address;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
 import com.nike.artemis.model.launch.LaunchRequestEvent;
 import com.nike.artemis.model.rules.LaunchRateRule;
@@ -37,17 +38,26 @@ public class LaunchRuleBroadCastProcessorFunction extends BroadcastProcessFuncti
     public void processElement(LaunchRequestEvent requestEvent, BroadcastProcessFunction<LaunchRequestEvent, LaunchRuleChange,
             Tuple4<String, String, LaunchRateRule, Long>>.ReadOnlyContext ctx, Collector<Tuple4<String, String, LaunchRateRule, Long>> out) throws Exception {
         for (Map.Entry<LaunchRateRule, Object> entry : ctx.getBroadcastState(rulesStateDescriptor).immutableEntries()) {
-            boolean flag = entry.getKey().appliesTo(requestEvent);
-            if (flag) {
-                if (entry.getKey().getBlockKind().equals(BlockKind.county)) {
-                    out.collect(new Tuple4<>(requestEvent.getAddresses().get(0).getCounty(), requestEvent.experience.getLaunchId(),
-                            entry.getKey(), requestEvent.getTimestamp()));
+            LaunchRateRule launchRateRule = entry.getKey();
+            if (launchRateRule.appliesTo(requestEvent)) {
+                if (launchRateRule.getBlockKind().equals(BlockKind.county)) {
+                    Map<String, Map<String, Long>> blackList = launchRateRule.getBlacklist();
+                    Map<String, Map<String, Long>> whiteList = launchRateRule.getWhitelist();
+                    Address address = requestEvent.getAddresses().get(0);
+
+                    // do not exist in white list
+                    if (whiteList == null || !whiteList.containsKey(address.getCity()) || !whiteList.get(address.getCity()).containsKey(address.getCounty())) {
+                        if (blackList != null && blackList.containsKey(address.getCity()) && blackList.get(address.getCity()).containsKey(address.getCounty())) {
+                            // exist in black list; update limit value
+                            launchRateRule.setLimit(blackList.get(address.getCity()).get(address.getCounty()));
+                        }
+                        // do not exist in white list and black list; use default limit
+                        out.collect(new Tuple4<>(address.getCounty(), requestEvent.experience.getLaunchId(), launchRateRule, requestEvent.getTimestamp()));
+                    }
+                    // exist in white list, do not do anything
                 } else if (entry.getKey().getBlockKind().equals(BlockKind.ipaddress)) {
                     out.collect(new Tuple4<>(requestEvent.getDevice().getTrueClientIp(), requestEvent.experience.getLaunchId(),
-                            entry.getKey(), requestEvent.getTimestamp()));
-                } else if (entry.getKey().getBlockKind().equals(BlockKind.upmid)) {
-                    out.collect(new Tuple4<>(requestEvent.getUser().getUpmId(), requestEvent.experience.getLaunchId(), entry.getKey(),
-                            requestEvent.getTimestamp()));
+                            launchRateRule, requestEvent.getTimestamp()));
                 }
             }
         }

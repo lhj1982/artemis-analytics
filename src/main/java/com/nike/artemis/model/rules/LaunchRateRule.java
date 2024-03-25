@@ -2,22 +2,27 @@ package com.nike.artemis.model.rules;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.nike.artemis.BlockKind;
+import com.nike.artemis.common.CommonConstants;
+import com.nike.artemis.model.launch.BlockKind;
 import com.nike.artemis.LaunchRateRuleBuilder;
 import com.nike.artemis.model.launch.LaunchRequestEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LaunchRateRule {
     private String ruleId;
     private BlockKind blockKind;
     private String county;
     private String trueClientIp;
-    private String upmid;
     private Long limit;
     private Long windowSize;
     private Long startTime;
     private Long expiration;
     private String action;
     private RuleState ruleState;
+    private Map<String, Map<String, Long>> whitelist;
+    private Map<String, Map<String, Long>> blacklist;
 
     public static LaunchRateRule fromRawLine(JsonNode rule) {
 
@@ -25,12 +30,26 @@ public class LaunchRateRule {
 
         builder.ruleId(rule.get("rule_id").asText());
 
-        if (rule.get("block_kind").asText().compareToIgnoreCase("county") == 0){
+        if (rule.get("block_kind").asText().compareToIgnoreCase(CommonConstants.LAUNCH_DATA_ADDRESS_COUNTY) == 0) {
             builder.blockKind(BlockKind.county);
-        } else if (rule.get("block_kind").asText().compareToIgnoreCase("trueClientIp") == 0) {
+            // init white list
+            JsonNode whitelist = rule.get("whitelist");
+            if (whitelist != null) {
+                if (whitelist.isArray()) {
+                    Map<String, Map<String, Long>> countyWhitelist = getStringMap(whitelist);
+                    builder.whitelist(countyWhitelist);
+                }
+            }
+            // init black list
+            JsonNode blacklist = rule.get("blacklist");
+            if (blacklist != null) {
+                if (blacklist.isArray()) {
+                    Map<String, Map<String, Long>> countyBlacklist = getStringMap(blacklist);
+                    builder.blacklist(countyBlacklist);
+                }
+            }
+        } else if (rule.get("block_kind").asText().compareToIgnoreCase(CommonConstants.LAUNCH_DATA_IP) == 0) {
             builder.blockKind(BlockKind.ipaddress);
-        } else if (rule.get("block_kind").asText().compareToIgnoreCase("upmid") == 0) {
-            builder.blockKind(BlockKind.upmid);
         } else {
             return null;
         }
@@ -39,7 +58,7 @@ public class LaunchRateRule {
                 .windowSize(Long.valueOf(rule.get("window_size").asText()))
                 .expiration(Long.valueOf(rule.get("block_time").asText()));
 
-        if (rule.get("rule_state").asText().compareToIgnoreCase("ON") == 0){
+        if (rule.get("rule_state").asText().compareToIgnoreCase("ON") == 0) {
             builder.ruleState(RuleState.ON);
         } else if (rule.get("rule_state").asText().compareToIgnoreCase("OFF") == 0) {
             builder.ruleState(RuleState.OFF);
@@ -80,14 +99,6 @@ public class LaunchRateRule {
 
     public void setTrueClientIp(String trueClientIp) {
         this.trueClientIp = trueClientIp;
-    }
-
-    public String getUpmid() {
-        return upmid;
-    }
-
-    public void setUpmid(String upmid) {
-        this.upmid = upmid;
     }
 
     public Long getLimit() {
@@ -138,10 +149,24 @@ public class LaunchRateRule {
         this.action = action;
     }
 
+    public Map<String, Map<String, Long>> getWhitelist() {
+        return whitelist;
+    }
+
+    public void setWhitelist(Map<String, Map<String, Long>> whitelist) {
+        this.whitelist = whitelist;
+    }
+
+    public Map<String, Map<String, Long>> getBlacklist() {
+        return blacklist;
+    }
+
+    public void setBlacklist(Map<String, Map<String, Long>> blacklist) {
+        this.blacklist = blacklist;
+    }
+
     public Boolean appliesTo(LaunchRequestEvent requestEvent) {
         if (this.blockKind == BlockKind.county && requestEvent.getAddresses().get(0).getCounty() != null) {
-            return true;
-        } else if (this.blockKind == BlockKind.upmid && requestEvent.getUser().getUpmId() != null) {
             return true;
         } else return this.blockKind == BlockKind.ipaddress && requestEvent.getDevice().getTrueClientIp() != null;
     }
@@ -156,22 +181,26 @@ public class LaunchRateRule {
         OFF
     }
 
-    public LaunchRateRule(String ruleId, BlockKind blockKind, String county, String trueClientIp, String upmid,  Long limit, Long windowSize, Long startTime, Long expiration, RuleState ruleState,String action) {
+    public LaunchRateRule(String ruleId, BlockKind blockKind, String county, String trueClientIp, Long limit, Long windowSize,
+                          Long startTime, Long expiration, RuleState ruleState, String action,
+                          Map<String, Map<String, Long>> whitelist, Map<String, Map<String, Long>> blacklist) {
         this.ruleId = ruleId;
         this.blockKind = blockKind;
         this.county = county;
         this.trueClientIp = trueClientIp;
-        this.upmid = upmid;
         this.limit = limit;
         this.windowSize = windowSize * 1000L * 60L;
         this.startTime = startTime;
         this.expiration = expiration * 1000L * 60L; // in minutes
         this.ruleState = ruleState;
         this.action = action;
+        this.whitelist = whitelist;
+        this.blacklist = blacklist;
     }
 
-    public LaunchRateRule(LaunchRateRuleBuilder builder){
-        this(builder.ruleId, builder.blockKind, builder.county, builder.trueClientIp, builder.upmid, builder.limit, builder.windowSize, builder.startTime, builder.expiration, builder.ruleState,builder.action);
+    public LaunchRateRule(LaunchRateRuleBuilder builder) {
+        this(builder.ruleId, builder.blockKind, builder.county, builder.trueClientIp, builder.limit, builder.windowSize,
+                builder.startTime, builder.expiration, builder.ruleState, builder.action, builder.whitelist, builder.blacklist);
     }
 
     @Override
@@ -185,7 +214,6 @@ public class LaunchRateRule {
         if (county != null ? !county.equals(rateRule.county) : rateRule.county != null) return false;
         if (trueClientIp != null ? !trueClientIp.equals(rateRule.trueClientIp) : rateRule.trueClientIp != null)
             return false;
-        if (upmid != null ? !upmid.equals(rateRule.upmid) : rateRule.upmid != null) return false;
         if (limit != null ? !limit.equals(rateRule.limit) : rateRule.limit != null) return false;
         if (windowSize != null ? !windowSize.equals(rateRule.windowSize) : rateRule.windowSize != null) return false;
         if (expiration != null ? !expiration.equals(rateRule.expiration) : rateRule.expiration != null) return false;
@@ -197,13 +225,12 @@ public class LaunchRateRule {
     public int hashCode() {
         int result = 7;
         result = 37 * result + (ruleId != null ? ruleId.hashCode() : 0);
-        result = 37 * result + (blockKind != null ? blockKind.asInt() : 0);
+        result = 37 * result + (blockKind != null ? blockKind.asString().hashCode() : 0);
         result = 37 * result + (county != null ? county.hashCode() : 0);
         result = 37 * result + (trueClientIp != null ? trueClientIp.hashCode() : 0);
-        result = 37 * result + (upmid != null ? upmid.hashCode() : 0);
         result = 37 * result + Math.toIntExact(limit);
-        result = 37 * result + (int)(windowSize ^ (windowSize >>> 32));
-        result = 37 * result + (int)(expiration ^ (expiration >>> 32));
+        result = 37 * result + (int) (windowSize ^ (windowSize >>> 32));
+        result = 37 * result + (int) (expiration ^ (expiration >>> 32));
         result = 37 * result + (ruleState == RuleState.ON ? 1 : 0);
         result = 37 * result + (action != null ? action.hashCode() : 0);
         return result;
@@ -211,15 +238,31 @@ public class LaunchRateRule {
 
     @Override
     public String toString() {
-        return String.format("com.nike.artemis.RateRule.%s.%s.%dc.%dw.%dbs.%dbe.%s",
+        return String.format("com.nike.artemis.RateRule.%s.%s.%dc.%dw.%dbs.%dbe.%s.%s",
                 blockKind.name(),
-                String.join("-", county,trueClientIp,upmid),
+                String.join("-", county, trueClientIp),
                 limit,
                 windowSize,
                 startTime,
                 expiration,
                 ruleState.name(),
                 action
-                );
+        );
+    }
+
+    private static Map<String, Map<String, Long>> getStringMap(JsonNode list) {
+        Map<String, Map<String, Long>> countyList = new HashMap<>();
+        for (JsonNode obj : list) {
+            String city = obj.get(CommonConstants.LAUNCH_DATA_ADDRESS_CITY).asText();
+            JsonNode county = obj.get(CommonConstants.LAUNCH_DATA_ADDRESS_COUNTY);
+            Map<String, Long> countyMap = new HashMap<>();
+            if (county.isArray()) {
+                county.forEach(v -> countyMap.put(v.asText(), 0L));
+            } else if (county.isObject()) {
+                county.fieldNames().forEachRemaining(k -> countyMap.put(k, county.get(k).asLong()));
+            }
+            countyList.put(city, countyMap);
+        }
+        return countyList;
     }
 }

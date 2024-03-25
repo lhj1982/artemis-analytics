@@ -41,32 +41,24 @@ public class LaunchRuleSourceTest {
                 "    {\n" +
                 "      \"rule_id\": \"AT-LAUNCH-1\",\n" +
                 "      \"rule_name\": \"launch county block\",\n" +
-                "      \"block_kind\": \"upmid\",\n" +
-                "      \"limit\": 10,\n" +
+                "      \"block_kind\": \"county\",\n" +
+                "      \"limit\": 5,\n" +
                 "      \"window_size\": 10,\n" +
-                "      \"block_time\": 30,\n" +
+                "      \"block_time\": 60,\n" +
                 "      \"rule_state\": \"ON\",\n" +
-                "      \"action\": \"block\"\n" +
+                "      \"action\": \"captcha\",\n" +
+                "      \"whitelist\": [{\"city\":\"北京市\",\"county\":\"朝阳区\"},{\"city\":\"北京市\",\"county\":\"海淀区\"},{\"city\":\"上海市\",\"county\":\"杨浦区\"},{\"city\":\"上海市\",\"county\":\"黄埔区\"}],\n" +
+                "      \"blacklist\": [{\"city\":\"北京市\",\"county\":\"通州区\",\"limit\":5},{\"city\":\"北京市\",\"county\":\"西城区\",\"limit\":3},{\"city\":\"上海市\",\"county\":\"浦东区\",\"limit\":4},{\"city\":\"上海市\",\"county\":\"奉贤区\",\"limit\":2}]      \n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"rule_id\": \"AT-LAUNCH-2\",\n" +
                 "      \"rule_name\": \"launch trueClientIp block\",\n" +
                 "      \"block_kind\": \"trueClientIp\",\n" +
-                "      \"limit\": 20,\n" +
-                "      \"window_size\": 5,\n" +
-                "      \"block_time\": 30,\n" +
+                "      \"limit\": 5,\n" +
+                "      \"window_size\": 10,\n" +
+                "      \"block_time\": 60,\n" +
                 "      \"rule_state\": \"ON\",\n" +
-                "      \"action\": \"block\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"rule_id\": \"AT-LAUNCH-3\",\n" +
-                "      \"rule_name\": \"launch upmid block\",\n" +
-                "      \"block_kind\": \"county\",\n" +
-                "      \"limit\": 1000,\n" +
-                "      \"window_size\": 1,\n" +
-                "      \"block_time\": 30,\n" +
-                "      \"rule_state\": \"OFF\",\n" +
-                "      \"action\": \"block\"\n" +
+                "      \"action\": \"captcha\"\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";
@@ -106,8 +98,6 @@ public class LaunchRuleSourceTest {
             }
         };
         launchRuleSource.run(ctx);
-        assertEquals(3, changes.size());
-
-
+        assertEquals(2, changes.size());
     }
 }
