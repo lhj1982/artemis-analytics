@@ -6,6 +6,7 @@ import groovy.transform.Field
 @Field def teamName = 'GC-Bots'
 @Field def versionSuffix = ''
 @Field def artemisJarfileName
+@Field def cdnKafkaUrl
 
 @Field Map testAWS = [
         role: "gc-antibots-bmx-s3-role",
@@ -18,31 +19,45 @@ import groovy.transform.Field
         roleAccount: "439413396736",
         region: "cn-northwest-1",
 ]
-def awsCliTest = "aws s3api list-objects-v2 --bucket litx-test-artemis-analytics --prefix code/ " +
-                "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
-                "--output=json --region=cn-northwest-1"
 
-def awsClitProd = "aws s3api list-objects-v2 --bucket litx-prod-artemis-analytics --prefix code/ " +
-                "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
-                "--output=json --region=cn-northwest-1"
-
-def awsCli = params.Deploy_Environment == 'prod' ? awsClitProd : awsCliTest
+def awsCli = "aws s3api list-objects-v2 --bucket litx-${params.Deploy_Environment}-artemis-analytics --prefix code/ " +
+        "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
+        "--output=json --region=cn-northwest-1"
 
 Map getAWSRole = params.Deploy_Environment == 'prod' ? prodAWS : testAWS
 
 node('ec2-ondemand-agent-cn') {
-    genericBuild([
-            image: "amazon/aws-cli",
-            aws: getAWSRole,
-            withClosure:{
-                def tempAwsResponse = steps.readJSON(text: steps.sh(
-                        returnStdout: true,
-                        script: awsCli
-                ).trim())
-                artemisJarfileName = tempAwsResponse[0]
-            },
+    checkout scm
+    cdnChinaSecretMap = withCerberus.readSecrets([
+            sdbPath: 'app/antibots-artemis/scaler-lambda',
+            env: 'china-v2-test'
     ])
+
+    genericBuild(
+            serial: true,
+            latestFlinkJar: [
+                    image: "amazon/aws-cli",
+                    aws: getAWSRole,
+                    withClosure:{
+                        def tempAwsResponse = steps.readJSON(text: steps.sh(
+                                returnStdout: true,
+                                script: awsCli
+                        ).trim())
+                        artemisJarfileName = tempAwsResponse[0]
+                    }
+            ],
+            kafkaUrl: [
+                    dockerfile: "pipelines/Dockerfile",
+                    withClosure:{
+                        cdnKafkaUrl = steps.readJSON(text: steps.sh(
+                                returnStdout: true,
+                                script: "aliyun configure set --profile default --mode AK --region cn-shanghai --access-key-id ${cdnChinaSecretMap.'key'} --access-key-secret ${cdnChinaSecretMap.'secret'}; aliyun alikafka GetInstanceList | jq '.InstanceList.InstanceVO[] | select(.ServiceStatus == 5 and (.Name | startswith(\"artemis-cdn\")))'"
+                        ).trim()).SslDomainEndpoint
+                    }
+            ]
+    )
     steps.echo "\n*****************************\n\tThis is the latest news: ${artemisJarfileName}\n*****************************"
+    steps.echo "\n*****************************\n\tThis is the latest kafka URL: ${cdnKafkaUrl}\n*****************************"
 }
 
 def config = [
@@ -68,7 +83,7 @@ def config = [
         test: [
             agentLabel: 'ec2-ondemand-agent-cn',
             deployFlow: [
-                    TEST_RELEASE: ['Build','Archive Current State', 'Deploy Infrastructure', 'Post-Deploy Hook'],
+                    TEST_RELEASE: ['Build','Archive Current State', 'Deploy Infrastructure'],
             ],
             aws: [
                 role: "NIKE.cicd.tool",
@@ -80,25 +95,14 @@ def config = [
                 templateFile: "./cloudformation/artemis-analytics-kinesis.yml",
                 parameters: [
                         VersionSuffix: '-test',
-                        ArtemisAnalyticsJarFile: artemisJarfileName
+                        ArtemisAnalyticsJarFile: artemisJarfileName,
+                        CdnKafkaBootStrapUrl: cdnKafkaUrl
                 ],
-            ],
-            postDeployHook: [
-                    build: [
-                            image: "amazon/aws-cli",
-                            cmd: "aws kinesisanalyticsv2 start-application --application-name artemis-analytics-test",
-                            aws: [
-                                    role: "NIKE.cicd.tool",
-                                    roleAccount: "439314357471",
-                                    region: "cn-northwest-1",
-                            ],
-                    ],
             ],
             tags: [
                 'nike-environment': 'test',
             ],
         ],
-
         prod: [
                 agentLabel: 'ec2-ondemand-agent-cn',
                 deployFlow: [
@@ -114,7 +118,8 @@ def config = [
                         templateFile: "./cloudformation/artemis-analytics-kinesis.yml",
                         parameters: [
                                 VersionSuffix: '-prod',
-                                ArtemisAnalyticsJarFile: artemisJarfileName
+                                ArtemisAnalyticsJarFile: artemisJarfileName,
+                                CdnKafkaBootStrapUrl: cdnKafkaUrl
                         ],
                 ],
                 tags: [

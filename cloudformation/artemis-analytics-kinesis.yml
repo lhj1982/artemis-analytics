@@ -22,6 +22,10 @@ Parameters:
     Description: data sources to be analyzed(cdn,waf,launch...)
     Type: String
     Default: cdn,launch,isbot
+
+  CdnKafkaBootStrapUrl:
+    Description: alicloud cdn kafka bootstrap url
+    Type: String
   
 Mappings:
   Accounts:
@@ -81,7 +85,7 @@ Resources:
           PropertyGroups:
             - PropertyGroupId: 'cdnLogKafka'
               PropertyMap:
-                AliKafkaBootstrapServers: !FindInMap [Kafka, !Ref "AWS::AccountId", BootstrapServers]
+                AliKafkaBootstrapServers: !Ref CdnKafkaBootStrapUrl
                 KafkaConsumerGroupId: 'ali_cdn_log_group'
                 KafkaSourceTopic: !FindInMap [Kafka, !Ref "AWS::AccountId", topic]
                 TruststoreS3Bucket: !FindInMap [Accounts, !Ref "AWS::AccountId", s3BucketName]
