@@ -55,6 +55,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/aws/kinesis-analytics/artemis-analytics${VersionSuffix}'
+      RetentionInDays: 90
 
   LogStream:
     Type: AWS::Logs::LogStream
