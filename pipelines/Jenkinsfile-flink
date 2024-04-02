@@ -25,12 +25,13 @@ def awsCli = "aws s3api list-objects-v2 --bucket litx-${params.Deploy_Environmen
         "--output=json --region=cn-northwest-1"
 
 Map getAWSRole = params.Deploy_Environment == 'prod' ? prodAWS : testAWS
+def cerberusEnv = params.Deploy_Environment == 'prod' ? 'china-v2':'china-v2-test'
 
 node('ec2-ondemand-agent-cn') {
     checkout scm
     cdnChinaSecretMap = withCerberus.readSecrets([
             sdbPath: 'app/antibots-artemis/scaler-lambda',
-            env: 'china-v2-test'
+            env: cerberusEnv
     ])
 
     genericBuild(
