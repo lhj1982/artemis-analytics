@@ -32,7 +32,7 @@ public class IsBotMessageResolver implements FlatMapFunction<String, Block> {
         try {
             IsBotData isBotData = mapper.readValue(eventData, IsBotData.class);
             if (isBotData.getIsBotResult() != null && isBotData.getIsBotResult().isBot()) {
-                Block block = new Block("AT-ISBOT-1", "upmid", isBotData.getUpmId(), "captcha", "90", "edgeKV-batch", "buy_suspect_users", "90");
+                Block block = new Block("AT-ISBOT-1", "upmid", isBotData.getUpmId(), "captcha", "90", "edgeKV-batch", "order_suspect_users", "90");
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(IsBotMessageResolver.class.getSimpleName())
                         .msg("EMIT ISBOT BLOCK")
