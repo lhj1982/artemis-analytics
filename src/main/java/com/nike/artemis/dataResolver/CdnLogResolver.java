@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.Utils.UserIdentifier;
+import com.nike.artemis.model.AccountType;
 import com.nike.artemis.model.cdn.CdnData;
 import com.nike.artemis.model.cdn.CdnRequestEvent;
 import com.nike.artemis.model.cdn.CdnUserType;
@@ -39,9 +40,11 @@ public class CdnLogResolver implements FlatMapFunction<String, CdnRequestEvent> 
             if (Objects.nonNull(cdnData.getSls_receive_time()) && Long.toString(cdnData.getSls_receive_time()).length() == 10) {
                 cdnData.setSls_receive_time(cdnData.getSls_receive_time() * 1000L);
             }
-            Tuple2<CdnUserType, String> userType = UserIdentifier.identifyCdnUser(cdnData);
-            out.collect(new CdnRequestEvent(cdnData.getUnixtime(), userType.f0.name(), userType.f1, cdnData.getMethod(),
-                    cdnData.getUri(), cdnData.getReturn_code(), cdnData.getSls_receive_time()));
+            Tuple2<CdnUserType, Tuple2<String, String>> userType = UserIdentifier.identifyCdnUser(cdnData);
+            if (Objects.equals(userType.f1.f1, AccountType.PLUS.getType())) {
+                out.collect(new CdnRequestEvent(cdnData.getUnixtime(), userType.f0.name(), userType.f1.f0, cdnData.getMethod(),
+                        cdnData.getUri(), cdnData.getReturn_code(), cdnData.getSls_receive_time()));
+            }
         } catch (Exception e) {
             LOG.error(LogMsgBuilder.getInstance()
                     .source(CdnRequestEvent.class.getSimpleName())

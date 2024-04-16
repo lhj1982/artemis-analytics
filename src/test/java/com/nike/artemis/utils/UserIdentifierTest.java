@@ -1,11 +1,15 @@
 package com.nike.artemis.utils;
 
 import com.nike.artemis.Utils.UserIdentifier;
+import com.nike.artemis.model.AccountType;
+import com.nike.artemis.model.cdn.CdnData;
+import com.nike.artemis.model.cdn.CdnUserType;
 import com.nike.artemis.model.waf.WafData;
 import com.nike.artemis.model.waf.WafUserType;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.junit.Test;
 
+import java.util.Base64;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -14,6 +18,42 @@ public class UserIdentifierTest {
 
     private static final List<String> PATHS = List.of("/credential_lookup/v1",
             "/challenge/password/v1", "/verification_code/send/v1", "/password_reset/v1");
+
+    @Test
+    public void test_identifyCdnUser_upmidWithSwooshAccount() throws Exception {
+        Tuple2<CdnUserType, Tuple2<String, String>> result = Tuple2.of(CdnUserType.upmid, Tuple2.of("12345zxcvb", "nike:swoosh"));
+        CdnData cdnData = new CdnData();
+        String payload = "{\"prn\":\"12345zxcvb\",\"prt\":\"nike:swoosh\"}";
+        Base64.Encoder encoder = Base64.getUrlEncoder();
+        String jwtToken = "auth=Bearer start." + encoder.encodeToString(payload.getBytes()) + ".end";
+        cdnData.setUser_info(jwtToken);
+        Tuple2<CdnUserType, Tuple2<String, String>> actual = UserIdentifier.identifyCdnUser(cdnData);
+        assertEquals(actual.f1.f1, AccountType.SWOOSH.getType());
+        assertEquals(result, actual);
+    }
+
+    @Test
+    public void test_identifyCdnUser_upmidWithPlusAccount() throws Exception {
+        Tuple2<CdnUserType, Tuple2<String, String>> result = Tuple2.of(CdnUserType.upmid, Tuple2.of("12345zxcvb", "nike:plus"));
+        CdnData cdnData = new CdnData();
+        String payload = "{\"prn\":\"12345zxcvb\",\"prt\":\"nike:plus\"}";
+        Base64.Encoder encoder = Base64.getUrlEncoder();
+        String jwtToken = "auth=Bearer start." + encoder.encodeToString(payload.getBytes()) + ".end";
+        cdnData.setUser_info(jwtToken);
+        Tuple2<CdnUserType, Tuple2<String, String>> actual = UserIdentifier.identifyCdnUser(cdnData);
+        assertEquals(actual.f1.f1, AccountType.PLUS.getType());
+        assertEquals(result, actual);
+    }
+
+    @Test
+    public void test_returnPlusAccountType_whenCdnLogWithIpAddress() throws Exception {
+        Tuple2<CdnUserType, Tuple2<String, String>> result = Tuple2.of(CdnUserType.ipaddress, Tuple2.of("127.0.0.1", "nike:plus"));
+        CdnData cdnData = new CdnData();
+        cdnData.setClient_ip("127.0.0.1");
+        Tuple2<CdnUserType, Tuple2<String, String>> actual = UserIdentifier.identifyCdnUser(cdnData);
+        assertEquals(actual.f1.f1, AccountType.PLUS.getType());
+        assertEquals(result, actual);
+    }
 
     @Test
     public void test_identifyWafUser_umid() throws Exception {
