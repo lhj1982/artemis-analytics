@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Objects;
 
-public class CdnLatencyProcessFunction extends KeyedProcessFunction<String, CdnRequestEvent, Latency> {
+public class CdnLatencyProcessFunction extends KeyedProcessFunction<Long, CdnRequestEvent, Latency> {
     private transient ValueState<CdnRequestEvent> cdnData;
 
     @Override
@@ -26,7 +26,7 @@ public class CdnLatencyProcessFunction extends KeyedProcessFunction<String, CdnR
 
     @Override
     public void processElement(CdnRequestEvent cdnRequestEvent,
-                               KeyedProcessFunction<String, CdnRequestEvent, Latency>.Context context,
+                               KeyedProcessFunction<Long, CdnRequestEvent, Latency>.Context context,
                                Collector<Latency> collector) throws Exception {
 
         CdnRequestEvent requestEvent = cdnData.value();
@@ -37,7 +37,7 @@ public class CdnLatencyProcessFunction extends KeyedProcessFunction<String, CdnR
     }
 
     @Override
-    public void onTimer(long timestamp, KeyedProcessFunction<String, CdnRequestEvent, Latency>.OnTimerContext ctx,
+    public void onTimer(long timestamp, KeyedProcessFunction<Long, CdnRequestEvent, Latency>.OnTimerContext ctx,
                         Collector<Latency> out) throws Exception {
         CdnRequestEvent requestEvent = cdnData.value();
         long currentTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli();

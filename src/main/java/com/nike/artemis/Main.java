@@ -22,6 +22,7 @@ public class Main {
 
     private static final String RUNTIME_PROPERTIES_SINK = "sink";
     private static final String RUNTIME_PROPERTIES_SINK_METHODS = "methods";
+    public static volatile Integer KPU_NUM;
 
     public static void main(String[] args) throws Exception {
         System.err.close();
@@ -35,6 +36,7 @@ public class Main {
         }};
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        KPU_NUM = env.getParallelism();
 
         //=============================== PROPERTIES =============================
         Map<String, Properties> applicationProperties = KinesisAnalyticsRuntime.getApplicationProperties();
