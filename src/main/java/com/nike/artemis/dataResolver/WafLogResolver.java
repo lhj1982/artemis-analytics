@@ -3,6 +3,7 @@ package com.nike.artemis.dataResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.Utils.UserIdentifier;
+import com.nike.artemis.model.AccountType;
 import com.nike.artemis.model.waf.WafData;
 import com.nike.artemis.model.waf.WafRequestEvent;
 import com.nike.artemis.model.waf.WafUserType;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> {
 
@@ -33,8 +35,11 @@ public class WafLogResolver implements FlatMapFunction<String, WafRequestEvent> 
         WafData wafData = null;
         try {
             wafData = objectMapper.readValue(wafLog, WafData.class);
-            Tuple2<WafUserType, String> userInfo = UserIdentifier.identifyWafUser(this.requestPaths, wafData);
-            out.collect(new WafRequestEvent(wafData.getTime().getTime(), userInfo.f0, userInfo.f1, wafData.getRequest_method(), wafData.getRequest_path(), wafData.getStatus()));
+            Tuple2<WafUserType, Tuple2<String, String>> userInfo = UserIdentifier.identifyWafUser(this.requestPaths, wafData);
+            if (Objects.equals(userInfo.f1.f1, AccountType.PLUS.getType())) {
+                out.collect(new WafRequestEvent(wafData.getTime().getTime(), userInfo.f0, userInfo.f1.f0,
+                        wafData.getRequest_method(), wafData.getRequest_path(), wafData.getStatus()));
+            }
         } catch (Exception e) {
             LOG.error(LogMsgBuilder.getInstance()
                     .source(WafRequestEvent.class.getSimpleName())
