@@ -19,8 +19,8 @@ import groovy.transform.Field
         roleAccount: "439413396736",
         region: "cn-northwest-1",
 ]
-
-def awsCli = "aws s3api list-objects-v2 --bucket litx-${params.Deploy_Environment}-artemis-analytics --prefix code/ " +
+def DeployEnv = params.Deploy_Environment == 'prod' ? 'prod':'test'
+def awsCli = "aws s3api list-objects-v2 --bucket litx-${DeployEnv}-artemis-analytics --prefix code/ " +
         "--query 'reverse(sort_by(Contents[?contains(Key, `artemis-analytic`)], &LastModified))[:1].Key' " +
         "--output=json --region=cn-northwest-1"
 
