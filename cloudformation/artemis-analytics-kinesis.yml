@@ -157,6 +157,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: CPU alarm for apache flink[artemis-analytics]
+      AlarmName: ArtemisAnalyticsCPUUsageAlarm
       AlarmActions:
         - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
       MetricName: cpuUtilization
@@ -174,6 +175,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: Memory alarm for apache flink[artemis-analytics]
+      AlarmName: ArtemisAnalyticsMemoryUsageAlarm
       AlarmActions:
         - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
       MetricName: heapMemoryUtilization
@@ -187,10 +189,54 @@ Resources:
         - Name: Application
           Value:
             Ref: ArtemisAnalytics
+  BusynessAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Busyness Memory alarm for apache flink[artemis-analytics]
+      AlarmName: ArtemisAnalyticsBusynessAlarm
+      MetricName: busyTimeMsPerSecond
+      Namespace: AWS/KinesisAnalytics
+      Statistic: Maximum
+      Period: '180'
+      EvaluationPeriods: '1'
+      Threshold: 900
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: Application
+          Value:
+            Ref: ArtemisAnalytics
+  BackPressuredAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Busyness Memory alarm for apache flink[artemis-analytics]
+      AlarmName: ArtemisAnalyticsBackpressureAlarm
+      MetricName: backPressuredTimeMsPerSecond
+      Namespace: AWS/KinesisAnalytics
+      Statistic: Maximum
+      Period: '180'
+      EvaluationPeriods: '1'
+      Threshold: 900
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: Application
+          Value:
+            Ref: ArtemisAnalytics
+  BusynessBackpressureComposite:
+    Type: AWS::CloudWatch::CompositeAlarm
+    Properties:
+      AlarmName: BusynessBackpressureCompositeAlarm
+      AlarmDescription: 'when both busyness and backpressure are in alarm this alarm will trigger'
+      AlarmRule: !Sub "(ALARM(${ArtemisAnalyticsBusynessAlarm}) AND ALARM(${ArtemisAnalyticsBackpressureAlarm}))"
+      AlarmActions:
+        - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
+      DependsOn:
+        - BusynessAlarm
+        - BackPressuredAlarm
   CdnLatencyAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: Latency alarm for ali cdn log
+      AlarmName: SlsToArtemisLatencyAlarm
       AlarmActions:
         - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
       MetricName: artemis_latency
@@ -198,15 +244,16 @@ Resources:
       Statistic: Maximum
       Period: 10
       EvaluationPeriods: 1
-      Threshold: 60000
+      Threshold: 10000
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: type
-          Value: cdn_overall_latency
+          Value: cdn_artemis_latency
   LaunchLatencyAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmDescription: Latency alarm for launch data
+      AlarmName: IsbotToArtemisLatencyAlarm
       AlarmActions:
         - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
       MetricName: artemis_latency
