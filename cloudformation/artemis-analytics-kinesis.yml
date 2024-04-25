@@ -229,9 +229,9 @@ Resources:
       AlarmRule: !Sub '(ALARM(${ArtemisAnalyticsBusynessAlarm}) AND ALARM(${ArtemisAnalyticsBackpressureAlarm}))'
       AlarmActions:
         - !Sub "arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:gc-artemis-alerts"
-      DependsOn:
-        - ArtemisAnalyticsBackpressureAlarm
-        - ArtemisAnalyticsBusynessAlarm
+    DependsOn:
+      - ArtemisAnalyticsBackpressureAlarm
+      - ArtemisAnalyticsBusynessAlarm
   CdnLatencyAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
