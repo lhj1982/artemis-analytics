@@ -6,4 +6,5 @@ public class CommonConstants {
     public static final String LAUNCH_DATA_IP = "trueClientIp";
     public static final String LAUNCH_BLOCK_KIND_COUNTY = "county";
     public static final String LAUNCH_BLOCK_KIND_IP = "ipaddress";
+    public static final Integer MAX_KPU_NUM = 96;
 }

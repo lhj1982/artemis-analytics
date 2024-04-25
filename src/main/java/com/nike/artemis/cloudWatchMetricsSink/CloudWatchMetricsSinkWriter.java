@@ -98,6 +98,7 @@ public class CloudWatchMetricsSinkWriter<T> extends AsyncSinkWriter<T, MetricDat
             } else {
                 failedMetrics.accept(metricsToSend);
                 log.warn("Failed to send batch of {} metrics", metricsToSend.size(), error);
+                log.warn("The failed data: {}", metricsToSend);
             }
         });
 

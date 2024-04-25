@@ -1,7 +1,6 @@
 package com.nike.artemis.processingPipeline;
 
 import com.nike.artemis.LogMsgBuilder;
-import com.nike.artemis.Main;
 import com.nike.artemis.Utils.AliKafkaSource;
 import com.nike.artemis.Utils.EnvProperties;
 import com.nike.artemis.Utils.KafkaHelpers;
@@ -9,6 +8,7 @@ import com.nike.artemis.WindowAssigners.CdnRateRuleWindowAssigner;
 import com.nike.artemis.aggregators.CdnRuleCountAggregate;
 import com.nike.artemis.broadcastProcessors.CdnRuleBroadCastProcessorFunction;
 import com.nike.artemis.cloudWatchMetricsSink.CloudWatchMetricsSink;
+import com.nike.artemis.common.CommonConstants;
 import com.nike.artemis.dataResolver.CdnLogResolver;
 import com.nike.artemis.model.Latency;
 import com.nike.artemis.model.block.Block;
@@ -95,7 +95,7 @@ public class CdnBlockProcessingPipeline extends BlockProcessingPipeline {
 
     private DataStream<Latency> latencyProcess(DataStream<CdnRequestEvent> cdnDataSource) {
         return cdnDataSource.keyBy((KeySelector<CdnRequestEvent, Long>) cdnRequestEvent ->
-                        (cdnRequestEvent.getUser().hashCode() & 0xFFFFFFFFL) % Main.KPU_NUM)
+                        (cdnRequestEvent.getUser().hashCode() & 0xFFFFFFFFL) % CommonConstants.MAX_KPU_NUM)
                 .process(new CdnLatencyProcessFunction()).name("CDN Latency processor");
     }
 
