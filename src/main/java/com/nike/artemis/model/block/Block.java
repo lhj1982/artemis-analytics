@@ -3,6 +3,8 @@ package com.nike.artemis.model.block;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
 
+import java.util.Objects;
+
 public class Block {
     private String blockProducer;
     private String userType;
@@ -12,27 +14,26 @@ public class Block {
     private String destination;
     private String nameSpace;
     private String ttl;
+    private Long blockTime;
 
     public Block() {
     }
 
-    static class BlockSerializationSchema implements SerializationSchema<Block>
-    {
+    static class BlockSerializationSchema implements SerializationSchema<Block> {
         private static final long serialVersionUID = 1L;
 
         @Override
-        public byte[] serialize(Block block)
-        {
+        public byte[] serialize(Block block) {
             return block.toString().getBytes();
         }
     }
 
-    public static BlockSerializationSchema sinkSerializer()
-    {
+    public static BlockSerializationSchema sinkSerializer() {
         return new BlockSerializationSchema();
     }
 
-    public Block(String blockProducer, String userType, String user, String disposalDecision, String duration, String destination, String nameSpace,String ttl) {
+    public Block(String blockProducer, String userType, String user, String disposalDecision, String duration,
+                 String destination, String nameSpace, String ttl, Long blockTime) {
         this.blockProducer = blockProducer;
         this.userType = userType;
         this.user = user;
@@ -41,6 +42,7 @@ public class Block {
         this.destination = destination;
         this.nameSpace = nameSpace;
         this.ttl = ttl;
+        this.blockTime = blockTime;
     }
 
     public String getBlockProducer() {
@@ -107,6 +109,14 @@ public class Block {
         this.ttl = ttl;
     }
 
+    public Long getBlockTime() {
+        return blockTime;
+    }
+
+    public void setBlockTime(Long blockTime) {
+        this.blockTime = blockTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -123,6 +133,7 @@ public class Block {
         if (duration != null ? !duration.equals(block.duration) : block.duration != null) return false;
         if (destination != null ? !destination.equals(block.destination) : block.destination != null) return false;
         if (ttl != null ? !ttl.equals(block.ttl) : block.ttl != null) return false;
+        if (!Objects.equals(blockTime, block.blockTime)) return false;
         return nameSpace != null ? nameSpace.equals(block.nameSpace) : block.nameSpace == null;
     }
 
@@ -136,6 +147,7 @@ public class Block {
         result = 31 * result + (destination != null ? destination.hashCode() : 0);
         result = 31 * result + (nameSpace != null ? nameSpace.hashCode() : 0);
         result = 31 * result + (ttl != null ? ttl.hashCode() : 0);
+        result = 31 * result + (blockTime != null ? blockTime.hashCode() : 0);
         return result;
     }
 
@@ -150,6 +162,7 @@ public class Block {
                 ", \"destination\":\"" + destination + '\"' +
                 ", \"nameSpace\":\"" + nameSpace + '\"' +
                 ", \"expirationTtl\":\"" + ttl + '\"' +
+                ", \"blockTime\":\"" + blockTime + '\"' +
                 '}';
     }
 }

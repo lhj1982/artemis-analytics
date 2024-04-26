@@ -24,8 +24,9 @@ public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long,
         long count = elements.iterator().next();
 
         if (count == rateRule.getLimit()) {
+            long blockTime = context.currentWatermark();
             Block block = new Block(rateRule.getRuleId(), rateRule.getBlockKind().name(), blockEntity, rateRule.getAction(),
-                    String.valueOf(context.window().getStart() + rateRule.getExpiration()), "dynamo", "", "");
+                    String.valueOf(context.window().getStart() + rateRule.getExpiration()), "dynamo", "", "", blockTime);
             String logMsg;
 
             if (rateRule.isEnforce()) {
@@ -38,7 +39,7 @@ public class LaunchRuleProcessWindowFunction extends ProcessWindowFunction<Long,
                     .source(LaunchRateRule.class.getSimpleName())
                     .msg(logMsg)
                     .block(block)
-                    .blockTime(context.currentWatermark())
+                    .blockTime(blockTime)
                     .windowStart(context.window().getStart())
                     .windowEnd(context.window().getEnd()).toString());
         }

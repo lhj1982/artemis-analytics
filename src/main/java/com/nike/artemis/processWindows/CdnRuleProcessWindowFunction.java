@@ -36,9 +36,10 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                         user, context.window().getStart(), context.window().getEnd())).toString());
 
         if (count == cdnRateRule.getLimit()) {
+            long blockTime = context.currentWatermark();
             Block block = new Block(cdnRateRule.getRule_id(), cdnRateRule.getUser_type(), user, cdnRateRule.getAction(),
                     String.valueOf(context.window().getStart() + cdnRateRule.getBlock_time()), "edgeKV",
-                    cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl()));
+                    cdnRateRule.getName_space(), String.valueOf(cdnRateRule.getTtl()), blockTime);
             String logMsg;
 
             if (cdnRateRule.isEnforce()) {
@@ -53,7 +54,7 @@ public class CdnRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                     .block(block)
                     .ruleName(cdnRateRule.getRule_name())
                     .path(cdnRateRule.getPath())
-                    .blockTime(context.currentWatermark())
+                    .blockTime(blockTime)
                     .windowStart(context.window().getStart())
                     .windowEnd(context.window().getEnd()).toString());
         }

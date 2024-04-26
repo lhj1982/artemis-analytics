@@ -24,20 +24,22 @@ public class IsBotMessageResolver implements FlatMapFunction<String, Block> {
     public void flatMap(String eventData, Collector<Block> out) {
         if (eventData.isEmpty()) return;
 
+        long currentTime = LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli();
         LOG.debug(LogMsgBuilder.getInstance()
                 .source(IsBotMessageResolver.class.getSimpleName())
-                .msg(String.format("Isbot result data before extraction: %s, current_time: %s",
-                        eventData, LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli())).toString());
+                .msg(String.format("Isbot result data before extraction: %s, current_time: %s",eventData, currentTime))
+                .toString());
 
         try {
             IsBotData isBotData = mapper.readValue(eventData, IsBotData.class);
             if (isBotData.getIsBotResult() != null && isBotData.getIsBotResult().isBot()) {
-                Block block = new Block("AT-ISBOT-1", "upmid", isBotData.getUpmId(), "captcha", "90", "edgeKV-batch", "order_suspect_users", "90");
+                Block block = new Block("AT-ISBOT-1", "upmid", isBotData.getUpmId(), "captcha",
+                        "90", "edgeKV-batch", "order_suspect_users", "90", currentTime);
                 LOG.info(LogMsgBuilder.getInstance()
                         .source(IsBotMessageResolver.class.getSimpleName())
                         .msg("EMIT ISBOT BLOCK")
                         .block(block)
-                        .blockTime(LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(0)))
+                        .blockTime(currentTime)
                         .toString());
                 out.collect(block);
             }

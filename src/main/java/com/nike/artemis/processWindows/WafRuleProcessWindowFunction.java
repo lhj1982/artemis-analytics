@@ -33,9 +33,10 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                         user, context.window().getStart(), context.window().getEnd())).toString());
 
         if (count == wafRateRule.getLimit()) {
+            long blockTime = context.currentWatermark();
             Block block = new Block(wafRateRule.getRule_id(), wafRateRule.getUser_type(), user, wafRateRule.getAction(),
                     String.valueOf(context.window().getStart() + wafRateRule.getBlock_time()), "edgeKV",
-                    wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl()));
+                    wafRateRule.getName_space(), String.valueOf(wafRateRule.getTtl()), blockTime);
             String logMsg;
 
             if (wafRateRule.isEnforce()) {
@@ -50,7 +51,7 @@ public class WafRuleProcessWindowFunction extends ProcessWindowFunction<Long, Bl
                     .block(block)
                     .ruleName(wafRateRule.getRule_name())
                     .path(wafRateRule.getPath())
-                    .blockTime(context.currentWatermark())
+                    .blockTime(blockTime)
                     .windowStart(context.window().getStart())
                     .windowEnd(context.window().getEnd()).toString());
         }
