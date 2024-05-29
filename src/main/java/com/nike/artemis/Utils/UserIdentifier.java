@@ -3,6 +3,7 @@ package com.nike.artemis.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nike.artemis.LogMsgBuilder;
 import com.nike.artemis.model.AccountType;
 import com.nike.artemis.model.cdn.CdnData;
 import com.nike.artemis.model.cdn.CdnUserType;
@@ -12,6 +13,9 @@ import com.nike.artemis.model.waf.WafUserType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.List;
@@ -20,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UserIdentifier {
+    public static Logger LOG = LoggerFactory.getLogger(UserIdentifier.class);
     private static final String SOURCE_TYPE_CDN = "cdn";
     private static final String SOURCE_TYPE_WAF = "waf";
     static Pattern JWT_REGEX = Pattern.compile("([A-Za-z0-9+/=]+\\.[A-Za-z0-9+/=]+\\.[^.\\s]+)");
@@ -63,21 +68,39 @@ public class UserIdentifier {
         return Tuple2.of(StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
-    public static Tuple2<WafUserType, Tuple2<String, String>> identifyWafUser(List<String> paths, WafData wafData)
+    public static Tuple2<WafUserType, Tuple3<String, String, String>> identifyWafUser(List<String> paths, WafData wafData)
             throws JsonProcessingException {
-        if (wafData.getRequest_body() != null && wafData.getRequest_body().contains("refresh_token=")) {
+
+        // check upmid
+        if (StringUtils.isNoneEmpty(wafData.getRequest_body()) && wafData.getRequest_body().contains("refresh_token=")) {
             Pattern pattern = Pattern.compile("refresh_token=([^&]+)");
             Matcher matcher = pattern.matcher(wafData.getRequest_body());
             if (matcher.find()) {
                 String jwtToken = matcher.group(1);
                 Tuple2<String, String> upmidAndAccountType = getUpmidAndAccountType(jwtToken, SOURCE_TYPE_WAF);
-                if (upmidAndAccountType.f0 != null) return Tuple2.of(WafUserType.upmid, upmidAndAccountType);
-            }
-        }
-        if (wafData.getWxbb_info_tbl() != null) {
-            String umid = mapper.readTree(wafData.getWxbb_info_tbl()).get("umid").textValue();
-            if (!umid.isEmpty()) {
-                return Tuple2.of(WafUserType.umid, Tuple2.of(umid, AccountType.PLUS.getType()));
+                // If there is no upmid, skip it directly
+                if (StringUtils.isNoneEmpty(upmidAndAccountType.f0)) {
+                    // If there is upmid, determine the device id
+                    if (StringUtils.isNoneEmpty(wafData.getWxbb_info_tbl()) || !wafData.getWxbb_info_tbl().startsWith("$")) {
+//                        String umid = mapper.readTree(wafData.getWxbb_info_tbl()).get("umid").textValue();
+                        JsonNode wxbbInfoTbl = mapper.readTree(wafData.getWxbb_info_tbl());
+                        if (Objects.nonNull(wxbbInfoTbl)) {
+                            JsonNode umid = wxbbInfoTbl.get("umid");
+                            if (Objects.nonNull(umid) && StringUtils.isNoneEmpty(umid.asText())) {
+                                // there is device id
+                                LOG.info(LogMsgBuilder.getInstance()
+                                        .source(UserIdentifier.class.getSimpleName())
+                                        .msg(String.format("There is device id: %s, and upmid : %s", umid.asText(), upmidAndAccountType.f0))
+                                        .toString());
+                                return Tuple2.of(WafUserType.umid, Tuple3.of(umid.asText(), AccountType.PLUS.getType(), upmidAndAccountType.f0));
+                            }
+                        }
+                    }
+                    LOG.info(LogMsgBuilder.getInstance()
+                            .source(UserIdentifier.class.getSimpleName())
+                            .msg(String.format("There is no device id, but upmid : %s", upmidAndAccountType.f0))
+                            .toString());
+                }
             }
         }
         if (checkPath(paths, wafData.getRequest_path())) {
@@ -87,22 +110,22 @@ public class UserIdentifier {
                 try {
                     requestBody = mapper.readTree(wafData.getRequest_body());
                 } catch (JsonProcessingException e) {
-                    return Tuple2.of(WafUserType.ipaddress, Tuple2.of(wafData.getReal_client_ip(), AccountType.PLUS.getType()));
+                    return Tuple2.of(WafUserType.ipaddress, Tuple3.of(wafData.getReal_client_ip(), AccountType.PLUS.getType(), ""));
                 }
                 // get credential or destination as phone number
                 JsonNode phoneNumber = requestBody.get("credential");
                 if (Objects.isNull(phoneNumber)) {
                     phoneNumber = requestBody.get("destination");
                     if (Objects.isNull(phoneNumber)) {
-                        return Tuple2.of(WafUserType.ipaddress, Tuple2.of(wafData.getReal_client_ip(), AccountType.PLUS.getType()));
+                        return Tuple2.of(WafUserType.ipaddress, Tuple3.of(wafData.getReal_client_ip(), AccountType.PLUS.getType(), ""));
                     }
                 }
                 if (StringUtils.isNoneBlank(phoneNumber.textValue())) {
-                    return Tuple2.of(WafUserType.phonenumber, Tuple2.of(phoneNumber.textValue(), AccountType.PLUS.getType()));
+                    return Tuple2.of(WafUserType.phonenumber, Tuple3.of(phoneNumber.textValue(), AccountType.PLUS.getType(), ""));
                 }
             }
         }
-        return Tuple2.of(WafUserType.ipaddress, Tuple2.of(wafData.getReal_client_ip(), AccountType.PLUS.getType()));
+        return Tuple2.of(WafUserType.ipaddress, Tuple3.of(wafData.getReal_client_ip(), AccountType.PLUS.getType(), ""));
     }
 
     private static Boolean checkPath(List<String> paths, String path) {

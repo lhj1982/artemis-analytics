@@ -7,14 +7,16 @@ public class WafRequestEvent {
     private String method;
     private String path;
     private String status;
+    private String upmid;
 
-    public WafRequestEvent(long time, WafUserType userType, String user, String method, String path,String status) {
+    public WafRequestEvent(long time, WafUserType userType, String user, String method, String path, String status, String upmid) {
         this.time = time;
         this.userType = userType;
         this.user = user;
         this.method = method;
         this.path = path;
         this.status = status;
+        this.upmid = upmid;
     }
 
     public long getTime() {
@@ -65,6 +67,14 @@ public class WafRequestEvent {
         this.status = status;
     }
 
+    public String getUpmid() {
+        return upmid;
+    }
+
+    public void setUpmid(String upmid) {
+        this.upmid = upmid;
+    }
+
     @Override
     public String toString() {
         return "WafRequestEvent{" +
@@ -74,6 +84,7 @@ public class WafRequestEvent {
                 ", method='" + method + '\'' +
                 ", path='" + path + '\'' +
                 ", status='" + status + '\'' +
+                ", upmid='" + upmid + '\'' +
                 '}';
     }
 }

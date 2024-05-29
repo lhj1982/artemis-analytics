@@ -31,8 +31,13 @@ public class LaunchLatencyProcessFunction extends KeyedProcessFunction<String, L
                                Collector<Latency> collector) throws Exception {
         LaunchRequestEvent requestEvent = launchData.value();
         if (Objects.isNull(requestEvent)) {
-            launchData.update(launchRequestEvent);
-            context.timerService().registerProcessingTimeTimer(System.currentTimeMillis() + 1000);
+            // use System.currentTimeMillis() since cloudwatch metrics PUT time are in system time. Launch time is in milliseconds.
+            long timeDifference = (LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli() - launchRequestEvent.getTimestamp())/ (1000 * 60);
+            // request time should be not older than 1 hour and not more than 30 minutes in the future, durations are picked based on suitable values.
+            if (timeDifference <= 60 && timeDifference >= -30) {
+                launchData.update(launchRequestEvent);
+                context.timerService().registerProcessingTimeTimer(System.currentTimeMillis() + 1000);
+            }
         }
     }
 

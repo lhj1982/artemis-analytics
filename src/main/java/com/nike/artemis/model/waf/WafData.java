@@ -18,7 +18,7 @@ public class WafData {
     private String request_body;
     private String request_path;
     private String request_traceid;
-    private Date time;
+    private Long time;
     private String user_id;
     private String wxbb_info_tbl;
 
@@ -102,11 +102,11 @@ public class WafData {
         this.request_traceid = request_traceid;
     }
 
-    public Date getTime() {
+    public Long getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 

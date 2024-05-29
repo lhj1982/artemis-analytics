@@ -31,8 +31,13 @@ public class CdnLatencyProcessFunction extends KeyedProcessFunction<Long, CdnReq
 
         CdnRequestEvent requestEvent = cdnData.value();
         if (Objects.isNull(requestEvent)) {
-            cdnData.update(cdnRequestEvent);
-            context.timerService().registerProcessingTimeTimer(System.currentTimeMillis() + 1000);
+            // use System.currentTimeMillis() since cloudwatch metrics PUT time are in system time. CDN time is in milliseconds.
+            long timeDifference = (LocalDateTime.now().toInstant(ZoneOffset.ofHours(0)).toEpochMilli() - cdnRequestEvent.getTime())/ (1000 * 60);
+            // request time should be not older than 1 hour and not more than 30 minutes in the future, durations are picked based on suitable values.
+            if (timeDifference <= 60 && timeDifference >= -30) {
+                cdnData.update(cdnRequestEvent);
+                context.timerService().registerProcessingTimeTimer(System.currentTimeMillis() + 1000);
+            }
         }
     }
 
